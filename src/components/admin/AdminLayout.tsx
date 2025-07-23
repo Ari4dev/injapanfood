@@ -1,0 +1,145 @@
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useFirebaseAuth';
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import RealtimeClock from './RealtimeClock';
+import AdminSidebar from './AdminSidebar';
+
+interface AdminLayoutProps {
+  children: React.ReactNode;
+}
+
+const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const { user, loading: authLoading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      console.log('Environment check:', {
+        isDev: window.location.hostname === 'localhost',
+        isProd: window.location.hostname.includes('vercel.app') || window.location.hostname.includes('.app'),
+        currentHost: window.location.hostname,
+        userEmail: user?.email
+      });
+
+      if (user) {
+        console.log('Checking admin status for user:', user.email);
+        
+        // Check admin status from Firestore
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const userIsAdmin = userData.role === 'admin';
+            
+            console.log('Admin check result from Firestore:', {
+              userEmail: user.email,
+              userRole: userData.role,
+              isAdmin: userIsAdmin,
+              firestoreData: userData
+            });
+            
+            setIsAdmin(userIsAdmin);
+          } else {
+            console.log('User document not found in Firestore');
+            // Fallback to email check
+            const adminEmails = [
+              'admin@gmail.com', 
+              'ari4rich@gmail.com',
+              'newadmin@gmail.com',
+              'injpn@food.com',
+              'admin2@gmail.com'
+            ];
+            
+            const userIsAdmin = adminEmails.includes(user.email || '');
+            setIsAdmin(userIsAdmin);
+          }
+        } catch (error) {
+          console.error('Error checking admin status from Firestore:', error);
+          // Fallback to email check
+          const adminEmails = [
+            'admin@gmail.com', 
+            'ari4rich@gmail.com',
+            'newadmin@gmail.com',
+            'injpn@food.com',
+            'admin2@gmail.com'
+          ];
+          
+          const userIsAdmin = adminEmails.includes(user.email || '');
+          setIsAdmin(userIsAdmin);
+        }
+      } else {
+        console.log('No user found');
+        setIsAdmin(false);
+      }
+      setLoading(false);
+    };
+
+    if (!authLoading) {
+      checkAdminStatus();
+    }
+  }, [user, authLoading]);
+
+  // Add more detailed loading state
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin panel...</p>
+          <p className="text-sm text-gray-400 mt-2">
+            {authLoading ? 'Checking authentication...' : 'Verifying admin access...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    console.log('No user, redirecting to auth');
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!isAdmin) {
+    console.log('User is not admin, redirecting to home. User email:', user.email);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+          <p className="text-gray-600 mb-4">
+            You don't have admin privileges to access this page.
+          </p>
+          <p className="text-sm text-gray-400 mb-6">
+            Current user: {user.email}
+          </p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      <AdminSidebar />
+      <div className="flex-1 overflow-auto">
+        <div className="flex justify-end p-4 bg-white shadow-sm">
+          <RealtimeClock showIcon={true} showDate={true} showSeconds={true} />
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default AdminLayout;

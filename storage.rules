@@ -1,0 +1,40 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Banner images - Allow authenticated users to upload (temporary fix for admin access)
+    match /banner-images/{allPaths=**} {
+      allow read: if true; // Public read for banners
+      allow write, create, update, delete: if request.auth != null; // Any authenticated user can manage banners
+    }
+    
+    // Product images - Public read, authenticated write
+    match /product-images/{allPaths=**} {
+      allow read: if true;
+      allow write, create, update, delete: if request.auth != null;
+    }
+    
+    // Payment proofs - Users can upload their own, admins can manage all
+    match /payment-proofs/{allPaths=**} {
+      allow read: if request.auth != null && (isAdmin() || isOwner());
+      allow write, create: if request.auth != null;
+      allow update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // General uploads - Authenticated users only
+    match /{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write, create, update, delete: if request.auth != null;
+    }
+    
+    // Helper functions
+    function isAdmin() {
+      return request.auth != null && 
+        request.auth.token.email in ['admin@gmail.com', 'ari4rich@gmail.com', 'newadmin@gmail.com', 'injpn@food.com', 'admin2@gmail.com'];
+    }
+    
+    function isOwner() {
+      return request.auth != null && 
+        resource.metadata.customMetadata.uploadedBy == request.auth.uid;
+    }
+  }
+}
