@@ -51,7 +51,21 @@ const AffiliateStats = () => {
   // Use actual counts instead of affiliate object values for consistency
   const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
   const displayTotalReferrals = Math.max(actualTotalReferrals, affiliate.totalReferrals);
+  
+  // Fix the calculation logic - clicks should count all interactions
+  const correctTotalClicks = referrals.filter(ref => 
+    ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+  ).length;
+  
+  const correctedConversionRate = correctTotalClicks > 0 
+    ? ((correctTotalReferrals / correctTotalClicks) * 100).toFixed(1) 
+    : '0.0';
+  // Referrals should only count successful conversions (registered and beyond)
+  const correctTotalReferrals = referrals.filter(ref => 
+    ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+  ).length;
       value: displayTotalClicks,
+      value: correctTotalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500 text-white',
       bgColor: 'bg-blue-50',
@@ -62,6 +76,7 @@ const AffiliateStats = () => {
     {
       title: 'Total Referral',
       value: displayTotalReferrals,
+      value: correctTotalReferrals,
       icon: Users,
       color: 'bg-green-500 text-white',
       bgColor: 'bg-green-50',

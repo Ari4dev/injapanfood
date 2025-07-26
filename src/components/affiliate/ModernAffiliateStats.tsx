@@ -57,6 +57,16 @@ const ModernAffiliateStats = () => {
   const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
   const displayTotalReferrals = Math.max(actualTotalReferrals, affiliate.totalReferrals);
   
+  // Fix the calculation logic - clicks should only count 'clicked' status
+  const correctTotalClicks = referrals.filter(ref => 
+    ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+  ).length;
+  
+  // Referrals should count registered, ordered, and approved (not just clicked)
+  const correctTotalReferrals = referrals.filter(ref => 
+    ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+  ).length;
+  
   // Recalculate conversion rate with actual data
   const actualConversionRate = displayTotalClicks > 0 
     ? ((displayTotalReferrals / displayTotalClicks) * 100).toFixed(1) 
@@ -66,6 +76,7 @@ const ModernAffiliateStats = () => {
     {
       title: 'Total Klik',
       value: displayTotalClicks,
+      value: correctTotalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500',
       textColor: 'text-blue-500',
@@ -77,6 +88,7 @@ const ModernAffiliateStats = () => {
     {
       title: 'Total Referral',
       value: displayTotalReferrals,
+      value: correctTotalReferrals,
       icon: Users,
       color: 'bg-green-500',
       textColor: 'text-green-500',

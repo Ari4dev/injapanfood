@@ -223,6 +223,22 @@ export const AffiliateProvider = ({ children }: { children: React.ReactNode }) =
             }
             setFollowers(followersData);
           } catch (followersError) {
+          
+          // Update affiliate stats with correct calculations
+          const correctTotalClicks = referralsData.filter(ref => 
+            ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+          ).length;
+          
+          const correctTotalReferrals = referralsData.filter(ref => 
+            ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+          ).length;
+          
+          // Update the affiliate object with correct counts
+          setAffiliate(prev => prev ? {
+            ...prev,
+            totalClicks: Math.max(correctTotalClicks, prev.totalClicks),
+            totalReferrals: Math.max(correctTotalReferrals, prev.totalReferrals)
+          } : prev);
             console.error('Error loading followers data:', followersError);
             // Don't fail the entire data loading if followers fail
           }
