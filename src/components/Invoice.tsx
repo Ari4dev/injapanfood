@@ -1,6 +1,7 @@
 import React from 'react';
 import { Order } from '@/types';
 import { formatPrice } from '@/utils/cart';
+import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
 
 interface InvoiceProps {
   order: Order;
@@ -8,6 +9,41 @@ interface InvoiceProps {
 }
 
 const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
+  // Check if payment method requires Rupiah display
+  const isRupiahPayment = order.customer_info.payment_method === 'Bank Transfer (Rupiah)' || 
+                         order.customer_info.payment_method === 'QRIS / QR Code' ||
+                         order.customer_info.payment_method === 'QR Code';
+  
+  // Calculate totals
+  const productSubtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shippingFee = order.shipping_fee || 0;
+  const codSurcharge = order.cod_surcharge || 0;
+  const totalAmount = productSubtotal + shippingFee + codSurcharge;
+  
+  // Get currency conversion for Rupiah payments
+  const { convertedRupiah } = useCurrencyConverter(
+    totalAmount, 
+    isRupiahPayment ? 'Bank Transfer (Rupiah)' : ''
+  );
+  
+  // Format currency based on payment method
+  const formatCurrency = (amount: number): string => {
+    if (isRupiahPayment && convertedRupiah) {
+      // Calculate proportional amount in Rupiah
+      const amountInRupiah = Math.round((amount / totalAmount) * convertedRupiah);
+      return `Rp${amountInRupiah.toLocaleString('id-ID')}`;
+    }
+    return formatPrice(amount);
+  };
+  
+  // Format total currency
+  const formatTotalCurrency = (amount: number): string => {
+    if (isRupiahPayment && convertedRupiah) {
+      return `Rp${convertedRupiah.toLocaleString('id-ID')}`;
+    }
+    return formatPrice(amount);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -315,9 +351,9 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
                   </div>
                 </td>
                 <td className="border border-gray-300 px-2 py-1 text-center text-xs">{item.quantity}</td>
-                <td className="border border-gray-300 px-2 py-1 text-right text-xs">{formatPrice(item.price)}</td>
+                <td className="border border-gray-300 px-2 py-1 text-right text-xs">{formatCurrency(item.price)}</td>
                 <td className="border border-gray-300 px-2 py-1 text-right font-medium text-xs">
-                  {formatPrice(item.price * item.quantity)}
+                  {formatCurrency(item.price * item.quantity)}
                 </td>
               </tr>
             ))}
@@ -332,26 +368,22 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="font-medium">Subtotal:</span>
-                <span>{formatPrice(order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</span>
+                <span>{formatCurrency(productSubtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Ongkos Kirim:</span>
-                <span>{order.shipping_fee ? formatPrice(order.shipping_fee) : 'Akan dikonfirmasi'}</span>
+                <span>{shippingFee ? formatCurrency(shippingFee) : 'Akan dikonfirmasi'}</span>
               </div>
-              {order.cod_surcharge && order.cod_surcharge > 0 && (
+              {codSurcharge > 0 && (
                 <div className="flex justify-between">
                   <span>Biaya Tambahan COD:</span>
-                  <span>{formatPrice(order.cod_surcharge)}</span>
+                  <span>{formatCurrency(codSurcharge)}</span>
                 </div>
               )}
               <div className="border-t pt-1 mt-1">
                 <div className="flex justify-between text-sm font-bold text-red-600">
                   <span>Total Belanja:</span>
-                  <span>{formatPrice(
-                    order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 
-                    (order.shipping_fee || 0) + 
-                    (order.cod_surcharge || 0)
-                  )}</span>
+                  <span>{formatTotalCurrency(totalAmount)}</span>
                 </div>
               </div>
             </div>

@@ -164,7 +164,12 @@ export const createOrder = async (orderData: {
     const isCOD = orderData.customer_info.payment_method === 'COD (Cash on Delivery)';
     const codSurcharge = (isCOD && codSettings.isEnabled) ? codSettings.surchargeAmount : 0;
     
-    // Store the original total price (which already includes COD surcharge from frontend)
+    // Check if this is a Rupiah payment method
+    const isRupiahPayment = orderData.customer_info.payment_method === 'Bank Transfer (Rupiah)' || 
+                           orderData.customer_info.payment_method === 'QRIS / QR Code' ||
+                           orderData.customer_info.payment_method === 'QR Code';
+    
+    // Store the total price and currency information
     const finalTotalPrice = orderData.total_price;
     
     // Ensure we're not passing undefined values to Firestore
@@ -209,6 +214,8 @@ export const createOrder = async (orderData: {
       payment_proof_url: sanitizedOrderData.payment_proof_url,
       affiliate_id: affiliate_id,
       visitor_id: sanitizedOrderData.visitor_id,
+      currency: isRupiahPayment ? 'IDR' : 'JPY',
+      is_rupiah_payment: isRupiahPayment,
       created_at: timestamp,
       updated_at: timestamp
     };
