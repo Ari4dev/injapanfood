@@ -158,7 +158,7 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
     }).join('\n');
 
     const shippingInfo = shippingFee 
-      ? `\n*ONGKOS KIRIM:* ${formatCurrencyByMethod(shippingFee, data.paymentMethod, convertedRupiahValue)}` 
+      ? `\n*ONGKOS KIRIM:* ${formatCurrencyForWhatsAppMessage(shippingFee, data.paymentMethod, convertedRupiahValue)}` 
       : '';
 
     // Add affiliate info if available
@@ -167,7 +167,7 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
       : '';
 
     // Format total based on payment method
-    const totalDisplay = formatCurrencyByMethod(totalWithShipping, data.paymentMethod, convertedRupiahValue);
+    const totalDisplay = formatCurrencyForWhatsAppMessage(totalWithShipping, data.paymentMethod, convertedRupiahValue);
 
     const message = `Halo Admin Injapan Food
 
@@ -188,7 +188,7 @@ ${data.paymentMethod}
 *DAFTAR PRODUK:*
 ${productList}
 
-*SUBTOTAL BELANJA:* ${formatCurrencyByMethod(total, data.paymentMethod, convertedRupiahValue)}${shippingInfo}
+*SUBTOTAL BELANJA:* ${formatCurrencyForWhatsAppMessage(total, data.paymentMethod, convertedRupiahValue)}${shippingInfo}
 *TOTAL BELANJA:* ${totalDisplay}${affiliateInfo}
 
 ${data.notes ? `Catatan: ${data.notes}` : ''}
@@ -201,7 +201,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
   };
 
   // Helper function to format currency based on payment method
-  const formatCurrencyByMethod = (amount: number, method: string, convertedRupiah?: number): string => {
+  const formatCurrencyForWhatsAppMessage = (amount: number, method: string, convertedRupiah?: number): string => {
     if ((method === 'Bank Transfer (Rupiah)' || method === 'QRIS / QR Code') && convertedRupiah) {
       // For Rupiah methods, calculate the proportional amount
       const amountInRupiah = Math.round((amount / totalWithShipping) * convertedRupiah);
