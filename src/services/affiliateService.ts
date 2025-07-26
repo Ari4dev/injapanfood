@@ -60,6 +60,8 @@ export const createOrUpdateAffiliateUser = async (
   displayName: string
 ): Promise<AffiliateUser> => {
   try {
+    console.log('Creating/updating affiliate user:', { userId, email, displayName });
+    
     const affiliateRef = doc(db, AFFILIATES_COLLECTION, userId);
     const affiliateDoc = await getDoc(affiliateRef);
     
@@ -71,6 +73,7 @@ export const createOrUpdateAffiliateUser = async (
         updatedAt: new Date().toISOString()
       };
       
+      console.log('Updating existing affiliate with data:', updateData);
       await updateDoc(affiliateRef, updateData);
       
       return {
@@ -96,6 +99,7 @@ export const createOrUpdateAffiliateUser = async (
         updatedAt: new Date().toISOString()
       };
       
+      console.log('Creating new affiliate with data:', newAffiliate);
       await setDoc(affiliateRef, newAffiliate);
       
       return {
@@ -105,6 +109,11 @@ export const createOrUpdateAffiliateUser = async (
     }
   } catch (error) {
     console.error('Error creating/updating affiliate user:', error);
+    console.error('Error details:', {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack
+    });
     throw error;
   }
 };
@@ -196,13 +205,31 @@ export const trackReferralClick = async (referralCode: string, visitorId: string
       updatedAt: new Date().toISOString()
     };
     
+    // Validate data before sending to Firestore
+    const validatedReferral = {
+      referralCode: String(newReferral.referralCode || ''),
+      referrerId: String(newReferral.referrerId || ''),
+      visitorId: String(newReferral.visitorId || ''),
+      status: String(newReferral.status || 'clicked'),
+      clickedAt: String(newReferral.clickedAt || new Date().toISOString()),
+      createdAt: String(newReferral.createdAt || new Date().toISOString()),
+      updatedAt: String(newReferral.updatedAt || new Date().toISOString())
+    };
+    
+    console.log('Validated referral data before Firestore write:', validatedReferral);
+    
     // Add to referrals collection
     let referralDocRef;
     try {
-      referralDocRef = await addDoc(collection(db, REFERRALS_COLLECTION), newReferral);
+      referralDocRef = await addDoc(collection(db, REFERRALS_COLLECTION), validatedReferral);
       console.log('Successfully created referral click record:', referralDocRef.id);
     } catch (addDocError) {
       console.error('Error adding referral document:', addDocError);
+      console.error('Firestore addDoc error details:', {
+        code: addDocError?.code,
+        message: addDocError?.message,
+        data: validatedReferral
+      });
       // Return fallback ID instead of throwing
       return fallbackId;
     }
@@ -210,19 +237,32 @@ export const trackReferralClick = async (referralCode: string, visitorId: string
     
     // Update affiliate stats
     try {
-      await updateDoc(doc(db, AFFILIATES_COLLECTION, affiliate.id), {
+      const affiliateUpdateData = {
         totalClicks: increment(1),
         updatedAt: new Date().toISOString()
-      });
+      };
+      
+      console.log('Updating affiliate stats with data:', affiliateUpdateData);
+      await updateDoc(doc(db, AFFILIATES_COLLECTION, affiliate.id), affiliateUpdateData);
       console.log('Successfully updated affiliate click count for:', affiliate.id);
     } catch (updateError) {
       console.error('Error updating affiliate stats:', updateError);
+      console.error('Affiliate stats update error details:', {
+        code: updateError?.code,
+        message: updateError?.message,
+        affiliateId: affiliate.id
+      });
       // Don't fail the entire operation if stats update fails
     }
     
     return referralDocRef.id;
   } catch (error) {
     console.error('Error tracking referral click:', error);
+    console.error('Full error details:', {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack
+    });
     // Return a fallback ID instead of throwing to prevent app crashes
     // This allows the app to continue functioning even if tracking fails
     return `error-${Date.now()}`;
@@ -284,7 +324,7 @@ export const registerWithReferral = async (
     if (!existingReferral) {
       console.log('No click found for this referral code, creating new referral');
       // Create a new referral record if no click found
-      const newReferral: Partial<AffiliateReferral> = {
+      const newReferralData = {
         referralCode,
         referrerId: affiliate.id,
         referredUserId: userId,
@@ -296,48 +336,90 @@ export const registerWithReferral = async (
         updatedAt: new Date().toISOString()
       };
       
+      // Validate all fields are strings
+      const validatedReferral = {
+        referralCode: String(newReferralData.referralCode || ''),
+        referrerId: String(newReferralData.referrerId || ''),
+        referredUserId: String(newReferralData.referredUserId || ''),
+        referredUserEmail: String(newReferralData.referredUserEmail || ''),
+        referredUserName: String(newReferralData.referredUserName || ''),
+        status: String(newReferralData.status || 'registered'),
+        registeredAt: String(newReferralData.registeredAt || new Date().toISOString()),
+        createdAt: String(newReferralData.createdAt || new Date().toISOString()),
+        updatedAt: String(newReferralData.updatedAt || new Date().toISOString())
+      };
+      
+      console.log('Creating new referral with validated data:', validatedReferral);
+      
       try {
-        const docRef = await addDoc(collection(db, REFERRALS_COLLECTION), newReferral);
+        const docRef = await addDoc(collection(db, REFERRALS_COLLECTION), validatedReferral);
         console.log('Successfully created new referral record:', docRef.id);
       } catch (addError) {
         console.error('Error creating referral record:', addError);
+        console.error('Firestore addDoc error details:', {
+          code: addError?.code,
+          message: addError?.message,
+          data: validatedReferral
+        });
         throw addError;
       }
     } else {
       // Update existing referral with user info
       console.log(`Updating referral ${existingReferral.id} with user info`);
       
+      const updateData = {
+        referredUserId: String(userId || ''),
+        referredUserEmail: String(email || ''),
+        referredUserName: String(displayName || ''),
+        status: 'registered',
+        registeredAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      console.log('Updating referral with validated data:', updateData);
+      
       try {
-        await updateDoc(existingReferral.ref, {
-          referredUserId: userId,
-          referredUserEmail: email,
-          referredUserName: displayName,
-          status: 'registered',
-          registeredAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
+        await updateDoc(existingReferral.ref, updateData);
         console.log('Successfully updated existing referral record');
       } catch (updateError) {
         console.error('Error updating referral record:', updateError);
+        console.error('Firestore updateDoc error details:', {
+          code: updateError?.code,
+          message: updateError?.message,
+          data: updateData
+        });
         throw updateError;
       }
     }
     
     // Update affiliate stats
     try {
-      await updateDoc(doc(db, AFFILIATES_COLLECTION, affiliate.id), {
+      const affiliateUpdateData = {
         totalReferrals: increment(1),
         updatedAt: new Date().toISOString()
-      });
+      };
+      
+      console.log('Updating affiliate referral stats with data:', affiliateUpdateData);
+      await updateDoc(doc(db, AFFILIATES_COLLECTION, affiliate.id), affiliateUpdateData);
       console.log('Successfully updated affiliate referral count for:', affiliate.id);
     } catch (statsError) {
       console.error('Error updating affiliate stats:', statsError);
+      console.error('Affiliate stats update error details:', {
+        code: statsError?.code,
+        message: statsError?.message,
+        affiliateId: affiliate.id
+      });
       // Don't fail the entire operation if stats update fails
     }
     
     console.log(`Successfully registered user ${userId} with referral code ${referralCode}`);
   } catch (error) {
     console.error('Error registering with referral:', error);
+    console.error('Full registration error details:', {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack
+    });
     // Rethrow to ensure the calling code knows about the failure
     throw error;
   }
@@ -428,9 +510,7 @@ export const createOrderWithReferral = async (
     console.log(`Calculated commission amount: ${commissionAmount} (${commissionRate}% of ${orderTotal})`);
     
     // Create commission record
-    let commissionRef;
-    try {
-      const commissionData: Omit<AffiliateCommission, 'id'> = {
+    const commissionData = {
         affiliateId: affiliate.id,
         referralId: '',
         orderId,
@@ -441,10 +521,31 @@ export const createOrderWithReferral = async (
         updatedAt: new Date().toISOString()
       };
       
-      commissionRef = await addDoc(collection(db, COMMISSIONS_COLLECTION), commissionData);
+    // Validate all fields
+    const validatedCommission = {
+      affiliateId: String(commissionData.affiliateId || ''),
+      referralId: String(commissionData.referralId || ''),
+      orderId: String(commissionData.orderId || ''),
+      orderTotal: Number(commissionData.orderTotal || 0),
+      commissionAmount: Number(commissionData.commissionAmount || 0),
+      status: String(commissionData.status || 'pending'),
+      createdAt: String(commissionData.createdAt || new Date().toISOString()),
+      updatedAt: String(commissionData.updatedAt || new Date().toISOString())
+    };
+    
+    console.log('Creating commission with validated data:', validatedCommission);
+    
+    let commissionRef;
+    try {
+      commissionRef = await addDoc(collection(db, COMMISSIONS_COLLECTION), validatedCommission);
       console.log(`Created commission record with ID: ${commissionRef.id}`);
     } catch (commissionError) {
       console.error('Error creating commission record:', commissionError);
+      console.error('Commission creation error details:', {
+        code: commissionError?.code,
+        message: commissionError?.message,
+        data: validatedCommission
+      });
       throw commissionError; // Don't continue if commission creation fails
     }
     
@@ -484,16 +585,20 @@ export const createOrderWithReferral = async (
         console.log(`Updating existing referral ${referralDoc.id} with order info`);
         
         // Update referral with order info
+        const referralUpdateData = {
+          orderId: String(orderId || ''),
+          orderTotal: Number(orderTotal || 0),
+          commissionAmount: Number(commissionAmount || 0),
+          status: 'ordered',
+          referredUserId: String(userId || ''), // Ensure user ID is set
+          orderedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        console.log('Updating referral with validated data:', referralUpdateData);
+        
         try {
-          await updateDoc(referralDoc.ref, {
-            orderId,
-            orderTotal,
-            commissionAmount,
-            status: 'ordered',
-            referredUserId: userId, // Ensure user ID is set
-            orderedAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          });
+          await updateDoc(referralDoc.ref, referralUpdateData);
           
           console.log(`Updated referral ${referralDoc.id} with order info`);
           
@@ -510,29 +615,36 @@ export const createOrderWithReferral = async (
           }
         } catch (updateError) {
           console.error('Error updating referral:', updateError);
+          console.error('Referral update error details:', {
+            code: updateError?.code,
+            message: updateError?.message,
+            data: referralUpdateData
+          });
           throw updateError;
         }
       } else {
         // Create new referral record if none exists
         console.log(`No existing referral found, creating new one for order ${orderId}`);
         
+        const newReferralData = {
+          referralCode: String(referralCode || ''),
+          referrerId: String(affiliate.id || ''),
+          referredUserId: String(userId || ''),
+          referredUserEmail: '', // Will be filled later if needed
+          referredUserName: '', // Will be filled later if needed
+          orderId: String(orderId || ''),
+          orderTotal: Number(orderTotal || 0),
+          commissionAmount: Number(commissionAmount || 0),
+          status: 'ordered',
+          orderedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        console.log('Creating new referral with validated data:', newReferralData);
+        
         try {
-          const newReferral: Partial<AffiliateReferral> = {
-            referralCode,
-            referrerId: affiliate.id,
-            referredUserId: userId,
-            referredUserEmail: '', // Will be filled later if needed
-            referredUserName: '', // Will be filled later if needed
-            orderId,
-            orderTotal,
-            commissionAmount,
-            status: 'ordered',
-            orderedAt: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          
-          const referralDocRef = await addDoc(collection(db, REFERRALS_COLLECTION), newReferral);
+          const referralDocRef = await addDoc(collection(db, REFERRALS_COLLECTION), newReferralData);
           console.log(`Created new referral record: ${referralDocRef.id}`);
           
           // Update commission with referral ID if commission was created
@@ -548,6 +660,11 @@ export const createOrderWithReferral = async (
           }
         } catch (createError) {
           console.error('Error creating new referral:', createError);
+          console.error('New referral creation error details:', {
+            code: createError?.code,
+            message: createError?.message,
+            data: newReferralData
+          });
           throw createError;
         }
       }
@@ -558,21 +675,34 @@ export const createOrderWithReferral = async (
     
     // Update affiliate stats
     try {
-      await updateDoc(doc(db, AFFILIATES_COLLECTION, affiliate.id), {
+      const affiliateStatsUpdate = {
         // Add to both total and pending commission
         totalCommission: increment(commissionAmount),
         pendingCommission: increment(commissionAmount),
         updatedAt: new Date().toISOString()
-      });
+      };
+      
+      console.log('Updating affiliate stats with data:', affiliateStatsUpdate);
+      await updateDoc(doc(db, AFFILIATES_COLLECTION, affiliate.id), affiliateStatsUpdate);
       console.log(`Updated affiliate stats for ${affiliate.id} with commission amount: ${commissionAmount}`);
     } catch (statsError) {
       console.error('Error updating affiliate stats:', statsError);
+      console.error('Affiliate stats update error details:', {
+        code: statsError?.code,
+        message: statsError?.message,
+        affiliateId: affiliate.id
+      });
       // Don't throw here as the main operation succeeded
     }
     
     console.log(`Successfully created order ${orderId} with referral, commission: ${commissionAmount}`);
   } catch (error) {
     console.error('Error creating order with referral:', error);
+    console.error('Full order creation error details:', {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack
+    });
     // Rethrow to ensure calling code knows about the failure
     throw error;
   }
