@@ -73,15 +73,18 @@ function App() {
   // Configure online status management
   useEffect(() => {
     // React Query's online manager
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+    
     onlineManager.setEventListener(setOnline => {
       // Listen to online/offline events
-      window.addEventListener('online', () => setOnline(true));
-      window.addEventListener('offline', () => setOnline(false));
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
       
       // Clean up
       return () => {
-        window.removeEventListener('online', () => setOnline(true));
-        window.removeEventListener('offline', () => setOnline(false));
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
       };
     });
   }, []);
