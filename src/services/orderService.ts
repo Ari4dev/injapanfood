@@ -164,8 +164,8 @@ export const createOrder = async (orderData: {
     const isCOD = orderData.customer_info.payment_method === 'COD (Cash on Delivery)';
     const codSurcharge = (isCOD && codSettings.isEnabled) ? codSettings.surchargeAmount : 0;
     
-    // Add COD surcharge to total price if applicable
-    const finalTotalPrice = orderData.total_price + codSurcharge;
+    // Store the original total price (which already includes COD surcharge from frontend)
+    const finalTotalPrice = orderData.total_price;
     
     // Ensure we're not passing undefined values to Firestore
     const sanitizedOrderData = {

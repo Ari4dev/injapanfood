@@ -332,7 +332,7 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="font-medium">Subtotal:</span>
-                <span>{formatPrice(order.total_price - (order.shipping_fee || 0))}</span>
+                <span>{formatPrice(order.total_price - (order.shipping_fee || 0) - (order.cod_surcharge || 0))}</span>
               </div>
               <div className="flex justify-between">
                 <span>Ongkos Kirim:</span>

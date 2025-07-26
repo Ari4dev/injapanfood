@@ -77,10 +77,12 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
   // Get the current payment method
   const paymentMethod = form.watch('paymentMethod');
   
-  // Calculate total with shipping and COD surcharge
+  // Calculate COD surcharge
   const codSurcharge = (paymentMethod === 'COD (Cash on Delivery)' && codSettings?.isEnabled) 
     ? codSettings.surchargeAmount 
     : 0;
+  
+  // Calculate total with shipping and COD surcharge
   const totalWithShipping = total + (shippingFee || 0) + codSurcharge;
 
   // Move the currency converter hook to the top level
