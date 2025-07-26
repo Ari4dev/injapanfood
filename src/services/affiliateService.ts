@@ -914,6 +914,47 @@ export const getAllAffiliates = async (): Promise<AffiliateUser[]> => {
   }
 };
 
+// Update affiliate stats
+export const updateAffiliateStats = async (affiliateId: string, referrals: AffiliateReferral[]) => {
+  try {
+    console.log('Updating affiliate stats for:', affiliateId, 'with', referrals.length, 'referrals');
+    
+    // Calculate correct stats from referrals
+    const totalClicks = referrals.filter(ref => 
+      ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+    ).length;
+    
+    const totalReferrals = referrals.filter(ref => 
+      ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
+    ).length;
+    
+    const affiliateRef = doc(db, 'affiliates', affiliateId);
+    
+    // Calculate stats from referrals
+    
+    const totalCommission = referrals.reduce((sum, ref) => sum + (ref.commissionAmount || 0), 0);
+    const pendingCommission = referrals
+      .filter(ref => ref.status === 'pending')
+      .reduce((sum, ref) => sum + (ref.commissionAmount || 0), 0);
+    
+    const updateData = {
+      totalClicks,
+      totalReferrals,
+      totalCommission,
+      pendingCommission,
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log('Updating affiliate with stats:', updateData);
+    
+    await updateDoc(affiliateRef, updateData);
+    console.log('Affiliate stats updated successfully');
+  } catch (error) {
+    console.error('Error updating affiliate stats:', error);
+    throw error;
+  }
+};
+
 // Approve commission
 export const approveCommission = async (
   commissionId: string, 
