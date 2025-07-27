@@ -364,7 +364,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
         userId: orderData.userId,
         shipping_fee: orderData.shipping_fee,
         affiliate_id: orderData.affiliate_id,
-        visitor_id: orderData.visitor_id
+        visitor_id: orderData.visitor_id,
         manual_referral_code: data.referralCode || null
       });
 
