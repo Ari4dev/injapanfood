@@ -40,14 +40,6 @@ const ModernAffiliateStats = () => {
   // FIXED: Total commission should NOT include paid commissions
   // Total commission represents the current balance (pending + approved)
   const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission;
-  const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  
-  // Use calculated values instead of affiliate object values for consistency
-  const displayPendingCommission = calculatedPendingCommission;
-  const displayAvailableCommission = calculatedApprovedCommission;
-  const displayTotalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
 
   // Calculate actual referral counts from referrals array for accuracy
   const actualTotalClicks = referrals.filter(ref => ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved').length;
