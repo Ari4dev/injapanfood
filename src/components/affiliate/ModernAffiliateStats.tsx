@@ -3,9 +3,11 @@ import { useAffiliate } from '@/hooks/useAffiliate';
 import { TrendingUp, Users, Clock, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const ModernAffiliateStats = () => {
   const { affiliate, loading, commissions, referrals } = useAffiliate();
+  const { t } = useLanguage();
   const { t } = useLanguage();
 
   if (loading) {
@@ -38,38 +40,31 @@ const ModernAffiliateStats = () => {
   const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
   // FIXED: Total commission should NOT include paid commissions
-  // Total commission represents the current balance (pending + approved)
-  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission;
+  const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
+  // FIXED: Total commission should include ALL commissions (lifetime earnings)
+  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
+  
+  // Available commission is only approved commissions (ready for payout)
+  const availableCommission = calculatedApprovedCommission;
 
   // Calculate actual referral counts from referrals array for accuracy
   const actualTotalClicks = referrals.filter(ref => ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved').length;
   const actualTotalReferrals = referrals.filter(ref => 
     ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
   ).length;
-  
-  // Use actual counts instead of affiliate object values for consistency
-  const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
-  const displayTotalReferrals = Math.max(actualTotalReferrals, affiliate.totalReferrals);
-  
-  // Fix the calculation logic - clicks should only count 'clicked' status
-  const correctTotalClicks = referrals.filter(ref => 
+  // Calculate actual referral counts from referrals array for accuracy
+  const actualTotalClicks = referrals.filter(ref => 
     ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
   ).length;
   
-  // Referrals should count registered, ordered, and approved (not just clicked)
-  const correctTotalReferrals = referrals.filter(ref => 
+  const actualTotalReferrals = referrals.filter(ref => 
     ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
   ).length;
   
-  // Recalculate conversion rate with actual data
-  const actualConversionRate = displayTotalClicks > 0 
-    ? ((displayTotalReferrals / displayTotalClicks) * 100).toFixed(1) 
-    : '0.0';
-
-  const stats = [
-    {
-      title: 'Total Klik',
-      value: correctTotalClicks,
+  // Use actual counts for display
+  const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
+      value: displayTotalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500',
       textColor: 'text-blue-500',
@@ -80,7 +75,7 @@ const ModernAffiliateStats = () => {
     },
     {
       title: 'Total Referral',
-      value: correctTotalReferrals,
+      value: displayTotalReferrals,
       icon: Users,
       color: 'bg-green-500',
       textColor: 'text-green-500',
@@ -99,16 +94,16 @@ const ModernAffiliateStats = () => {
       borderColor: 'border-amber-100',
       growth: 0, // No growth for pending
       description: 'Komisi yang belum disetujui admin'
-    },
-    {
+      title: 'Komisi Tersedia',
+      value: `¥${availableCommission.toLocaleString()}`,
       title: 'Total Komisi',
       value: `¥${calculatedApprovedCommission.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-purple-500',
       textColor: 'text-purple-500',
       bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-100',
-      growth: 12.5, // Mock data
+      description: 'Komisi siap untuk dicairkan',
+      change: `Dari total ¥${calculatedTotalCommission.toLocaleString()}`
       description: `Saldo komisi yang tersedia untuk dicairkan`
     }
   ];

@@ -4,7 +4,7 @@ import { TrendingUp, Users, ShoppingCart, DollarSign, Clock, ExternalLink } from
 import { motion } from 'framer-motion';
 
 const AffiliateStats = () => {
-  const { affiliate, loading, commissions } = useAffiliate();
+  const { affiliate, loading, commissions, referrals } = useAffiliate();
 
   if (loading) {
     return (
@@ -35,37 +35,13 @@ const AffiliateStats = () => {
   
   const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  // FIXED: Total commission should NOT include paid commissions
-  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission;
-
-  const stats = [
-    {
-      title: 'Total Klik',
-      value: affiliate.totalClicks,
-  // Calculate actual referral counts from referrals array for accuracy
-  const actualTotalClicks = referrals.filter(ref => ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved').length;
-  const actualTotalReferrals = referrals.filter(ref => 
-    ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
-  ).length;
+  const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
-  // Use actual counts instead of affiliate object values for consistency
-  const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
-  const displayTotalReferrals = Math.max(actualTotalReferrals, affiliate.totalReferrals);
+  // FIXED: Total commission should include ALL commissions (lifetime earnings)
+  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
   
-  // Fix the calculation logic - clicks should count all interactions
-  const correctTotalClicks = referrals.filter(ref => 
-    ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
-  ).length;
-  
-  const correctedConversionRate = correctTotalClicks > 0 
-    ? ((correctTotalReferrals / correctTotalClicks) * 100).toFixed(1) 
-    : '0.0';
-  // Referrals should only count successful conversions (registered and beyond)
-  const correctTotalReferrals = referrals.filter(ref => 
-    ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
-  ).length;
-      value: displayTotalClicks,
-      value: correctTotalClicks,
+  // Available commission is only approved commissions (ready for payout)
+  const availableCommission = calculatedApprovedCommission;
       icon: TrendingUp,
       color: 'bg-blue-500 text-white',
       bgColor: 'bg-blue-50',
@@ -76,7 +52,7 @@ const AffiliateStats = () => {
     {
       title: 'Total Referral',
       value: displayTotalReferrals,
-      value: correctTotalReferrals,
+      value: affiliate.totalReferrals,
       icon: Users,
       color: 'bg-green-500 text-white',
       bgColor: 'bg-green-50',
@@ -97,12 +73,12 @@ const AffiliateStats = () => {
     {
       title: 'Total Komisi',
       value: `¥${calculatedTotalCommission.toLocaleString()}`,
-      icon: DollarSign,
-      color: 'bg-red-500 text-white',
+      title: 'Komisi Tersedia',
+      value: `¥${availableCommission.toLocaleString()}`,
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200',
       description: 'Total komisi yang didapatkan',
-      change: `¥${calculatedApprovedCommission.toLocaleString()} tersedia`
+      description: 'Saldo komisi siap untuk dicairkan'
     }
   ];
 
