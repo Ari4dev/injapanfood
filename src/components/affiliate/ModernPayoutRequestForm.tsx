@@ -49,9 +49,11 @@ const ModernPayoutRequestForm = () => {
   const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
-  // FIXED: Use calculated approved commission for consistency with stats display
+  // Available commission is only approved commissions (ready for payout)
   const availableCommission = calculatedApprovedCommission;
-  const truePendingCommission = calculatedPendingCommission;
+  
+  // Total commission includes all commissions (lifetime earnings)
+  const totalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
     
   // State for currency conversion
   const [selectedMethod, setSelectedMethod] = useState<string>('');
@@ -201,13 +203,10 @@ const ModernPayoutRequestForm = () => {
               <div>
                 <h4 className="font-medium text-amber-800 text-sm">{t('affiliate.notEligibleForPayout')}</h4>
                 <p className="text-sm text-amber-700 mt-1">
-                  {t('affiliate.pendingCommissionMessage', { 
-                    available: maxAmount.toLocaleString(), 
-                    minimum: minAmount.toLocaleString() 
-                  })}
+                  Komisi tersedia Anda (¥{maxAmount.toLocaleString()}) belum mencapai jumlah minimum pencairan (¥{minAmount.toLocaleString()}).
                 </p>
                 <p className="text-xs text-amber-600 mt-2">
-                  Note: Hanya komisi dengan status "Approved" yang tersedia untuk pencairan. Komisi "Pending" harus disetujui admin terlebih dahulu. Saldo tersedia akan berkurang setelah pengajuan pencairan.
+                  Catatan: Hanya komisi dengan status "Approved" yang tersedia untuk pencairan. Komisi "Pending" harus disetujui admin terlebih dahulu.
                 </p>
               </div>
             </div>
@@ -225,22 +224,22 @@ const ModernPayoutRequestForm = () => {
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-4">
-              <h5 className="font-medium text-gray-700 text-sm mb-2">Payout Information</h5>
+              <h5 className="font-medium text-gray-700 text-sm mb-2">Informasi Saldo Komisi</h5>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex justify-between">
-                  <span>Approved Commissions:</span>
-                  <span className="font-medium">{approvedCommissionsCount} commissions</span>
+                  <span>Komisi Approved:</span>
+                  <span className="font-medium">{approvedCommissionsCount} komisi</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Available Commission:</span>
+                  <span>Komisi Tersedia:</span>
                   <span className="font-medium">¥{maxAmount.toLocaleString()}</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Minimum Payout:</span>
+                  <span>Minimum Pencairan:</span>
                   <span className="font-medium">¥{minAmount.toLocaleString()}</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Still Needed:</span>
+                  <span>Masih Dibutuhkan:</span>
                   <span className="font-medium text-amber-600">¥{Math.max(0, minAmount - maxAmount).toLocaleString()}</span>
                 </li>
               </ul>
@@ -255,29 +254,29 @@ const ModernPayoutRequestForm = () => {
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-green-800 text-sm">You're eligible for payout!</h4>
+                    <h4 className="font-medium text-green-800 text-sm">Anda memenuhi syarat untuk pencairan!</h4>
                     <p className="text-sm text-green-700 mt-1">
-                      You have ¥{maxAmount.toLocaleString()} available for withdrawal from {approvedCommissionsCount} approved commissions.
+                      Anda memiliki ¥{maxAmount.toLocaleString()} komisi tersedia untuk pencairan dari {approvedCommissionsCount} komisi yang disetujui.
                     </p>
                     <p className="text-xs text-green-600 mt-2">
-                      This amount represents your approved commissions that are ready for payout. After requesting a payout, this balance will immediately decrease by the requested amount.
+                      Jumlah ini merupakan komisi yang sudah disetujui dan siap untuk dicairkan. Setelah mengajukan pencairan, saldo ini akan langsung berkurang sesuai jumlah yang diajukan.
                     </p>
                   </div>
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h5 className="font-medium text-gray-700 text-sm mb-2">Payout Information</h5>
+                  <h5 className="font-medium text-gray-700 text-sm mb-2">Informasi Pencairan</h5>
                   <ul className="space-y-2 text-sm text-gray-600">
                     <li className="flex justify-between">
-                      <span>Available Commission:</span>
+                      <span>Komisi Tersedia:</span>
                       <span className="font-medium">¥{maxAmount.toLocaleString()}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Pending Commissions:</span>
-                      <span className="font-medium">¥{truePendingCommission.toLocaleString()}</span>
+                      <span>Total Komisi (Lifetime):</span>
+                      <span className="font-medium">¥{totalCommission.toLocaleString()}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Minimum Payout:</span>
+                      <span>Minimum Pencairan:</span>
                       <span className="font-medium">¥{minAmount.toLocaleString()}</span>
                     </li>
                   </ul>
@@ -287,7 +286,7 @@ const ModernPayoutRequestForm = () => {
                   onClick={() => setIsFormOpen(true)}
                   className="w-full"
                 >
-                  Request Payout Now
+                  Ajukan Pencairan Sekarang
                 </Button>
               </div>
             ) : (
@@ -309,7 +308,7 @@ const ModernPayoutRequestForm = () => {
                           />
                         </FormControl>
                         <p className="text-xs text-gray-500">
-                          {t('affiliate.available')} ¥{maxAmount.toLocaleString()} (approved) | {t('affiliate.minimum')} ¥{minAmount.toLocaleString()}
+                          Tersedia: ¥{maxAmount.toLocaleString()} | Minimum: ¥{minAmount.toLocaleString()}
                         </p>
                         <FormMessage />
                       </FormItem>
@@ -554,14 +553,14 @@ const ModernPayoutRequestForm = () => {
                       onClick={() => setIsFormOpen(false)}
                       className="flex-1"
                     >
-                      Cancel
+                      Batal
                     </Button>
                     <Button 
                       type="submit" 
                       className="flex-1"
                       disabled={isSubmitting || !watchMethod}
                     >
-                      {isSubmitting ? 'Processing...' : 'Submit Request'}
+                      {isSubmitting ? 'Memproses...' : 'Ajukan Pencairan'}
                     </Button>
                   </div>
                 </form>

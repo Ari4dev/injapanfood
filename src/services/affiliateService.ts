@@ -730,8 +730,8 @@ export const requestPayout = async (
   try {
     console.log('Requesting payout:', { affiliateId, amount, method });
     
-    // CRITICAL FIX: When requesting payout, reduce approved commission immediately
-    // This prevents double spending and ensures accurate balance display
+    // CRITICAL FIX: When requesting payout, immediately reduce approved commission
+    // This ensures accurate balance display and prevents double spending
     const affiliateRef = doc(db, AFFILIATES_COLLECTION, affiliateId);
     const affiliateDoc = await getDoc(affiliateRef);
     
@@ -747,7 +747,8 @@ export const requestPayout = async (
       throw new Error('Insufficient approved commission for payout');
     }
     
-    // Reduce approved commission immediately when payout is requested
+    // IMMEDIATELY reduce approved commission when payout is requested
+    // This ensures "Komisi Tersedia" shows accurate balance
     const newApprovedCommission = currentApprovedCommission - amount;
     
     console.log('Reducing approved commission for payout request:', {
@@ -814,29 +815,23 @@ export const processPayout = async (
       updateData.completedAt = new Date().toISOString();
       updateData.completedBy = adminId;
       
-      // CRITICAL FIX: Update affiliate commission balance when payout is completed
+      // When completed, move to paid commission (already reduced from approved when requested)
       const affiliateRef = doc(db, AFFILIATES_COLLECTION, payoutData.affiliateId);
       const affiliateDoc = await getDoc(affiliateRef);
       
       if (affiliateDoc.exists()) {
         const affiliateData = affiliateDoc.data() as AffiliateUser;
         
-        // Reduce approved commission by the payout amount
-        const newApprovedCommission = Math.max(0, (affiliateData.approvedCommission || 0) - payoutData.amount);
-        
-        // Update paid commission
+        // Update paid commission (approved commission was already reduced when requested)
         const newPaidCommission = (affiliateData.paidCommission || 0) + payoutData.amount;
         
         console.log('Updating affiliate balance after completed payout:', {
           affiliateId: payoutData.affiliateId,
           payoutAmount: payoutData.amount,
-          oldApprovedCommission: affiliateData.approvedCommission,
-          newApprovedCommission,
           newPaidCommission
         });
         
         await updateDoc(affiliateRef, {
-          approvedCommission: newApprovedCommission,
           paidCommission: newPaidCommission,
           updatedAt: new Date().toISOString()
         });
@@ -875,29 +870,23 @@ export const processPayout = async (
       updateData.paidAt = new Date().toISOString();
       updateData.paidBy = adminId;
       
-      // CRITICAL FIX: Update affiliate commission balance when payout is marked as paid
+      // When marked as paid, move to paid commission (already reduced from approved when requested)
       const affiliateRef = doc(db, AFFILIATES_COLLECTION, payoutData.affiliateId);
       const affiliateDoc = await getDoc(affiliateRef);
       
       if (affiliateDoc.exists()) {
         const affiliateData = affiliateDoc.data() as AffiliateUser;
         
-        // Reduce approved commission by the payout amount
-        const newApprovedCommission = Math.max(0, (affiliateData.approvedCommission || 0) - payoutData.amount);
-        
-        // Update paid commission
+        // Update paid commission (approved commission was already reduced when requested)
         const newPaidCommission = (affiliateData.paidCommission || 0) + payoutData.amount;
         
         console.log('Updating affiliate balance after paid payout:', {
           affiliateId: payoutData.affiliateId,
           payoutAmount: payoutData.amount,
-          oldApprovedCommission: affiliateData.approvedCommission,
-          newApprovedCommission,
           newPaidCommission
         });
         
         await updateDoc(affiliateRef, {
-          approvedCommission: newApprovedCommission,
           paidCommission: newPaidCommission,
           updatedAt: new Date().toISOString()
         });

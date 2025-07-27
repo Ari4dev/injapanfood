@@ -14,11 +14,13 @@ import ModernPayoutsTable from '@/components/affiliate/ModernPayoutsTable';
 import AffiliatePromotionMaterials from '@/components/affiliate/AffiliatePromotionMaterials';
 import AffiliateFAQ from '@/components/affiliate/AffiliateFAQ';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DollarSign } from 'lucide-react';
 import JoinAffiliateCard from '@/components/affiliate/JoinAffiliateCard';
 import { useEffect } from 'react';
 
 const AffiliateContent = () => {
-  const { affiliate, loading } = useAffiliate();
+  const { affiliate, loading, commissions } = useAffiliate();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -32,6 +34,17 @@ const AffiliateContent = () => {
     return <JoinAffiliateCard />;
   }
   
+  // Calculate commission totals for summary card
+  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
+  const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
+  const paidCommissions = commissions.filter(comm => comm.status === 'paid');
+  
+  const totalLifetimeCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0) +
+                                 approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0) +
+                                 paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
+  const availableCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -44,6 +57,32 @@ const AffiliateContent = () => {
         {/* Stats Overview */}
         <div className="mb-8">
           <ModernAffiliateStats />
+        </div>
+        
+        {/* Commission Summary Card */}
+        <div className="mb-8">
+          <Card className="border-primary/10 bg-gradient-to-r from-primary/5 to-primary/10">
+            <CardHeader>
+              <CardTitle className="flex items-center text-primary">
+                <DollarSign className="w-5 h-5 mr-2" />
+                Ringkasan Komisi
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-4 rounded-lg border border-primary/20">
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Total Komisi (Lifetime)</h3>
+                  <p className="text-2xl font-bold text-primary">¥{totalLifetimeCommission.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 mt-1">Akumulasi seluruh komisi yang pernah diterima</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-green-200">
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Komisi Tersedia</h3>
+                  <p className="text-2xl font-bold text-green-600">¥{availableCommission.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 mt-1">Saldo siap untuk diajukan pencairan</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Main Tabs */}
