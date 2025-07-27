@@ -142,26 +142,10 @@ export const useOrderOperations = () => {
             updated_at: new Date().toISOString()
           });
           
-          // If this order has an affiliate_id, ensure commission is processed
-          if (orderData.affiliate_id && orderData.user_id) {
-            console.log('Order has affiliate_id, ensuring commission is processed');
-            // The commission should already be created, but let's verify
-            try {
-              // Import the affiliate service function
-              const { createOrderWithReferral } = await import('@/services/affiliateService');
-              
-              // This will either create a new commission or update existing one
-              await createOrderWithReferral(
-                orderData.user_id,
-                orderId,
-                orderData.total_price,
-                orderData.affiliate_id
-              );
-              console.log('Affiliate commission processing completed for confirmed order');
-            } catch (affiliateError) {
-              console.error('Error processing affiliate commission during order confirmation:', affiliateError);
-              // Don't fail the order confirmation if affiliate processing fails
-            }
+          // Note: Commission should already be created when order was initially created
+          // We don't create commission again during confirmation to avoid duplicates
+          if (orderData.affiliate_id) {
+            console.log('Order has affiliate_id:', orderData.affiliate_id, '- commission should already exist');
           }
         });
         
