@@ -28,23 +28,11 @@ const AffiliateStats = () => {
     return null;
   }
 
-  // Calculate commission values from actual commission records for consistency
-  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
-  const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
-  const paidCommissions = commissions.filter(comm => comm.status === 'paid');
   
-  const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  
-  // FIXED: Total commission should include ALL commissions (lifetime earnings)
-  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
-  
-  // Available commission is only approved commissions (ready for payout)
-  const availableCommission = calculatedApprovedCommission;
-
-  const stats = [
-    {
+  // Use backend's authoritative values directly to ensure consistency
+  const pendingCommission = affiliate?.pendingCommission || 0;
+  const availableCommission = affiliate?.approvedCommission || 0;
+  const totalCommission = affiliate?.totalCommission || 0;
       title: 'Total Klik',
       value: affiliate.totalClicks,
       icon: TrendingUp,
@@ -62,7 +50,7 @@ const AffiliateStats = () => {
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
       description: 'Jumlah pengguna yang mendaftar',
-      change: '+3 bulan ini'
+      value: `¥${pendingCommission.toLocaleString()}`,
     },
     {
       title: 'Komisi Pending',

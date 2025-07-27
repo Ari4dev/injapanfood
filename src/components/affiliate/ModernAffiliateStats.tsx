@@ -29,20 +29,11 @@ const ModernAffiliateStats = () => {
 
   // Count approved commissions
   const approvedCommissionsCount = commissions.filter(comm => comm.status === 'approved').length;
-  // Calculate commission values from actual commission records for consistency
-  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
-  const paidCommissions = commissions.filter(comm => comm.status === 'paid');
   
-  const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  
-  // FIXED: Total commission should NOT include paid commissions
-  const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  
-  // Use backend's authoritative approved commission value
+  // Use backend's authoritative values directly to ensure consistency
+  const pendingCommission = affiliate?.pendingCommission || 0;
   const availableCommission = affiliate?.approvedCommission || 0;
-  
-  // FIXED: Total commission should include ALL commissions (lifetime earnings)
-  const calculatedTotalCommission = calculatedPendingCommission + availableCommission + calculatedPaidCommission;
+  const totalCommission = affiliate?.totalCommission || 0;
 
   // Calculate actual referral counts from referrals array for accuracy
   const actualTotalClicks = referrals.filter(ref => ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved').length;
@@ -79,7 +70,7 @@ const ModernAffiliateStats = () => {
     },
     {
       title: 'Komisi Pending',
-      value: `¥${calculatedPendingCommission.toLocaleString()}`,
+      value: `¥${pendingCommission.toLocaleString()}`,
       icon: Clock,
       color: 'bg-amber-500',
       textColor: 'text-amber-500',

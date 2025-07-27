@@ -34,16 +34,10 @@ const AffiliateContent = () => {
     return <JoinAffiliateCard />;
   }
   
-  // Calculate commission totals for summary card
-  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
-  const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
-  const paidCommissions = commissions.filter(comm => comm.status === 'paid');
-  
-  const totalLifetimeCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0) +
-                                 approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0) +
-                                 paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  
-  const availableCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  // Use backend's authoritative values instead of calculating from commission records
+  // This ensures consistency with the main stats cards
+  const totalLifetimeCommission = affiliate?.totalCommission || 0;
+  const availableCommission = affiliate?.approvedCommission || 0;
   
   return (
     <div className="min-h-screen bg-gray-50">
