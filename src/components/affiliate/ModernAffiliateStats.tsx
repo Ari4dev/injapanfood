@@ -101,7 +101,7 @@ const ModernAffiliateStats = () => {
       description: 'Komisi yang belum disetujui admin'
     },
     {
-      title: 'Komisi Tersedia',
+      title: 'Total Komisi',
       value: `¥${calculatedApprovedCommission.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-purple-500',
@@ -109,7 +109,7 @@ const ModernAffiliateStats = () => {
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-100',
       growth: 12.5, // Mock data
-      description: `${approvedCommissions.length} komisi sudah disetujui admin`
+      description: `Saldo komisi yang tersedia untuk dicairkan`
     }
   ];
 

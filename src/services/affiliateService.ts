@@ -730,6 +730,38 @@ export const requestPayout = async (
   try {
     console.log('Requesting payout:', { affiliateId, amount, method });
     
+    // CRITICAL FIX: When requesting payout, reduce approved commission immediately
+    // This prevents double spending and ensures accurate balance display
+    const affiliateRef = doc(db, AFFILIATES_COLLECTION, affiliateId);
+    const affiliateDoc = await getDoc(affiliateRef);
+    
+    if (!affiliateDoc.exists()) {
+      throw new Error('Affiliate not found');
+    }
+    
+    const affiliateData = affiliateDoc.data() as AffiliateUser;
+    
+    // Check if affiliate has enough approved commission
+    const currentApprovedCommission = affiliateData.approvedCommission || 0;
+    if (currentApprovedCommission < amount) {
+      throw new Error('Insufficient approved commission for payout');
+    }
+    
+    // Reduce approved commission immediately when payout is requested
+    const newApprovedCommission = currentApprovedCommission - amount;
+    
+    console.log('Reducing approved commission for payout request:', {
+      affiliateId,
+      requestedAmount: amount,
+      oldApprovedCommission: currentApprovedCommission,
+      newApprovedCommission
+    });
+    
+    await updateDoc(affiliateRef, {
+      approvedCommission: newApprovedCommission,
+      updatedAt: new Date().toISOString()
+    });
+    
     const payoutData = {
       affiliateId,
       amount,
@@ -742,7 +774,7 @@ export const requestPayout = async (
     const payoutsRef = collection(db, AFFILIATE_PAYOUTS_COLLECTION);
     const docRef = await addDoc(payoutsRef, payoutData);
     
-    console.log('Payout request created:', docRef.id);
+    console.log('Payout request created and commission balance updated:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Error requesting payout:', error);
@@ -781,22 +813,8 @@ export const processPayout = async (
     } else if (status === 'completed') {
       updateData.completedAt = new Date().toISOString();
       updateData.completedBy = adminId;
-    } else if (status === 'rejected') {
-      updateData.rejectedAt = new Date().toISOString();
-      updateData.rejectedBy = adminId;
-    } else if (status === 'paid') {
-      updateData.paidAt = new Date().toISOString();
-      updateData.paidBy = adminId;
-    }
-    
-    if (notes) {
-      updateData.notes = notes;
-    }
-    
-    await updateDoc(payoutRef, updateData);
-    
-    // CRITICAL FIX: Update affiliate commission balance when payout is completed or paid
-    if (status === 'completed' || status === 'paid') {
+      
+      // CRITICAL FIX: Update affiliate commission balance when payout is completed
       const affiliateRef = doc(db, AFFILIATES_COLLECTION, payoutData.affiliateId);
       const affiliateDoc = await getDoc(affiliateRef);
       
@@ -809,7 +827,7 @@ export const processPayout = async (
         // Update paid commission
         const newPaidCommission = (affiliateData.paidCommission || 0) + payoutData.amount;
         
-        console.log('Updating affiliate balance:', {
+        console.log('Updating affiliate balance after completed payout:', {
           affiliateId: payoutData.affiliateId,
           payoutAmount: payoutData.amount,
           oldApprovedCommission: affiliateData.approvedCommission,
@@ -823,9 +841,76 @@ export const processPayout = async (
           updatedAt: new Date().toISOString()
         });
         
-        console.log('Affiliate balance updated successfully');
+        console.log('Affiliate balance updated successfully after completed payout');
+      }
+    } else if (status === 'rejected') {
+      updateData.rejectedAt = new Date().toISOString();
+      updateData.rejectedBy = adminId;
+      
+      // CRITICAL FIX: Return amount to approved commission when payout is rejected
+      const affiliateRef = doc(db, AFFILIATES_COLLECTION, payoutData.affiliateId);
+      const affiliateDoc = await getDoc(affiliateRef);
+      
+      if (affiliateDoc.exists()) {
+        const affiliateData = affiliateDoc.data() as AffiliateUser;
+        
+        // Return amount to approved commission
+        const newApprovedCommission = (affiliateData.approvedCommission || 0) + payoutData.amount;
+        
+        console.log('Returning amount to approved commission after rejected payout:', {
+          affiliateId: payoutData.affiliateId,
+          payoutAmount: payoutData.amount,
+          oldApprovedCommission: affiliateData.approvedCommission,
+          newApprovedCommission
+        });
+        
+        await updateDoc(affiliateRef, {
+          approvedCommission: newApprovedCommission,
+          updatedAt: new Date().toISOString()
+        });
+        
+        console.log('Amount returned to approved commission successfully');
+      }
+    } else if (status === 'paid') {
+      updateData.paidAt = new Date().toISOString();
+      updateData.paidBy = adminId;
+      
+      // CRITICAL FIX: Update affiliate commission balance when payout is marked as paid
+      const affiliateRef = doc(db, AFFILIATES_COLLECTION, payoutData.affiliateId);
+      const affiliateDoc = await getDoc(affiliateRef);
+      
+      if (affiliateDoc.exists()) {
+        const affiliateData = affiliateDoc.data() as AffiliateUser;
+        
+        // Reduce approved commission by the payout amount
+        const newApprovedCommission = Math.max(0, (affiliateData.approvedCommission || 0) - payoutData.amount);
+        
+        // Update paid commission
+        const newPaidCommission = (affiliateData.paidCommission || 0) + payoutData.amount;
+        
+        console.log('Updating affiliate balance after paid payout:', {
+          affiliateId: payoutData.affiliateId,
+          payoutAmount: payoutData.amount,
+          oldApprovedCommission: affiliateData.approvedCommission,
+          newApprovedCommission,
+          newPaidCommission
+        });
+        
+        await updateDoc(affiliateRef, {
+          approvedCommission: newApprovedCommission,
+          paidCommission: newPaidCommission,
+          updatedAt: new Date().toISOString()
+        });
+        
+        console.log('Affiliate balance updated successfully after paid payout');
       }
     }
+    
+    if (notes) {
+      updateData.notes = notes;
+    }
+    
+    await updateDoc(payoutRef, updateData);
     
     console.log('Payout processed successfully');
   } catch (error) {
