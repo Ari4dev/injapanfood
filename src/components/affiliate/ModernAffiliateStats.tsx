@@ -31,20 +31,18 @@ const ModernAffiliateStats = () => {
   const approvedCommissionsCount = commissions.filter(comm => comm.status === 'approved').length;
   // Calculate commission values from actual commission records for consistency
   const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
-  const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
   const paidCommissions = commissions.filter(comm => comm.status === 'paid');
   
   const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
   // FIXED: Total commission should NOT include paid commissions
   const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
-  // FIXED: Total commission should include ALL commissions (lifetime earnings)
-  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
+  // Use backend's authoritative approved commission value
+  const availableCommission = affiliate?.approvedCommission || 0;
   
-  // Available commission is only approved commissions (ready for payout)
-  const availableCommission = calculatedApprovedCommission;
+  // FIXED: Total commission should include ALL commissions (lifetime earnings)
+  const calculatedTotalCommission = calculatedPendingCommission + availableCommission + calculatedPaidCommission;
 
   // Calculate actual referral counts from referrals array for accuracy
   const actualTotalClicks = referrals.filter(ref => ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved').length;

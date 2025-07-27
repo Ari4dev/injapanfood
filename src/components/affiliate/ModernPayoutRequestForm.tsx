@@ -47,13 +47,12 @@ const ModernPayoutRequestForm = () => {
   
   const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
-  // Available commission is only approved commissions (ready for payout)
-  const availableCommission = calculatedApprovedCommission;
+  // Use backend's authoritative approved commission value
+  const availableCommission = affiliate?.approvedCommission || 0;
   
   // Total commission includes all commissions (lifetime earnings)
-  const totalCommission = calculatedPendingCommission + calculatedApprovedCommission + calculatedPaidCommission;
+  const totalCommission = calculatedPendingCommission + availableCommission + calculatedPaidCommission;
     
   // State for currency conversion
   const [selectedMethod, setSelectedMethod] = useState<string>('');
