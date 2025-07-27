@@ -42,6 +42,11 @@ const AffiliateStats = () => {
   
   // Available commission is only approved commissions (ready for payout)
   const availableCommission = calculatedApprovedCommission;
+
+  const stats = [
+    {
+      title: 'Total Klik',
+      value: affiliate.totalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500 text-white',
       bgColor: 'bg-blue-50',
@@ -51,7 +56,6 @@ const AffiliateStats = () => {
     },
     {
       title: 'Total Referral',
-      value: displayTotalReferrals,
       value: affiliate.totalReferrals,
       icon: Users,
       color: 'bg-green-500 text-white',
@@ -71,14 +75,14 @@ const AffiliateStats = () => {
       change: 'Menunggu persetujuan'
     },
     {
-      title: 'Total Komisi',
-      value: `¥${calculatedTotalCommission.toLocaleString()}`,
       title: 'Komisi Tersedia',
       value: `¥${availableCommission.toLocaleString()}`,
+      icon: DollarSign,
+      color: 'bg-red-500 text-white',
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200',
-      description: 'Total komisi yang didapatkan',
-      description: 'Saldo komisi siap untuk dicairkan'
+      description: 'Saldo komisi siap untuk dicairkan',
+      change: 'Siap dicairkan'
     }
   ];
 
