@@ -216,6 +216,7 @@ export const createOrder = async (orderData: {
       visitor_id: sanitizedOrderData.visitor_id,
       currency: isRupiahPayment ? 'IDR' : 'JPY',
       is_rupiah_payment: isRupiahPayment,
+      manual_referral_code: sanitizedOrderData.manual_referral_code,
       created_at: timestamp,
       updated_at: timestamp
     };

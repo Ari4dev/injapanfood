@@ -10,6 +10,7 @@ export const useCreateOrder = () => {
       shipping_fee,
       affiliate_id
     }) => {
+      manual_referral_code
       try {
         return await createOrder({
           user_id: userId,
@@ -19,12 +20,15 @@ export const useCreateOrder = () => {
           status: 'pending',
           shipping_fee: shipping_fee,
           affiliate_id: affiliate_id
-        });
-      } catch (error) {
+          visitor_id: visitor_id,
+          manual_referral_code: manual_referral_code
+              } catch (error) {
         console.error('Error creating order:', error);
         throw error;
       }
-    },
+        )
+          },
+    }
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['pending-orders'] });

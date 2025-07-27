@@ -301,6 +301,21 @@ export const registerWithReferral = async (
   }
 };
 
+// Validate referral code
+export const validateReferralCode = async (referralCode: string): Promise<boolean> => {
+  try {
+    if (!referralCode || referralCode.length < 3) {
+      return false;
+    }
+    
+    const affiliate = await getAffiliateByReferralCode(referralCode);
+    return affiliate !== null;
+  } catch (error) {
+    console.error('Error validating referral code:', error);
+    return false;
+  }
+};
+
 // Create order with referral (with duplicate prevention)
 export const createOrderWithReferral = async (
   userId: string,
