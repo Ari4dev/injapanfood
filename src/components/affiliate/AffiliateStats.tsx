@@ -35,8 +35,8 @@ const AffiliateStats = () => {
   
   const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
-  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission + 
-                                   paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  // FIXED: Total commission should NOT include paid commissions
+  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission;
 
   const stats = [
     {

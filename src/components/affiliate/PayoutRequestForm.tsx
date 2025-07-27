@@ -37,12 +37,14 @@ const PayoutRequestForm = () => {
   
   // Calculate available commission (approved commissions only)
   const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
-  const availableCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   
-  // Calculate true pending commission (excluding approved commissions)
-  // Ensure it's never negative by using Math.max
-  const truePendingCommission = affiliate ? 
-    Math.max(0, affiliate.pendingCommission - availableCommission) : 0;
+  // FIXED: Use calculated approved commission directly
+  const availableCommission = calculatedApprovedCommission;
+  
+  // Calculate pending commission from actual commission records
+  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
+  const truePendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
 
   const form = useForm<PayoutFormValues>({
     resolver: zodResolver(payoutSchema),

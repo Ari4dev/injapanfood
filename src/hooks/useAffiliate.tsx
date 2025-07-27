@@ -466,10 +466,20 @@ export const AffiliateProvider = ({ children }: { children: React.ReactNode }) =
     }
 
     try {
-      // Calculate available commission from actual commission records for consistency
+      // Calculate commissions based on actual status from commissions array for consistency
       const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
       const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
       const paidCommissions = commissions.filter(comm => comm.status === 'paid');
+      
+      const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+      const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+      const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+      
+      // FIXED: Use calculated values instead of affiliate object values for consistency
+      const displayPendingCommission = calculatedPendingCommission;
+      const displayAvailableCommission = calculatedApprovedCommission;
+      // Total commission should NOT include paid commissions - it represents current balance
+      const displayTotalCommission = calculatedPendingCommission + calculatedApprovedCommission;
       
       const availableCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
       const pendingAmount = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
