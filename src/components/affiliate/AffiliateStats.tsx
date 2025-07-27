@@ -33,6 +33,9 @@ const AffiliateStats = () => {
   const pendingCommission = affiliate?.pendingCommission || 0;
   const availableCommission = affiliate?.approvedCommission || 0;
   const totalCommission = affiliate?.totalCommission || 0;
+
+  const stats = [
+    {
       title: 'Total Klik',
       value: affiliate.totalClicks,
       icon: TrendingUp,
@@ -50,11 +53,11 @@ const AffiliateStats = () => {
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
       description: 'Jumlah pengguna yang mendaftar',
-      value: `¥${pendingCommission.toLocaleString()}`,
+      change: 'Pengguna baru'
     },
     {
       title: 'Komisi Pending',
-      value: `¥${calculatedPendingCommission.toLocaleString()}`,
+      value: `¥${pendingCommission.toLocaleString()}`,
       icon: Clock,
       color: 'bg-yellow-500 text-white',
       bgColor: 'bg-yellow-50',
