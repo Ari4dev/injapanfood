@@ -1025,8 +1025,25 @@ export const rejectCommission = async (
       affiliateId: commission.affiliateId,
       amount: commission.commissionAmount
     });
+    console.log('Rejecting commission:', commissionId, 'by admin:', adminId, 'reason:', reason);
     
-    // Update commission status
+    // Get commission details first
+    const commissionRef = doc(db, 'affiliate_commissions', commissionId);
+    const commissionDoc = await getDoc(commissionRef);
+    
+    if (!commissionDoc.exists()) {
+      throw new Error('Commission not found');
+    }
+    
+    const commissionData = commissionDoc.data();
+    
+    // Check if already rejected
+    if (commissionData.status === 'rejected') {
+      console.log('Commission already rejected, skipping');
+      return;
+    }
+    
+    
     await updateDoc(commissionRef, {
       status: 'rejected',
       rejectedAt: new Date().toISOString(),
@@ -1034,7 +1051,6 @@ export const rejectCommission = async (
       notes: reason,
       updatedAt: new Date().toISOString()
     });
-    
     // Update referral if exists
     if (commission.referralId) {
       await updateDoc(doc(db, REFERRALS_COLLECTION, commission.referralId), {
@@ -1044,6 +1060,8 @@ export const rejectCommission = async (
         updatedAt: new Date().toISOString()
       });
     }
+      
+      console.log('Related referral updated');
     
     // Note: We're removing the automatic affiliate stats update here
     // The stats will be calculated dynamically from commission records

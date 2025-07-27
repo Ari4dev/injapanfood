@@ -236,13 +236,27 @@ export const createOrder = async (orderData: {
     if (affiliate_id && sanitizedOrderData.user_id) {
       try {
         console.log('Processing affiliate commission for order:', docRef.id);
-        // Process the affiliate commission
-        await createOrderWithReferral(
-          sanitizedOrderData.user_id,
-          docRef.id,
-          sanitizedOrderData.total_price,
-          affiliate_id
+        
+        // Check if commission already exists to prevent duplicates
+        const { collection: firestoreCollection, query: firestoreQuery, where: firestoreWhere, getDocs: firestoreGetDocs } = await import('firebase/firestore');
+        const commissionsRef = firestoreCollection(db, 'affiliate_commissions');
+        const existingCommissionQuery = firestoreQuery(
+          commissionsRef,
+          firestoreWhere('orderId', '==', docRef.id)
         );
+        const existingCommissionSnapshot = await firestoreGetDocs(existingCommissionQuery);
+        
+        if (existingCommissionSnapshot.empty) {
+          // Process the affiliate commission only if it doesn't exist
+          await createOrderWithReferral(
+            sanitizedOrderData.user_id,
+            docRef.id,
+            sanitizedOrderData.total_price,
+            affiliate_id
+          );
+        } else {
+          console.log('Commission already exists for order:', docRef.id, '- skipping creation');
+        }
         console.log('Affiliate commission processed for order:', docRef.id);
       } catch (affiliateError) {
         console.error('Error processing affiliate commission:', affiliateError);
