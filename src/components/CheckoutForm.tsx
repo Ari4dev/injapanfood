@@ -22,6 +22,7 @@ import { calculateTotalWithCOD } from '@/services/codSurchargeService';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/config/firebase';
 import { ButtonSpinner } from '@/components/ui/loading';
+import { validateReferralCode } from '@/services/affiliateService';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Nama lengkap harus minimal 2 karakter'),
@@ -33,6 +34,7 @@ const checkoutSchema = z.object({
   address: z.string().min(10, 'Alamat lengkap harus minimal 10 karakter'),
   notes: z.string().optional(),
   paymentMethod: z.string().min(1, 'Silakan pilih metode pembayaran'),
+  referralCode: z.string().optional(),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -57,6 +59,16 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
   const [visitorId, setVisitorId] = useState<string | null>(null);
   const { data: codSettings } = useCODSettings();
+  const [referralCodeInput, setReferralCodeInput] = useState<string>('');
+  const [referralCodeValidation, setReferralCodeValidation] = useState<{
+    isValidating: boolean;
+    isValid: boolean;
+    error: string | null;
+  }>({
+    isValidating: false,
+    isValid: false,
+    error: null
+  });
 
   // Get affiliate_id only if there's an active referral session
   const form = useForm<CheckoutFormData>({
@@ -71,6 +83,7 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
       address: '',
       notes: '',
       paymentMethod: '',
+      referralCode: '',
     },
   });
 
@@ -112,6 +125,38 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
     }
   }, [shippingRate]);
 
+  // Validate referral code with debounce
+  useEffect(() => {
+    if (!referralCodeInput || referralCodeInput.length < 3) {
+      setReferralCodeValidation({
+        isValidating: false,
+        isValid: false,
+        error: null
+      });
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setReferralCodeValidation(prev => ({ ...prev, isValidating: true }));
+      
+      try {
+        const isValid = await validateReferralCode(referralCodeInput);
+        setReferralCodeValidation({
+          isValidating: false,
+          isValid,
+          error: isValid ? null : 'Kode referral tidak ditemukan'
+        });
+      } catch (error) {
+        setReferralCodeValidation({
+          isValidating: false,
+          isValid: false,
+          error: 'Gagal memvalidasi kode referral'
+        });
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [referralCodeInput]);
   // Get affiliate ID from localStorage if not provided
   useEffect(() => {
     // Import referral utilities and check for active session
@@ -320,6 +365,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
         shipping_fee: orderData.shipping_fee,
         affiliate_id: orderData.affiliate_id,
         visitor_id: orderData.visitor_id
+        manual_referral_code: data.referralCode || null
       });
 
       // Clear referral session after successful order creation
@@ -518,6 +564,39 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
             )}
           />
 
+          {/* Kode Referral Field */}
+          <FormField
+            control={form.control}
+            name="referralCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kode Referral (Opsional)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Masukkan kode referral jika ada"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      field.onChange(value);
+                      setReferralCodeInput(value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+                {referralCodeInput && (
+                  <div className="text-sm">
+                    {referralCodeValidation.isValidating ? (
+                      <span className="text-blue-600">Memvalidasi kode...</span>
+                    ) : referralCodeValidation.isValid ? (
+                      <span className="text-green-600">✓ Kode referral valid</span>
+                    ) : referralCodeValidation.error ? (
+                      <span className="text-red-600">✗ {referralCodeValidation.error}</span>
+                    ) : null}
+                  </div>
+                )}
+              </FormItem>
+            )}
+          />
           {/* Payment Method Selection */}
           <FormField
             control={form.control}
