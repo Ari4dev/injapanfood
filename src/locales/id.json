@@ -259,8 +259,10 @@
    "referralsDescription": "Jumlah pengguna yang mendaftar",
    "pendingCommission": "Komisi Pending",
    "pendingDescription": "Komisi yang belum dibayarkan",
-   "totalCommission": "Total Komisi",
-   "commissionDescription": "Total komisi yang didapatkan"
+   "totalCommission": "Total Komisi (Lifetime)",
+   "commissionDescription": "Akumulasi seluruh komisi yang pernah diterima",
+   "availableCommission": "Komisi Tersedia",
+   "availableDescription": "Saldo komisi siap untuk dicairkan"
   },
   "orders": {
     "title": "Riwayat Pesanan",

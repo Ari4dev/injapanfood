@@ -275,8 +275,10 @@
    "referralsDescription": "Users who registered through your link",
    "pendingCommission": "Pending Commission",
    "pendingDescription": "Commission awaiting approval",
-   "totalCommission": "Total Commission",
-   "commissionDescription": "Total commission earned"
+   "totalCommission": "Total Commission (Lifetime)",
+   "commissionDescription": "Cumulative total of all commissions ever received",
+   "availableCommission": "Available Commission",
+   "availableDescription": "Commission balance ready for withdrawal"
   },
   "orders": {
     "title": "Order History",
