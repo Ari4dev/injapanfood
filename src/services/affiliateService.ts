@@ -728,6 +728,8 @@ export const requestPayout = async (
   bankInfo?: any
 ): Promise<string> => {
   try {
+    console.log('Requesting payout:', { affiliateId, amount, method });
+    
     const payoutData = {
       affiliateId,
       amount,
@@ -740,6 +742,7 @@ export const requestPayout = async (
     const payoutsRef = collection(db, AFFILIATE_PAYOUTS_COLLECTION);
     const docRef = await addDoc(payoutsRef, payoutData);
     
+    console.log('Payout request created:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Error requesting payout:', error);
@@ -747,6 +750,89 @@ export const requestPayout = async (
   }
 };
 
+// Process payout (admin function)
+export const processPayout = async (
+  payoutId: string,
+  adminId: string,
+  status: 'processing' | 'completed' | 'rejected' | 'paid',
+  notes?: string
+): Promise<void> => {
+  try {
+    console.log('Processing payout:', { payoutId, status, adminId });
+    
+    const payoutRef = doc(db, AFFILIATE_PAYOUTS_COLLECTION, payoutId);
+    const payoutDoc = await getDoc(payoutRef);
+    
+    if (!payoutDoc.exists()) {
+      throw new Error('Payout not found');
+    }
+    
+    const payoutData = payoutDoc.data() as AffiliatePayout;
+    
+    // Update payout status
+    const updateData: any = {
+      status,
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (status === 'processing') {
+      updateData.processedAt = new Date().toISOString();
+      updateData.processedBy = adminId;
+    } else if (status === 'completed') {
+      updateData.completedAt = new Date().toISOString();
+      updateData.completedBy = adminId;
+    } else if (status === 'rejected') {
+      updateData.rejectedAt = new Date().toISOString();
+      updateData.rejectedBy = adminId;
+    } else if (status === 'paid') {
+      updateData.paidAt = new Date().toISOString();
+      updateData.paidBy = adminId;
+    }
+    
+    if (notes) {
+      updateData.notes = notes;
+    }
+    
+    await updateDoc(payoutRef, updateData);
+    
+    // CRITICAL FIX: Update affiliate commission balance when payout is completed or paid
+    if (status === 'completed' || status === 'paid') {
+      const affiliateRef = doc(db, AFFILIATES_COLLECTION, payoutData.affiliateId);
+      const affiliateDoc = await getDoc(affiliateRef);
+      
+      if (affiliateDoc.exists()) {
+        const affiliateData = affiliateDoc.data() as AffiliateUser;
+        
+        // Reduce approved commission by the payout amount
+        const newApprovedCommission = Math.max(0, (affiliateData.approvedCommission || 0) - payoutData.amount);
+        
+        // Update paid commission
+        const newPaidCommission = (affiliateData.paidCommission || 0) + payoutData.amount;
+        
+        console.log('Updating affiliate balance:', {
+          affiliateId: payoutData.affiliateId,
+          payoutAmount: payoutData.amount,
+          oldApprovedCommission: affiliateData.approvedCommission,
+          newApprovedCommission,
+          newPaidCommission
+        });
+        
+        await updateDoc(affiliateRef, {
+          approvedCommission: newApprovedCommission,
+          paidCommission: newPaidCommission,
+          updatedAt: new Date().toISOString()
+        });
+        
+        console.log('Affiliate balance updated successfully');
+      }
+    }
+    
+    console.log('Payout processed successfully');
+  } catch (error) {
+    console.error('Error processing payout:', error);
+    throw error;
+  }
+};
 // Admin functions
 export const getAllAffiliates = async (): Promise<AffiliateUser[]> => {
   try {

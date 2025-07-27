@@ -29,15 +29,17 @@ const ModernAffiliateStats = () => {
 
   // Count approved commissions
   const approvedCommissionsCount = commissions.filter(comm => comm.status === 'approved').length;
-
-  // Calculate commission growth (mock data for now)
-  const commissionGrowth = 12.5; // This would come from backend in a real implementation
-  
-  // Calculate commissions based on actual status from commissions array
+  // Calculate commission values from actual commission records for consistency
   const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
   const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
   const paidCommissions = commissions.filter(comm => comm.status === 'paid');
   
+  const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
+  // FIXED: Total commission should NOT include paid commissions
+  // Total commission represents the current balance (pending + approved)
+  const calculatedTotalCommission = calculatedPendingCommission + calculatedApprovedCommission;
   const calculatedPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   const calculatedApprovedCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
   const calculatedPaidCommission = paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
@@ -75,7 +77,6 @@ const ModernAffiliateStats = () => {
   const stats = [
     {
       title: 'Total Klik',
-      value: displayTotalClicks,
       value: correctTotalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500',
@@ -86,7 +87,6 @@ const ModernAffiliateStats = () => {
       description: 'Jumlah klik pada link affiliate'
     },
     {
-      title: 'Total Referral',
       value: displayTotalReferrals,
       value: correctTotalReferrals,
       icon: Users,
@@ -106,7 +106,7 @@ const ModernAffiliateStats = () => {
       bgColor: 'bg-amber-50',
       borderColor: 'border-amber-100',
       growth: 0, // No growth for pending
-      description: 'Komisi yang belum disetujui admin'
+      title: 'Komisi Tersedia',
     },
     {
       title: 'Komisi Tersedia',
@@ -116,7 +116,7 @@ const ModernAffiliateStats = () => {
       textColor: 'text-purple-500',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-100',
-      growth: commissionGrowth,
+      description: 'Komisi yang tersedia untuk dicairkan',
       description: `${approvedCommissions.length} komisi sudah disetujui admin`
     }
   ];
