@@ -3,11 +3,9 @@ import { useAffiliate } from '@/hooks/useAffiliate';
 import { TrendingUp, Users, Clock, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useLanguage } from '@/hooks/useLanguage';
 
 const ModernAffiliateStats = () => {
   const { affiliate, loading, commissions, referrals } = useAffiliate();
-  const { t } = useLanguage();
   const { t } = useLanguage();
 
   if (loading) {
@@ -53,17 +51,14 @@ const ModernAffiliateStats = () => {
   const actualTotalReferrals = referrals.filter(ref => 
     ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
   ).length;
-  // Calculate actual referral counts from referrals array for accuracy
-  const actualTotalClicks = referrals.filter(ref => 
-    ref.status === 'clicked' || ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
-  ).length;
-  
-  const actualTotalReferrals = referrals.filter(ref => 
-    ref.status === 'registered' || ref.status === 'ordered' || ref.status === 'approved'
-  ).length;
   
   // Use actual counts for display
   const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
+  const displayTotalReferrals = Math.max(actualTotalReferrals, affiliate.totalReferrals);
+
+  const stats = [
+    {
+      title: 'Total Klik',
       value: displayTotalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500',
@@ -94,16 +89,16 @@ const ModernAffiliateStats = () => {
       borderColor: 'border-amber-100',
       growth: 0, // No growth for pending
       description: 'Komisi yang belum disetujui admin'
+    },
+    {
       title: 'Komisi Tersedia',
       value: `¥${availableCommission.toLocaleString()}`,
-      title: 'Total Komisi',
-      value: `¥${calculatedApprovedCommission.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-purple-500',
       textColor: 'text-purple-500',
       bgColor: 'bg-purple-50',
-      description: 'Komisi siap untuk dicairkan',
-      change: `Dari total ¥${calculatedTotalCommission.toLocaleString()}`
+      borderColor: 'border-purple-100',
+      growth: 12.5, // Mock data
       description: `Saldo komisi yang tersedia untuk dicairkan`
     }
   ];
