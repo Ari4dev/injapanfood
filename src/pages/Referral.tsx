@@ -36,7 +36,15 @@ const AffiliateContent = () => {
   
   // Use backend's authoritative values instead of calculating from commission records
   // This ensures consistency with the main stats cards
-  const totalLifetimeCommission = affiliate?.totalCommission || 0;
+  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
+  const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
+  const paidCommissions = commissions.filter(comm => comm.status === 'paid');
+  
+  // Total Lifetime Commission: ALL commissions ever approved (including paid ones)
+  const totalLifetimeCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0) + 
+                                  paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
+  // Available Commission: Use backend's authoritative value
   const availableCommission = affiliate?.approvedCommission || 0;
   
   return (

@@ -45,6 +45,21 @@ const ModernAffiliateStats = () => {
   const displayTotalClicks = Math.max(actualTotalClicks, affiliate.totalClicks);
   const displayTotalReferrals = Math.max(actualTotalReferrals, affiliate.totalReferrals);
 
+  // Calculate commission values correctly based on actual commission status
+  const pendingCommissions = commissions.filter(comm => comm.status === 'pending');
+  const approvedCommissions = commissions.filter(comm => comm.status === 'approved');
+  const paidCommissions = commissions.filter(comm => comm.status === 'paid');
+  
+  // Pending Commission: Only commissions waiting for admin approval
+  const actualPendingCommission = pendingCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
+  // Total Lifetime Commission: ALL commissions ever approved (including paid ones)
+  const actualLifetimeCommission = approvedCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0) + 
+                                   paidCommissions.reduce((sum, comm) => sum + comm.commissionAmount, 0);
+  
+  // Available Commission: Only approved commissions that haven't been paid out yet
+  const actualAvailableCommission = affiliate?.approvedCommission || 0;
+
   const stats = [
     {
       title: 'Total Klik',
@@ -70,7 +85,7 @@ const ModernAffiliateStats = () => {
     },
     {
       title: 'Komisi Pending',
-      value: `¥${pendingCommission.toLocaleString()}`,
+      value: `¥${actualPendingCommission.toLocaleString()}`,
       icon: Clock,
       color: 'bg-amber-500',
       textColor: 'text-amber-500',
@@ -81,7 +96,7 @@ const ModernAffiliateStats = () => {
     },
     {
       title: 'Komisi Tersedia',
-      value: `¥${availableCommission.toLocaleString()}`,
+      value: `¥${actualAvailableCommission.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-purple-500',
       textColor: 'text-purple-500',
