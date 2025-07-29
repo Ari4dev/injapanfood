@@ -239,7 +239,7 @@
     "errorOccurred": "エラーが発生しました",
     "cannotLoadOrders": "注文履歴を読み込めませんでした。後でもう一度お試しください。",
     "reload": "再読み込み",
-    "variant": "バリエーション"
+    "variant": "バリエーション",
     "downloadInvoice": "請求書をダウンロード",
     "trackOrder": "注文を追跡"
   },
