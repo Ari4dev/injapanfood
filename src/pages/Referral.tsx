@@ -53,7 +53,7 @@ const AffiliateContent = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('affiliate.dashboard')}</h1>
-          <p className="text-gray-600">Kelola program affiliate Anda dan pantau performa</p>
+          <p className="text-gray-600">{t('affiliate.manageProgramDesc')}</p>
         </div>
         
         {/* Stats Overview */}
@@ -67,20 +67,20 @@ const AffiliateContent = () => {
             <CardHeader>
               <CardTitle className="flex items-center text-primary">
                 <DollarSign className="w-5 h-5 mr-2" />
-                Ringkasan Komisi
+                {t('affiliate.commissionSummary')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white p-4 rounded-lg border border-primary/20">
-                  <h3 className="text-sm font-medium text-gray-600 mb-1">Total Komisi (Lifetime)</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">{t('affiliate.totalCommissionLifetime')}</h3>
                   <p className="text-2xl font-bold text-primary">¥{totalLifetimeCommission.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500 mt-1">Akumulasi seluruh komisi yang pernah diterima</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('affiliate.totalCommissionLifetimeDesc')}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-green-200">
-                  <h3 className="text-sm font-medium text-gray-600 mb-1">Komisi Tersedia</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">{t('affiliate.availableCommissionBalance')}</h3>
                   <p className="text-2xl font-bold text-green-600">¥{availableCommission.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500 mt-1">Saldo siap untuk diajukan pencairan</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('affiliate.availableBalanceDesc')}</p>
                 </div>
               </div>
             </CardContent>
@@ -90,10 +90,10 @@ const AffiliateContent = () => {
         {/* Main Tabs */}
         <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="mb-6">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="referrals">Referrals</TabsTrigger>
-            <TabsTrigger value="commissions">Commissions</TabsTrigger>
-            <TabsTrigger value="payouts">Payouts</TabsTrigger>
+            <TabsTrigger value="dashboard">{t('affiliate.dashboardTab')}</TabsTrigger>
+            <TabsTrigger value="referrals">{t('affiliate.referralsTab')}</TabsTrigger>
+            <TabsTrigger value="commissions">{t('affiliate.commissionsTab')}</TabsTrigger>
+            <TabsTrigger value="payouts">{t('affiliate.payoutsTab')}</TabsTrigger>
           </TabsList>
           
           {/* Dashboard Tab */}

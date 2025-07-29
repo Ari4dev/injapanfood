@@ -51,8 +51,8 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
     
     // Show success toast
     toast({
-      title: "✅ Berhasil",
-      description: `${product.name}${selectedVariant ? ` (${selectedVariant.name})` : ''} berhasil ditambahkan ke keranjang.`,
+      title: t('cart.addedSuccess'),
+      description: `${product.name}${selectedVariant ? ` (${selectedVariant.name})` : ''} ${t('cart.hasBeenAdded')}`,
     });
     
     // Trigger animation if available
@@ -85,7 +85,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           {product.stock === 0 && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <span className="bg-red-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                Habis
+                {t('products.outOfStock')}
               </span>
             </div>
           )}

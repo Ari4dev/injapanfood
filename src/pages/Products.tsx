@@ -8,14 +8,14 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FlyingProductAnimation from '@/components/FlyingProductAnimation';
 import { Product } from '@/types';
-import { getCategoryIcon } from '@/utils/categoryVariants';
+import { getCategoryIcon, getCategoryTranslation } from '@/utils/categoryVariants';
 import { getAllCategories } from '@/services/categoryService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton, ProductCardSkeleton, ErrorState } from '@/components/ui/loading';
 
 const Products = () => {
   const { data: products = [], isLoading, isError, error } = useProducts();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   
@@ -154,7 +154,7 @@ const Products = () => {
               onValueChange={setSelectedCategory}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Pilih kategori" />
+                <SelectValue placeholder={t('categories.all')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
@@ -166,7 +166,7 @@ const Products = () => {
                 {categoriesLoading ? (
                   <div className="p-2 text-center">
                     <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full inline-block mr-2"></div>
-                    <span>Loading categories...</span>
+                    <span>{t('common.loading')}</span>
                   </div>
                 ) : (
                   allCategoryNames.map(category => {
@@ -178,7 +178,7 @@ const Products = () => {
                       <SelectItem key={category} value={category}>
                         <div className="flex items-center space-x-2">
                           <span>{icon}</span>
-                          <span>{category}</span>
+                          <span>{getCategoryTranslation(category, language)}</span>
                         </div>
                       </SelectItem>
                     );
@@ -201,7 +201,7 @@ const Products = () => {
           >
             <span className="flex items-center space-x-1">
               <span>🔍</span>
-              <span>Semua</span>
+              <span>{t('categories.all')}</span>
             </span>
           </button>
           {!categoriesLoading && allCategoryNames.map(category => {
@@ -220,7 +220,7 @@ const Products = () => {
                 }`}
               >
                 <span>{icon}</span>
-                <span>{category}</span>
+                <span>{getCategoryTranslation(category, language)}</span>
               </button>
             );
           })}

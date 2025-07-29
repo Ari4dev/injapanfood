@@ -71,8 +71,8 @@ const AddToCartButton = ({
 
     // Show toast with cart link
     toast({
-      title: "✅ Berhasil",
-      description: `${product.name}${product.selectedVariantName ? ` (${product.selectedVariantName})` : ''} berhasil ditambahkan ke keranjang.`,
+      title: t('cart.addedSuccess'),
+      description: `${product.name}${product.selectedVariantName ? ` (${product.selectedVariantName})` : ''} ${t('cart.hasBeenAdded')}`,
       duration: 3000,
       action: (
         <button 
@@ -153,13 +153,13 @@ const AddToCartButton = ({
           transition={{ duration: 0.3 }}
         >
           {isOutOfStock ? t('products.outOfStock') : 
-           isAdded ? '✓ Ditambahkan' : 
+           isAdded ? t('cart.addedSuccess') : 
            loading ? (
              <div className="flex items-center">
                <ButtonSpinner />
-               <span>Adding...</span>
+               <span>{t('common.loading')}</span>
              </div>
-           ) : t('buttons.addToCart')}
+           ) : t('products.addToCart')}
         </motion.span>
       </motion.div>
 

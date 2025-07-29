@@ -7,6 +7,8 @@ const LanguageSwitcher = () => {
 
   const languages = [
     { code: 'id', name: 'Indonesia', flag: '🇮🇩' },
+    { code: 'vi', name: 'Việt Nam', flag: '🇻🇳' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
   ];
 
@@ -27,7 +29,7 @@ const LanguageSwitcher = () => {
             <div
               key={lang.code}
               onClick={() => {
-                setLanguage(lang.code as 'id' | 'en');
+                setLanguage(lang.code as 'id' | 'en' | 'ja' | 'vi');
                 setIsOpen(false);
               }}
               className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center space-x-2 first:rounded-t-lg last:rounded-b-lg ${

@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import idTranslations from '@/locales/id.json';
 import enTranslations from '@/locales/en.json';
+import jaTranslations from '@/locales/ja.json';
+import viTranslations from '@/locales/vi.json';
 
-type Language = 'id' | 'en';
+type Language = 'id' | 'en' | 'ja' | 'vi';
 
 interface LanguageContextType {
   language: Language;
@@ -13,6 +15,8 @@ interface LanguageContextType {
 const translations = {
   id: idTranslations,
   en: enTranslations,
+  ja: jaTranslations,
+  vi: viTranslations,
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -22,8 +26,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as Language;
-    if (savedLanguage && (savedLanguage === 'id' || savedLanguage === 'en')) {
+    if (savedLanguage && (savedLanguage === 'id' || savedLanguage === 'en' || savedLanguage === 'ja' || savedLanguage === 'vi')) {
       setLanguageState(savedLanguage);
+    } else {
+      // Default to Indonesian if no saved language
+      setLanguageState('id');
+      localStorage.setItem('language', 'id');
     }
   }, []);
 
