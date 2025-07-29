@@ -113,7 +113,8 @@
     "error": "エラーが発生しました",
     "loading": "読み込み中...",
     "refresh": "ページを更新",
-    "loadingError": "データの読み込みに失敗しました。ページを更新してください。"
+    "loadingError": "データの読み込みに失敗しました。ページを更新してください。",
+    "notAvailable": "利用不可"
   },
   "cart": {
     "title": "マイカート",
@@ -229,7 +230,16 @@
     "delivered": "配送完了",
     "cancelled": "キャンセル",
     "confirmed": "確認済み",
-    "completed": "完了",
+    "completed": "注文は完了し、発送されました",
+    "statusPending": "確認待ち",
+    "statusConfirmed": "確認済み",
+    "statusProcessing": "処理中",
+    "statusCompleted": "完了",
+    "statusCancelled": "キャンセル済み",
+    "errorOccurred": "エラーが発生しました",
+    "cannotLoadOrders": "注文履歴を読み込めませんでした。後でもう一度お試しください。",
+    "reload": "再読み込み",
+    "variant": "バリエーション"
     "downloadInvoice": "請求書をダウンロード",
     "trackOrder": "注文を追跡"
   },

@@ -98,7 +98,8 @@
     "error": "Terjadi Kesalahan",
     "loading": "Memuat...",
     "refresh": "Refresh Halaman",
-    "loadingError": "Gagal memuat data. Silakan coba refresh halaman."
+    "loadingError": "Gagal memuat data. Silakan coba refresh halaman.",
+    "notAvailable": "Tidak tersedia"
   },
   "cart": {
     "title": "Keranjang Saya",
@@ -290,7 +291,16 @@
     "status": "Status:",
     "pending": "Pesanan Anda sedang menunggu konfirmasi admin",
     "confirmed": "Pesanan telah dikonfirmasi dan sedang diproses",
-    "completed": "Pesanan telah selesai dan dikirim"
+    "completed": "Pesanan telah selesai dan dikirim",
+    "statusPending": "Menunggu Konfirmasi",
+    "statusConfirmed": "Dikonfirmasi",
+    "statusProcessing": "Diproses",
+    "statusCompleted": "Selesai",
+    "statusCancelled": "Dibatalkan",
+    "errorOccurred": "Terjadi Kesalahan",
+    "cannotLoadOrders": "Tidak dapat memuat riwayat pesanan. Silakan coba lagi nanti.",
+    "reload": "Muat Ulang",
+    "variant": "Varian"
   },
   "buttons": {
     "addToCart": "Tambah ke Keranjang",

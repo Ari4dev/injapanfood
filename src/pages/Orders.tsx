@@ -111,15 +111,15 @@ const Orders = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'Menunggu Konfirmasi';
+        return t('orders.statusPending');
       case 'confirmed':
-        return 'Dikonfirmasi';
+        return t('orders.statusConfirmed');
       case 'processing':
-        return 'Diproses';
+        return t('orders.statusProcessing');
       case 'completed':
-        return 'Selesai';
+        return t('orders.statusCompleted');
       case 'cancelled':
-        return 'Dibatalkan';
+        return t('orders.statusCancelled');
       default:
         return status;
     }
@@ -188,16 +188,16 @@ const Orders = () => {
               <CardContent className="py-8 text-center">
                 <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Terjadi Kesalahan
+                  {t('orders.errorOccurred')}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Tidak dapat memuat riwayat pesanan. Silakan coba lagi nanti.
+                  {t('orders.cannotLoadOrders')}
                 </p>
                 <Button 
                   onClick={handleRefresh}
                   variant="outline"
                 >
-                  Muat Ulang
+                  {t('orders.reload')}
                 </Button>
               </CardContent>
             </Card>
@@ -266,7 +266,7 @@ const Orders = () => {
                                   </p>
                                   {item.selectedVariants && Object.keys(item.selectedVariants).length > 0 && (
                                     <p className="text-xs text-gray-500">
-                                      Varian: {Object.entries(item.selectedVariants).map(([type, value]) => `${type}: ${value}`).join(', ')}
+                                      {t('orders.variant')}: {Object.entries(item.selectedVariants).map(([type, value]) => `${type}: ${value}`).join(', ')}
                                     </p>
                                   )}
                                 </div>
@@ -296,7 +296,7 @@ const Orders = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
                             <p className="text-sm font-medium text-blue-700">
-                              {t('payment.method')}: {order.customer_info.payment_method || 'Tidak tersedia'}
+                              {t('payment.method')}: {order.customer_info.payment_method || t('common.notAvailable')}
                             </p>
                             <OrderPaymentStatus 
                               status={getPaymentStatus(order)} 
@@ -413,7 +413,7 @@ const Orders = () => {
             </Button>
             <img 
               src={selectedPaymentProofUrl} 
-              alt="Bukti Pembayaran" 
+              alt={t('payment.viewPaymentProof')}
               className="max-w-full max-h-[80vh] object-contain"
             />
           </div>
