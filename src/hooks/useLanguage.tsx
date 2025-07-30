@@ -9,7 +9,7 @@ type Language = 'id' | 'en' | 'ja' | 'vi';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 }
 
 const translations = {
@@ -40,7 +40,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('language', lang);
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, any>): string => {
     const keys = key.split('.');
     let value: any = translations[language];
     
@@ -73,17 +73,22 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     
     // If the value is a string, return it (possibly interpolated)
     if (typeof value === 'string') {
-      // Check if this is a call with parameters
+      // First check if params were passed as second argument (modern i18n way)
+      if (params) {
+        return interpolate(value, params);
+      }
+      
+      // Legacy support: Check if this is a call with parameters in the key
       const match = key.match(/^(.+),\s*(.+)$/);
       if (match) {
         try {
           const actualKey = match[1];
           const paramsStr = match[2];
-          const params = JSON.parse(`{${paramsStr}}`);
+          const legacyParams = JSON.parse(`{${paramsStr}}`);
           
           // Get the string again without the params part
           const baseValue = t(actualKey);
-          return interpolate(baseValue, params);
+          return interpolate(baseValue, legacyParams);
         } catch (e) {
           console.error('Error parsing parameters for translation:', e);
           return value;
