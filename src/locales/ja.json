@@ -374,6 +374,8 @@
     "referralsTab": "紹介",
     "commissionsTab": "コミッション",
     "payoutsTab": "引き出し",
+    "commissionsUnit": "コミッション",
+    "commissionsCount": "{count}コミッション",
     "jepretan": "スクリーンショット",
     "layar": "画面"
   },

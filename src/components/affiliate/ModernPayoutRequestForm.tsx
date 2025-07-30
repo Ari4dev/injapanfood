@@ -227,7 +227,7 @@ const ModernPayoutRequestForm = () => {
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex justify-between">
                   <span>{t('affiliate.approvedCommissions')}</span>
-                  <span className="font-medium">{approvedCommissionsCount} komisi</span>
+                  <span className="font-medium">{t('affiliate.commissionsCount', { count: approvedCommissionsCount })}</span>
                 </li>
                 <li className="flex justify-between">
                   <span>{t('affiliate.availableCommissions')}</span>
