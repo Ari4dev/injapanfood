@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAffiliate } from '@/hooks/useAffiliate';
 import { TrendingUp, Users, ShoppingCart, DollarSign, Clock, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const AffiliateStats = () => {
   const { affiliate, loading, commissions, referrals } = useAffiliate();
+  const { t } = useLanguage();
 
   if (loading) {
     return (
@@ -36,43 +38,43 @@ const AffiliateStats = () => {
 
   const stats = [
     {
-      title: 'Total Klik',
+      title: t('affiliate.totalClicks'),
       value: affiliate.totalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500 text-white',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
-      description: 'Jumlah klik pada link affiliate',
+      description: t('affiliate.clicksDescription'),
       change: '+12% minggu ini'
     },
     {
-      title: 'Total Referral',
+      title: t('affiliate.totalReferrals'),
       value: affiliate.totalReferrals,
       icon: Users,
       color: 'bg-green-500 text-white',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
-      description: 'Jumlah pengguna yang mendaftar',
+      description: t('affiliate.referralsDescription'),
       change: 'Pengguna baru'
     },
     {
-      title: 'Komisi Pending',
+      title: t('affiliate.pendingCommission'),
       value: `¥${pendingCommission.toLocaleString()}`,
       icon: Clock,
       color: 'bg-yellow-500 text-white',
       bgColor: 'bg-yellow-50',
       borderColor: 'border-yellow-200',
-      description: 'Komisi yang belum dibayarkan',
+      description: t('affiliate.pendingDescription'),
       change: 'Menunggu persetujuan'
     },
     {
-      title: 'Komisi Tersedia',
+      title: t('affiliate.availableCommission'),
       value: `¥${availableCommission.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-red-500 text-white',
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200',
-      description: 'Saldo komisi siap untuk dicairkan',
+      description: t('affiliate.availableDescription'),
       change: 'Siap dicairkan'
     }
   ];

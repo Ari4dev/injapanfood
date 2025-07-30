@@ -62,7 +62,7 @@ const ModernAffiliateStats = () => {
 
   const stats = [
     {
-      title: 'Total Klik',
+      title: t('affiliate.totalClicks'),
       value: displayTotalClicks,
       icon: TrendingUp,
       color: 'bg-blue-500',
@@ -70,10 +70,10 @@ const ModernAffiliateStats = () => {
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-100',
       growth: 8.2, // Mock data
-      description: 'Jumlah klik pada link affiliate'
+      description: t('affiliate.clicksDescription')
     },
     {
-      title: 'Total Referral',
+      title: t('affiliate.totalReferrals'),
       value: displayTotalReferrals,
       icon: Users,
       color: 'bg-green-500',
@@ -81,10 +81,10 @@ const ModernAffiliateStats = () => {
       bgColor: 'bg-green-50',
       borderColor: 'border-green-100',
       growth: 5.3, // Mock data
-      description: 'Jumlah pengguna yang mendaftar'
+      description: t('affiliate.referralsDescription')
     },
     {
-      title: 'Komisi Pending',
+      title: t('affiliate.pendingCommission'),
       value: `¥${actualPendingCommission.toLocaleString()}`,
       icon: Clock,
       color: 'bg-amber-500',
@@ -92,10 +92,10 @@ const ModernAffiliateStats = () => {
       bgColor: 'bg-amber-50',
       borderColor: 'border-amber-100',
       growth: 0, // No growth for pending
-      description: 'Komisi yang belum disetujui admin'
+      description: t('affiliate.pendingDescription')
     },
     {
-      title: 'Komisi Tersedia',
+      title: t('affiliate.availableCommission'),
       value: `¥${actualAvailableCommission.toLocaleString()}`,
       icon: DollarSign,
       color: 'bg-purple-500',
@@ -103,7 +103,7 @@ const ModernAffiliateStats = () => {
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-100',
       growth: 12.5, // Mock data
-      description: `Saldo komisi yang tersedia untuk dicairkan`
+      description: t('affiliate.availableDescription')
     }
   ];
 

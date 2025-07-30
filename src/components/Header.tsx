@@ -100,7 +100,7 @@ const Header = ({ shouldAnimateCart = false }: HeaderProps) => {
                 className="font-medium text-gray-700 hover:text-primary transition-colors duration-200 cursor-pointer flex items-center"
               >
                 <Download className="w-4 h-4 mr-1" />
-                <span>⬇️ Download Aplikasi</span>
+                <span>⬇️ {t('nav.downloadApp')}</span>
               </div>
             )}
           </nav>
@@ -191,7 +191,7 @@ const Header = ({ shouldAnimateCart = false }: HeaderProps) => {
                   className="text-gray-700 hover:text-primary font-medium text-left cursor-pointer flex items-center"
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  <span>⬇️ Download Aplikasi</span>
+                  <span>⬇️ {t('nav.downloadApp')}</span>
                 </div>
               )}
             </nav>
@@ -203,15 +203,15 @@ const Header = ({ shouldAnimateCart = false }: HeaderProps) => {
       {showIOSInstructions && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm">
-            <h3 className="text-lg font-bold mb-3">Instalasi di iOS:</h3>
+            <h3 className="text-lg font-bold mb-3">{t('nav.iosInstallTitle')}</h3>
             <ol className="list-decimal pl-5 mb-4 space-y-2">
-              <li>Tap ikon "Share" (kotak dengan panah ke atas) di browser</li>
-              <li>Scroll dan pilih "Add to Home Screen"</li>
-              <li>Tap "Add" di pojok kanan atas</li>
+              <li>{t('nav.iosInstallStep1')}</li>
+              <li>{t('nav.iosInstallStep2')}</li>
+              <li>{t('nav.iosInstallStep3')}</li>
             </ol>
             <div className="flex justify-end">
               <Button onClick={() => setShowIOSInstructions(false)}>
-                Tutup
+                {t('nav.close')}
               </Button>
             </div>
           </div>

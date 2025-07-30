@@ -202,17 +202,17 @@ const ModernPayoutRequestForm = () => {
               <div>
                 <h4 className="font-medium text-amber-800 text-sm">{t('affiliate.notEligibleForPayout')}</h4>
                 <p className="text-sm text-amber-700 mt-1">
-                  Komisi tersedia Anda (¥{maxAmount.toLocaleString()}) belum mencapai jumlah minimum pencairan (¥{minAmount.toLocaleString()}).
+                  {t('affiliate.payoutNotEligibleMessage', { available: maxAmount.toLocaleString(), minimum: minAmount.toLocaleString() })}
                 </p>
                 <p className="text-xs text-amber-600 mt-2">
-                  Catatan: Hanya komisi dengan status "Approved" yang tersedia untuk pencairan. Komisi "Pending" harus disetujui admin terlebih dahulu.
+                  {t('affiliate.payoutEligibleNote')}
                 </p>
               </div>
             </div>
             
             <div className="space-y-2 mt-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Progress to minimum payout</span>
+                <span className="text-gray-600">{t('affiliate.progressToMinimumPayout')}</span>
                 <span className="font-medium">{progressPercentage.toFixed(0)}%</span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
@@ -223,22 +223,22 @@ const ModernPayoutRequestForm = () => {
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-4">
-              <h5 className="font-medium text-gray-700 text-sm mb-2">Informasi Saldo Komisi</h5>
+              <h5 className="font-medium text-gray-700 text-sm mb-2">{t('affiliate.commissionBalanceInfo')}</h5>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex justify-between">
-                  <span>Komisi Approved:</span>
+                  <span>{t('affiliate.approvedCommissions')}</span>
                   <span className="font-medium">{approvedCommissionsCount} komisi</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Komisi Tersedia:</span>
+                  <span>{t('affiliate.availableCommissions')}</span>
                   <span className="font-medium">¥{maxAmount.toLocaleString()}</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Minimum Pencairan:</span>
+                  <span>{t('affiliate.minimumPayout')}</span>
                   <span className="font-medium">¥{minAmount.toLocaleString()}</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Masih Dibutuhkan:</span>
+                  <span>{t('affiliate.stillNeeded')}</span>
                   <span className="font-medium text-amber-600">¥{Math.max(0, minAmount - maxAmount).toLocaleString()}</span>
                 </li>
               </ul>
@@ -253,29 +253,29 @@ const ModernPayoutRequestForm = () => {
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-green-800 text-sm">Anda memenuhi syarat untuk pencairan!</h4>
+                    <h4 className="font-medium text-green-800 text-sm">{t('affiliate.qualifiedForPayout')}</h4>
                     <p className="text-sm text-green-700 mt-1">
-                      Anda memiliki ¥{maxAmount.toLocaleString()} komisi tersedia untuk pencairan dari {approvedCommissionsCount} komisi yang disetujui.
+                      {t('affiliate.availableForWithdrawal', { amount: maxAmount.toLocaleString(), count: approvedCommissionsCount })}
                     </p>
                     <p className="text-xs text-green-600 mt-2">
-                      Jumlah ini merupakan komisi yang sudah disetujui dan siap untuk dicairkan. Setelah mengajukan pencairan, saldo ini akan langsung berkurang sesuai jumlah yang diajukan.
+                      {t('affiliate.approvedCommissionNote')}
                     </p>
                   </div>
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h5 className="font-medium text-gray-700 text-sm mb-2">Informasi Pencairan</h5>
+                  <h5 className="font-medium text-gray-700 text-sm mb-2">{t('affiliate.payoutInfo')}</h5>
                   <ul className="space-y-2 text-sm text-gray-600">
                     <li className="flex justify-between">
-                      <span>Komisi Tersedia:</span>
+                      <span>{t('affiliate.availableCommissions')}</span>
                       <span className="font-medium">¥{maxAmount.toLocaleString()}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Total Komisi (Lifetime):</span>
+                      <span>{t('affiliate.totalCommissionLifetime')}</span>
                       <span className="font-medium">¥{totalCommission.toLocaleString()}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Minimum Pencairan:</span>
+                      <span>{t('affiliate.minimumPayout')}</span>
                       <span className="font-medium">¥{minAmount.toLocaleString()}</span>
                     </li>
                   </ul>
@@ -285,7 +285,7 @@ const ModernPayoutRequestForm = () => {
                   onClick={() => setIsFormOpen(true)}
                   className="w-full"
                 >
-                  Ajukan Pencairan Sekarang
+                  {t('affiliate.requestPayoutNow')}
                 </Button>
               </div>
             ) : (
@@ -307,7 +307,7 @@ const ModernPayoutRequestForm = () => {
                           />
                         </FormControl>
                         <p className="text-xs text-gray-500">
-                          Tersedia: ¥{maxAmount.toLocaleString()} | Minimum: ¥{minAmount.toLocaleString()}
+                          {t('affiliate.availableAmount', { amount: maxAmount.toLocaleString(), minimum: minAmount.toLocaleString() })}
                         </p>
                         <FormMessage />
                       </FormItem>
@@ -326,12 +326,12 @@ const ModernPayoutRequestForm = () => {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Pilih metode pembayaran" />
+                              <SelectValue placeholder={t('affiliate.selectPaymentMethod')} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Transfer Bank Jepang">Transfer Bank Jepang</SelectItem>
-                            <SelectItem value="Transfer Bank Rupiah (Indonesia)">Transfer Bank Rupiah (Indonesia)</SelectItem>
+                            <SelectItem value="Transfer Bank Jepang">{t('affiliate.japanBankTransfer')}</SelectItem>
+                            <SelectItem value="Transfer Bank Rupiah (Indonesia)">{t('affiliate.indonesiaBankTransfer')}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -344,26 +344,26 @@ const ModernPayoutRequestForm = () => {
              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-4">
                <h4 className="font-medium text-yellow-800 mb-2 flex items-center">
                  <Info className="w-4 h-4 mr-2" />
-                 Detail Pemotongan Pajak
+                 {t('affiliate.taxDeductionDetails')}
                </h4>
                
                <div className="space-y-2">
                  <div className="flex justify-between">
-                   <span className="text-yellow-700">Jumlah Bruto:</span>
+                   <span className="text-yellow-700">{t('affiliate.grossAmount')}</span>
                    <span className="font-medium text-yellow-800">¥{grossAmount.toLocaleString()}</span>
                  </div>
                  <div className="flex justify-between">
-                   <span className="text-yellow-700">Pajak (10%):</span>
+                   <span className="text-yellow-700">{t('affiliate.tax10Percent')}</span>
                    <span className="font-medium text-red-600">-¥{taxAmount.toLocaleString()}</span>
                  </div>
                  <div className="flex justify-between border-t border-yellow-200 pt-2">
-                   <span className="text-yellow-700 font-medium">Jumlah Bersih Diterima:</span>
+                   <span className="text-yellow-700 font-medium">{t('affiliate.netAmountReceived')}</span>
                    <span className="font-bold text-green-600">¥{netAmount.toLocaleString()}</span>
                  </div>
                </div>
                
                <div className="mt-3 p-2 bg-yellow-100 rounded text-xs text-yellow-700">
-                 <strong>Catatan:</strong> Pajak 10% dipotong dari semua pencairan komisi sesuai peraturan pajak Jepang
+                 <strong>Catatan:</strong> {t('affiliate.taxNote')}
                </div>
              </div>
            )}
@@ -373,7 +373,7 @@ const ModernPayoutRequestForm = () => {
              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
                <h4 className="font-medium text-blue-800 mb-2 flex items-center">
                  <Info className="w-4 h-4 mr-2" />
-                 Konversi Mata Uang
+                 {t('affiliate.currencyConversionTitle')}
                </h4>
                
                <div className="flex justify-between items-center mb-2">
@@ -381,11 +381,11 @@ const ModernPayoutRequestForm = () => {
                    {conversionLoading || isRefreshing ? (
                      <div className="flex items-center">
                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                       <span className="text-blue-600">Mengkonversi...</span>
+                       <span className="text-blue-600">{t('affiliate.converting')}</span>
                      </div>
                    ) : (
                      <span className="font-bold text-blue-700 text-xl">
-                       Rp {convertedRupiah?.toLocaleString('id-ID') || '-'} (jumlah bersih)
+                       Rp {convertedRupiah?.toLocaleString('id-ID') || '-'} {t('affiliate.netAmount')}
                      </span>
                    )}
                  </div>
@@ -397,14 +397,14 @@ const ModernPayoutRequestForm = () => {
                    disabled={isRefreshing}
                  >
                    <RefreshCw className={`w-4 h-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-                   {isRefreshing ? 'Menyegarkan...' : 'Perbarui Kurs'}
+                   {isRefreshing ? t('affiliate.refreshing') : t('affiliate.updateRate')}
                  </Button>
                </div>
                
                {lastUpdated && (
                  <p className="text-xs text-blue-600 flex items-center mb-3">
                    <Info className="w-3 h-3 mr-1" />
-                   Kurs otomatis untuk jumlah bersih setelah pajak, diperbarui pada {lastUpdated}
+                   {t('affiliate.autoRateUpdate', { time: lastUpdated })}
                  </p>
                )}
                
@@ -417,7 +417,7 @@ const ModernPayoutRequestForm = () => {
                )}
                
                <div className="mt-3 p-2 bg-blue-100 rounded text-xs text-blue-700">
-                 <strong>Konversi:</strong> Jumlah bersih ¥{netAmount.toLocaleString()} dikonversi ke Rupiah menggunakan kurs real-time
+                 <strong>Konversi:</strong> {t('affiliate.conversionRateNote', { amount: netAmount.toLocaleString() })}
                </div>
              </div>
            )}
@@ -436,7 +436,7 @@ const ModernPayoutRequestForm = () => {
                    name="bankName"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Nama Bank Jepang</FormLabel>
+                       <FormLabel>{t('affiliate.japanBankName')}</FormLabel>
                        <FormControl>
                          <Input {...field} placeholder="Contoh: MUFG Bank, Japan Post Bank" />
                        </FormControl>
@@ -450,12 +450,12 @@ const ModernPayoutRequestForm = () => {
                    name="branchCode"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Kode Cabang</FormLabel>
+                       <FormLabel>{t('affiliate.branchCodeLabel')}</FormLabel>
                        <FormControl>
                          <Input {...field} placeholder="Contoh: 001" />
                        </FormControl>
                        <p className="text-xs text-gray-500 mt-1">
-                         Kode cabang bank Jepang (biasanya 3 digit)
+                         {t('affiliate.branchCodeNote')}
                        </p>
                        <FormMessage />
                      </FormItem>
@@ -467,9 +467,9 @@ const ModernPayoutRequestForm = () => {
                    name="accountNumber"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Nomor Rekening</FormLabel>
+                       <FormLabel>{t('affiliate.accountNumberLabel')}</FormLabel>
                        <FormControl>
-                         <Input {...field} placeholder="Masukkan nomor rekening Jepang" />
+                         <Input {...field} placeholder={t('affiliate.enterJapanAccount')} />
                        </FormControl>
                        <FormMessage />
                      </FormItem>
@@ -481,9 +481,9 @@ const ModernPayoutRequestForm = () => {
                    name="accountName"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Nama Pemilik Rekening</FormLabel>
+                       <FormLabel>{t('affiliate.accountHolderName')}</FormLabel>
                        <FormControl>
-                         <Input {...field} placeholder="Masukkan nama pemilik rekening" />
+                         <Input {...field} placeholder={t('affiliate.enterAccountHolder')} />
                        </FormControl>
                        <FormMessage />
                      </FormItem>
@@ -499,7 +499,7 @@ const ModernPayoutRequestForm = () => {
                    name="bankName"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Nama Bank Indonesia</FormLabel>
+                       <FormLabel>{t('affiliate.indonesiaBankName')}</FormLabel>
                        <FormControl>
                          <Input {...field} placeholder="Contoh: BCA, Mandiri, BNI" />
                        </FormControl>
@@ -513,9 +513,9 @@ const ModernPayoutRequestForm = () => {
                    name="accountNumber"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Nomor Rekening</FormLabel>
+                       <FormLabel>{t('affiliate.accountNumberLabel')}</FormLabel>
                        <FormControl>
-                         <Input {...field} placeholder="Masukkan nomor rekening Indonesia" />
+                         <Input {...field} placeholder={t('affiliate.enterIndonesiaAccount')} />
                        </FormControl>
                        <FormMessage />
                      </FormItem>
@@ -527,9 +527,9 @@ const ModernPayoutRequestForm = () => {
                    name="accountName"
                    render={({ field }) => (
                      <FormItem>
-                       <FormLabel>Nama Pemilik Rekening</FormLabel>
+                       <FormLabel>{t('affiliate.accountHolderName')}</FormLabel>
                        <FormControl>
-                         <Input {...field} placeholder="Masukkan nama pemilik rekening" />
+                         <Input {...field} placeholder={t('affiliate.enterAccountHolder')} />
                        </FormControl>
                        <FormMessage />
                      </FormItem>
@@ -540,7 +540,7 @@ const ModernPayoutRequestForm = () => {
              
              {!watchMethod && (
                <div className="text-center py-4 text-gray-500">
-                 Pilih metode pembayaran terlebih dahulu
+                 {t('affiliate.selectPaymentFirst')}
                </div>
              )}
                   </div>
@@ -552,14 +552,14 @@ const ModernPayoutRequestForm = () => {
                       onClick={() => setIsFormOpen(false)}
                       className="flex-1"
                     >
-                      Batal
+                      {t('affiliate.cancel')}
                     </Button>
                     <Button 
                       type="submit" 
                       className="flex-1"
                       disabled={isSubmitting || !watchMethod}
                     >
-                      {isSubmitting ? 'Memproses...' : 'Ajukan Pencairan'}
+                      {isSubmitting ? t('affiliate.processing') : t('affiliate.submitPayout')}
                     </Button>
                   </div>
                 </form>

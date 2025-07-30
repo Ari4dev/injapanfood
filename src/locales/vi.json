@@ -6,7 +6,13 @@
     "affiliate": "Tiếp thị liên kết",
     "cart": "Giỏ hàng",
     "login": "Đăng nhập",
-    "register": "Đăng ký"
+    "register": "Đăng ký",
+    "downloadApp": "Tải ứng dụng",
+    "iosInstallTitle": "Cài đặt trên iOS:",
+    "iosInstallStep1": "Nhấn biểu tượng \"Chia sẻ\" (hộp có mũi tên lên) trong trình duyệt",
+    "iosInstallStep2": "Cuộn và chọn \"Thêm vào Màn hình chính\"",
+    "iosInstallStep3": "Nhấn \"Thêm\" ở góc trên bên phải",
+    "close": "Đóng"
   },
   "homepage": {
     "mainTitle": "Hương vị Indonesia 🇮🇩",
@@ -64,7 +70,11 @@
     "hasBeenAdded": "đã được thêm vào giỏ hàng",
     "viewCart": "Xem giỏ hàng",
     "items": "mặt hàng",
-    "total": "Tổng cộng"
+    "total": "Tổng cộng",
+    "products": "Sản phẩm được chọn",
+    "perItem": "mỗi sản phẩm",
+    "removeFromCart": "Xóa khỏi giỏ hàng",
+    "subtotal": "Tổng phụ"
   },
   "checkout": {
     "shippingInfo": "Thông tin giao hàng",
@@ -95,7 +105,33 @@
     "date": "Ngày đặt hàng",
     "status": "Trạng thái",
     "total": "Tổng tiền",
-    "viewDetails": "Xem chi tiết"
+    "viewDetails": "Xem chi tiết",
+    "noOrders": "Chưa có đơn hàng",
+    "noOrdersMessage": "Bạn chưa có lịch sử đơn hàng. Hãy bắt đầu mua sắm ngay!",
+    "refresh": "Tải lại",
+    "created": "Đã tạo:",
+    "shippingInfo": "Thông tin giao hàng:",
+    "name": "Tên:",
+    "address": "Địa chỉ:",
+    "prefecture": "Tỉnh:",
+    "postalCode": "Mã bưu điện:",
+    "paymentInfo": "Thông tin thanh toán:",
+    "method": "Phương thức:",
+    "orderSummary": "Tóm tắt đơn hàng:",
+    "viewInvoice": "Xem hóa đơn",
+    "orderDetails": "Chi tiết đơn hàng",
+    "pending": "Đơn hàng của bạn đang chờ xác nhận từ quản trị viên",
+    "confirmed": "Đơn hàng đã được xác nhận và đang được xử lý",
+    "completed": "Đơn hàng đã hoàn thành và được gửi đi",
+    "statusPending": "Chờ xác nhận",
+    "statusConfirmed": "Đã xác nhận",
+    "statusProcessing": "Đang xử lý",
+    "statusCompleted": "Đã hoàn thành",
+    "statusCancelled": "Đã hủy",
+    "errorOccurred": "Đã xảy ra lỗi",
+    "cannotLoadOrders": "Không thể tải lịch sử đơn hàng. Vui lòng thử lại sau.",
+    "reload": "Tải lại",
+    "variant": "Biến thể"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -170,12 +206,8 @@
     "commissionDescription": "Tích lũy toàn bộ hoa hồng đã từng nhận",
     "availableCommission": "Hoa hồng có sẵn",
     "availableDescription": "Số dư hoa hồng sẵn sàng để rút",
-    "commissionSummary": "Tóm tắt hoa hồng",
-    "totalCommissionLifetime": "Tổng hoa hồng (Trọn đời)",
-    "totalCommissionLifetimeDesc": "Tích lũy toàn bộ hoa hồng đã từng nhận",
-    "availableCommissionBalance": "Hoa hồng có sẵn",
-    "availableBalanceDesc": "Số dư sẵn sàng để yêu cầu thanh toán",
     "manageProgramDesc": "Quản lý chương trình affiliate của bạn và theo dõi hiệu suất",
+    "commissionSummary": "Tóm tắt hoa hồng",
     "dashboardTab": "Bảng điều khiển",
     "referralsTab": "Giới thiệu",
     "commissionsTab": "Hoa hồng",
@@ -204,67 +236,59 @@
     "statusRejected": "Từ chối",
     "statusPaid": "Đã thanh toán",
     "statusPending": "Đang chờ",
-    "anonymousVisitor": "Khách truy cập ẩn danh"
-  },
-  "productDetail": {
-    "description": "Mô tả sản phẩm",
-    "quantity": "Số lượng",
-    "selectVariant": "Chọn biến thể",
-    "selectVariantRequired": "Yêu cầu chọn biến thể",
-    "selectVariantMessage": "Vui lòng chọn các biến thể bắt buộc trước khi thêm sản phẩm vào giỏ hàng",
-    "availability": "Tình trạng",
-    "available": "Còn hàng",
-    "similarProducts": "Sản phẩm tương tự",
-    "expressShipping": "Giao hàng nhanh",
-    "premiumQuality": "Chất lượng cao cấp"
+    "anonymousVisitor": "Khách truy cập ẩn danh",
+    "payoutNotEligibleMessage": "Hoa hồng có sẵn của bạn (¥{available}) chưa đạt số tiền tối thiểu để rút (¥{minimum}).",
+    "payoutEligibleNote": "Lưu ý: Chỉ hoa hồng có trạng thái \"Đã duyệt\" mới có thể rút. Hoa hồng \"Đang chờ\" cần được quản trị viên phê duyệt trước.",
+    "progressToMinimumPayout": "Tiến độ đến số tiền rút tối thiểu",
+    "commissionBalanceInfo": "Thông tin số dư hoa hồng",
+    "approvedCommissions": "Hoa hồng đã duyệt:",
+    "availableCommissions": "Hoa hồng có sẵn:",
+    "minimumPayout": "Rút tối thiểu:",
+    "stillNeeded": "Vẫn cần:",
+    "qualifiedForPayout": "Bạn đủ điều kiện để rút tiền!",
+    "availableForWithdrawal": "Bạn có ¥{amount} hoa hồng có sẵn để rút từ {count} hoa hồng đã được phê duyệt.",
+    "approvedCommissionNote": "Số tiền này là hoa hồng đã được phê duyệt và sẵn sàng để rút. Sau khi yêu cầu rút tiền, số dư này sẽ giảm ngay theo số tiền đã yêu cầu.",
+    "payoutInfo": "Thông tin rút tiền",
+    "totalCommissionLifetime": "Tổng hoa hồng (Trọn đời):",
+    "totalCommissionLifetimeDesc": "Tích lũy toàn bộ hoa hồng đã từng nhận",
+    "availableCommissionBalance": "Hoa hồng có sẵn",
+    "availableBalanceDesc": "Số dư sẵn sàng để yêu cầu rút tiền",
+    "requestPayoutNow": "Yêu cầu rút tiền ngay",
+    "availableAmount": "Có sẵn: ¥{amount} | Tối thiểu: ¥{minimum}",
+    "selectPaymentMethod": "Chọn phương thức thanh toán",
+    "japanBankTransfer": "Chuyển khoản ngân hàng Nhật Bản",
+    "indonesiaBankTransfer": "Chuyển khoản ngân hàng Rupiah (Indonesia)",
+    "taxDeductionDetails": "Chi tiết khấu trừ thuế",
+    "grossAmount": "Số tiền gộp:",
+    "tax10Percent": "Thuế (10%):",
+    "netAmountReceived": "Số tiền thực nhận:",
+    "taxNote": "Lưu ý: Thuế 10% được khấu trừ từ tất cả các khoản rút hoa hồng theo quy định thuế Nhật Bản",
+    "currencyConversionTitle": "Chuyển đổi tiền tệ",
+    "converting": "Đang chuyển đổi...",
+    "refreshing": "Đang làm mới...",
+    "updateRate": "Cập nhật tỷ giá",
+    "netAmount": "(số tiền thực)",
+    "autoRateUpdate": "Tỷ giá tự động cho số tiền thực sau thuế, được cập nhật vào {time}",
+    "conversionRateNote": "Chuyển đổi: Số tiền thực ¥{amount} được chuyển đổi sang Rupiah sử dụng tỷ giá thời gian thực",
+    "japanBankName": "Tên ngân hàng Nhật Bản",
+    "branchCodeLabel": "Mã chi nhánh",
+    "branchCodeNote": "Mã chi nhánh ngân hàng Nhật Bản (thường là 3 chữ số)",
+    "accountNumberLabel": "Số tài khoản",
+    "enterJapanAccount": "Nhập số tài khoản Nhật Bản",
+    "accountHolderName": "Tên chủ tài khoản",
+    "enterAccountHolder": "Nhập tên chủ tài khoản",
+    "indonesiaBankName": "Tên ngân hàng Indonesia",
+    "enterIndonesiaAccount": "Nhập số tài khoản Indonesia",
+    "selectPaymentFirst": "Chọn phương thức thanh toán trước",
+    "cancel": "Hủy",
+    "submitPayout": "Yêu cầu rút tiền"
   },
   "common": {
     "error": "Đã xảy ra lỗi",
     "loading": "Đang tải...",
     "refresh": "Tải lại trang",
-    "loadingError": "Không thể tải dữ liệu. Vui lòng thử tải lại trang."
-  },
-  "buttons": {
-    "addToCart": "Thêm vào giỏ hàng",
-    "close": "Đóng"
-  },
-  "productDescriptions": {
-    "jengkol": "**Jengkol đông lạnh - Giải pháp thực tế cho cơn thèm món Indonesia!**\n\nDành cho những ai ở Nhật Bản đang nhớ hương vị đặc biệt của jengkol, bạn không cần phải lo lắng nữa! Jengkol đông lạnh có mặt ở đây như một giải pháp thực tế để thỏa mãn cơn thèm các món jengkol yêu thích của bạn.",
-    "mL9dAuGijfrcWlbehk9O": "**Ớt xanh cay đông lạnh - Nguyên liệu không thể thiếu cho món Indonesia tại Nhật!**\n\nỚt xanh cay đông lạnh là nguyên liệu thiết yếu cho các món Indonesia chính gốc tại Nhật Bản.",
-    "1": "Indomie Goreng Ayam Bawang là mì xào ăn liền ngon và đậm đà với hương vị gà và hành tây. Chỉ cần 3 phút để sẵn sàng phục vụ, hoàn hảo cho bữa ăn nhanh hoặc đồ ăn nhẹ. Hương vị Indonesia chính gốc mang lại cảm giác ấm cúng của quê nhà tại Nhật Bản.",
-    "2": "Bon Cabe Level 30 là gia vị ớt bột Indonesia phổ biến giúp thêm hương vị cay cho bất kỳ món ăn nào. Có sẵn với các mức độ cay khác nhau theo sở thích của bạn. Rắc lên mì, cơm hoặc bất kỳ món ăn nào để thưởng thức vị cay Indonesia chính gốc.",
-    "3": "Rendang Padang ăn liền là thức ăn sẵn với món rendang bò Tây Sumatra chính gốc trong bao bì tiện lợi. Món cà ri đậm đà và đầy hương vị này được làm với các loại gia vị truyền thống và thịt bò mềm. Chỉ cần hâm nóng và thưởng thức hương vị của món ăn nổi tiếng nhất Indonesia.",
-    "4": "Bánh phồng tôm Sidoarjo là bánh phồng tôm Indonesia chính gốc từ Sidoarjo. Những chiếc bánh giòn và thơm này là món ăn kèm hoàn hảo cho bất kỳ món Indonesia nào hoặc tuyệt vời như một món ăn nhẹ độc lập. Chiên đến khi giòn và thưởng thức!",
-    "5": "Rau bina đông lạnh là rau bina chất lượng cao được xử lý và đông lạnh cẩn thận để bảo toàn dinh dưỡng và hương vị. Hoàn hảo cho các món Indonesia như sayur bayam hoặc như một bổ sung dinh dưỡng cho bất kỳ bữa ăn nào.",
-    "6": "Gia vị rawon ăn liền là hỗn hợp gia vị hoàn chỉnh để làm súp thịt bò đen Đông Java chính gốc. Súp Indonesia truyền thống này có hương vị đặc biệt từ quả keluak. Chỉ cần thêm thịt bò và nước để có một món ăn ngon và thơm.",
-    "7": "Đậu phộng Garuda là đậu phộng rang chất lượng cao với sự cân bằng hoàn hảo giữa độ giòn và hương vị. Những món ăn nhẹ Indonesia phổ biến này hoàn hảo cho bất kỳ dịp nào hoặc như một món ăn ngon bất cứ lúc nào.",
-    "8": "Đậu phụ chiên đông lạnh là đậu phụ đã được chiên sẵn và đông lạnh để tiện lợi. Hoàn hảo cho các món Indonesia như tahu goreng, tahu bacem hoặc như một bổ sung cho súp và món xào.",
-    "9": "Sambal ABC là tương ớt Indonesia phổ biến thêm hương vị cay ngọt cho bất kỳ món ăn nào. Gia vị đa năng này hoàn hảo với mì, cơm hoặc như tương chấm cho bánh rán và các món ăn nhẹ khác.",
-    "10": "Bánh phồng melinjo là bánh tráng Indonesia truyền thống được làm từ hạt melinjo. Những chiếc bánh tráng độc đáo này có vị hơi đắng kết hợp hoàn hảo với các món Indonesia hoặc thưởng thức như một món ăn nhẹ độc lập.",
-    "11": "Tempeh hữu cơ là bánh đậu nành lên men chất lượng cao, nguồn protein chính trong ẩm thực Indonesia. Protein thực vật giàu dinh dưỡng này hoàn hảo để chiên, nướng hoặc thêm vào món xào và súp."
-  },
-  "hero": {
-    "title": "Hương vị Indonesia 🇮🇩",
-    "subtitle": "tại xứ sở Hoa Anh Đào 🌸",
-    "description": "Khám phá hương vị quê nhà với bộ sưu tập thực phẩm Indonesia chính gốc đầy đủ nhất dành cho bạn tại Nhật Bản",
-    "shopNow": "🛒 Mua ngay"
-  },
-  "whyChoose": {
-    "title": "Tại sao chọn Injapan Food?",
-    "fastDelivery": "Giao hàng nhanh",
-    "fastDeliveryDesc": "Giao hàng toàn Nhật Bản với bao bì an toàn và đảm bảo",
-    "qualityGuaranteed": "Đảm bảo chất lượng",
-    "qualityGuaranteedDesc": "Tất cả sản phẩm đều là sản phẩm Indonesia chính gốc chất lượng cao nhất",
-    "support247": "Hỗ trợ 24/7",
-    "support247Desc": "Dịch vụ khách hàng luôn sẵn sàng hỗ trợ bạn qua WhatsApp",
-    "easyToOrder": "Đặt hàng dễ dàng",
-    "easyToOrderDesc": "Quy trình đặt hàng đơn giản với tích hợp WhatsApp"
-  },
-  "cta": {
-    "title": "Sẵn sàng cảm nhận hương vị Indonesia chưa?",
-    "description": "Đừng để nỗi nhớ nhà cản trở bạn. Đặt hàng ngay bây giờ!",
-    "startShopping": "🛍️ Bắt đầu mua sắm",
-    "howToBuy": "📖 Cách mua hàng"
+    "loadingError": "Không thể tải dữ liệu. Vui lòng thử lại sau.",
+    "notAvailable": "Không có sẵn"
   },
   "footer": {
     "description": "Cung cấp thực phẩm Indonesia chất lượng cao cho cộng đồng Indonesia tại Nhật Bản. Thưởng thức hương vị quê nhà với dịch vụ giao hàng toàn quốc.",
@@ -279,111 +303,16 @@
     "email": "Email",
     "downloadApp": "Tải ứng dụng"
   },
-  "howToBuy": {
-    "title": "Cách mua hàng",
-    "subtitle": "Hoàn thành đơn hàng chỉ với 3 bước đơn giản",
-    "step1Title": "Bước 1: Chọn sản phẩm",
-    "step1Desc": "Chọn sản phẩm thực phẩm Indonesia yêu thích và thêm vào giỏ hàng",
-    "step2Title": "Bước 2: Nhập thông tin giao hàng",
-    "step2Desc": "Nhập địa chỉ giao hàng và thông tin liên hệ",
-    "step3Title": "Bước 3: Thanh toán và xác nhận",
-    "step3Desc": "Chọn phương thức thanh toán và xác nhận đơn hàng",
-    "paymentMethods": "Phương thức thanh toán",
-    "codAvailable": "Thanh toán khi nhận hàng có sẵn",
-    "bankTransfer": "Chuyển khoản ngân hàng",
-    "qrisPayment": "Thanh toán QRIS",
-    "deliveryTime": "Thời gian giao hàng",
-    "deliveryDesc": "Thường giao trong 2-5 ngày làm việc",
-    "customerService": "Dịch vụ khách hàng",
-    "customerServiceDesc": "Hỗ trợ WhatsApp 24 giờ có sẵn",
-    "steps": {
-      "step1": {
-        "title": "Chọn sản phẩm",
-        "description": "Khám phá sản phẩm yêu thích từ danh mục thực phẩm Indonesia",
-        "details": "Bạn có thể dễ dàng tìm thấy sản phẩm mong muốn bằng cách sử dụng chức năng tìm kiếm và bộ lọc danh mục."
-      },
-      "step2": {
-        "title": "Thêm vào giỏ hàng",
-        "description": "Nhấp vào nút 'Thêm vào giỏ hàng' của sản phẩm đã chọn",
-        "details": "Điều chỉnh số lượng sản phẩm trước khi thêm vào giỏ hàng."
-      },
-      "step3": {
-        "title": "Nhập thông tin giao hàng",
-        "description": "Nhập tên, địa chỉ, mã bưu điện và số điện thoại của bạn",
-        "details": "Nhập thông tin chính xác và đầy đủ để đảm bảo giao hàng suôn sẻ."
-      },
-      "step4": {
-        "title": "Thanh toán qua WhatsApp",
-        "description": "Nhấp vào nút 'Thanh toán qua WhatsApp' để hoàn thành đơn hàng",
-        "details": "Đơn hàng sẽ được gửi tự động đến WhatsApp cùng với chi tiết mua hàng."
-      },
-      "step5": {
-        "title": "Quản trị viên xử lý và gửi hàng",
-        "description": "Đội ngũ của chúng tôi sẽ xử lý đơn hàng và gửi đến địa chỉ của bạn",
-        "details": "Bạn sẽ nhận được xác nhận và thông tin theo dõi qua WhatsApp."
-      }
-    },
-    "faq": {
-      "title": "Câu hỏi thường gặp",
-      "q1": "Làm thế nào để đặt hàng?",
-      "a1": "Thêm sản phẩm vào giỏ hàng, nhập thông tin giao hàng và thanh toán qua WhatsApp. Đội ngũ của chúng tôi sẽ xác nhận và xử lý ngay lập tức.",
-      "q2": "Giao hàng mất bao lâu?",
-      "a2": "Thông thường, giao hàng toàn Nhật Bản mất 2-5 ngày làm việc. Có thể khác nhau tùy theo khu vực và thời tiết.",
-      "q3": "Có những phương thức thanh toán nào?",
-      "a3": "Thanh toán khi nhận hàng, chuyển khoản ngân hàng (Rupiah, Yucho Bank), và thanh toán QRIS/QR Code có sẵn.",
-      "q4": "Làm thế nào để liên hệ?",
-      "a4": "Liên hệ với chúng tôi qua WhatsApp. Đội ngũ dịch vụ khách hàng hỗ trợ 24 giờ."
-    },
-    "cta": {
-      "title": "Sẵn sàng chưa?",
-      "description": "Thưởng thức món ăn Indonesia ngon tại Nhật Bản!",
-      "shopNow": "Mua ngay",
-      "contactUs": "Liên hệ chúng tôi"
-    }
+  "whyChoose": {
+    "fastDelivery": "Giao hàng nhanh",
+    "fastDeliveryDesc": "Giao hàng toàn Nhật Bản với bao bì an toàn và đảm bảo",
+    "qualityGuaranteed": "Đảm bảo chất lượng",
+    "qualityGuaranteedDesc": "Tất cả sản phẩm đều là sản phẩm Indonesia chính gốc chất lượng cao nhất",
+    "support247": "Hỗ trợ 24/7",
+    "support247Desc": "Dịch vụ khách hàng luôn sẵn sàng hỗ trợ bạn qua WhatsApp"
   },
-  "category": {
-    "title": "Danh mục {category}",
-    "noProducts": "Không có sản phẩm trong danh mục này",
-    "browseOther": "Xem danh mục khác",
-    "sortBy": "Sắp xếp theo",
-    "sortByPrice": "Theo giá",
-    "sortByName": "Theo tên",
-    "sortByPopular": "Theo độ phổ biến",
-    "priceRange": "Khoảng giá",
-    "applyFilter": "Áp dụng bộ lọc",
-    "clearFilter": "Xóa bộ lọc"
-  },
-  "search": {
-    "title": "Kết quả tìm kiếm",
-    "query": "Kết quả tìm kiếm cho '{query}'",
-    "noResults": "Không tìm thấy kết quả",
-    "noResultsDesc": "Hãy thử tìm kiếm với từ khóa khác",
-    "suggestions": "Gợi ý tìm kiếm",
-    "popularSearches": "Tìm kiếm phổ biến",
-    "searchHistory": "Lịch sử tìm kiếm",
-    "clearHistory": "Xóa lịch sử"
-  },
-  "misc": {
-    "yes": "Có",
-    "no": "Không",
-    "cancel": "Hủy",
-    "confirm": "Xác nhận",
-    "save": "Lưu",
-    "edit": "Chỉnh sửa",
-    "delete": "Xóa",
-    "view": "Xem",
-    "copy": "Sao chép",
-    "back": "Quay lại",
-    "next": "Tiếp theo",
-    "close": "Đóng",
-    "loading": "Đang tải...",
-    "search": "Tìm kiếm...",
-    "previous": "Trước",
-    "showing": "Hiển thị",
-    "entries": "mục",
-    "refreshData": "Làm mới dữ liệu",
-    "noDataYet": "Chưa có dữ liệu",
-    "noDataDesc": "Dữ liệu sẽ xuất hiện khi có hoạt động"
+  "cta": {
+    "startShopping": "🛍️ Bắt đầu mua sắm",
+    "howToBuy": "📖 Cách mua hàng"
   }
 }
-
