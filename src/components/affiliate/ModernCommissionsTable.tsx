@@ -26,7 +26,7 @@ import { AffiliateCommission } from '@/types/affiliate';
 
 const ModernCommissionsTable = () => {
   const { commissions, loading } = useAffiliate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof AffiliateCommission>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -91,7 +91,7 @@ const ModernCommissionsTable = () => {
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
       case 'paid':
-       return <Badge className="bg-green-600">Telah Dibayarkan</Badge>;
+       return <Badge className="bg-green-600">{t('affiliate.statusPaid')}</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
@@ -99,7 +99,17 @@ const ModernCommissionsTable = () => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('id-ID', {
+    const date = new Date(dateString);
+    if (language === 'ja') {
+      return date.toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+    return date.toLocaleString('id-ID', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -158,13 +168,13 @@ const ModernCommissionsTable = () => {
         {commissions.length === 0 ? (
           <div className="text-center py-12">
             <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No Commissions Yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t('affiliate.noCommissionsYet')}</h3>
             <p className="text-gray-500 text-sm mb-4">
-              Commissions will appear when people make purchases through your affiliate link
+              {t('affiliate.commissionsAppearMessage')}
             </p>
             <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh Data
+              {t('affiliate.refreshData')}
             </Button>
           </div>
         ) : (
@@ -176,7 +186,7 @@ const ModernCommissionsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Order ID</span>
+                          <span>{t('affiliate.orderId')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -194,7 +204,7 @@ const ModernCommissionsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Order Total</span>
+                          <span>{t('affiliate.orderTotal')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -212,7 +222,7 @@ const ModernCommissionsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Commission</span>
+                          <span>{t('affiliate.commission')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -230,7 +240,7 @@ const ModernCommissionsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Status</span>
+                          <span>{t('affiliate.status')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -248,7 +258,7 @@ const ModernCommissionsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Date</span>
+                          <span>{t('affiliate.date')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -262,7 +272,7 @@ const ModernCommissionsTable = () => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">{t('affiliate.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -316,7 +326,11 @@ const ModernCommissionsTable = () => {
       {totalPages > 1 && (
         <CardFooter className="flex items-center justify-between px-6 py-4 border-t">
           <div className="text-sm text-gray-500">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredCommissions.length)} of {filteredCommissions.length} entries
+            {t('pagination.showing', {
+              start: (currentPage - 1) * itemsPerPage + 1,
+              end: Math.min(currentPage * itemsPerPage, sortedCommissions.length),
+              total: sortedCommissions.length
+            })}
           </div>
           <div className="flex space-x-2">
             <Button
@@ -325,7 +339,7 @@ const ModernCommissionsTable = () => {
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              {t('pagination.previous')}
             </Button>
             <Button
               variant="outline"
@@ -333,7 +347,7 @@ const ModernCommissionsTable = () => {
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('pagination.next')}
             </Button>
           </div>
         </CardFooter>

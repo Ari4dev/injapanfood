@@ -24,7 +24,7 @@ import { AffiliateFollower } from '@/types/affiliate';
 
 const ModernFollowersTable = () => {
   const { followers, loading, referrals } = useAffiliate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof AffiliateFollower>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -82,7 +82,15 @@ const ModernFollowersTable = () => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('id-ID', {
+    const date = new Date(dateString);
+    if (language === 'ja') {
+      return date.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
+    return date.toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -116,10 +124,10 @@ const ModernFollowersTable = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Users className="w-5 h-5 mr-2" />
-            {t('affiliate.followers')}
-          </CardTitle>
+            <CardTitle className="flex items-center text-xl">
+              <Users className="w-5 h-5 mr-2 text-primary" />
+              {t('affiliate.followers')}
+            </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -149,7 +157,7 @@ const ModernFollowersTable = () => {
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search followers..."
+              placeholder={t('affiliate.searchFollowers') || 'フォロワーを検索...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -162,13 +170,13 @@ const ModernFollowersTable = () => {
         {displayFollowers.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No Followers Yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t('affiliate.noFollowersYet')}</h3>
             <p className="text-gray-500 text-sm mb-4">
-              Followers will appear when users register through your affiliate link
+              {t('affiliate.followersAppearMessage')}
             </p>
             <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh Data
+              {t('affiliate.refreshData')}
             </Button>
           </div>
         ) : (
@@ -180,7 +188,7 @@ const ModernFollowersTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>User</span>
+                          <span>{t('affiliate.user')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -198,7 +206,7 @@ const ModernFollowersTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Orders</span>
+                          <span>{t('affiliate.orders')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -216,7 +224,7 @@ const ModernFollowersTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Total Spent</span>
+                          <span>{t('affiliate.totalSpent')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -234,7 +242,7 @@ const ModernFollowersTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>First Order</span>
+                          <span>{t('affiliate.firstOrder')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -252,7 +260,7 @@ const ModernFollowersTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Joined</span>
+                          <span>{t('affiliate.joined')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -321,7 +329,11 @@ const ModernFollowersTable = () => {
       {totalPages > 1 && (
         <CardFooter className="flex items-center justify-between px-6 py-4 border-t">
           <div className="text-sm text-gray-500">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredFollowers.length)} of {filteredFollowers.length} entries
+            {t('pagination.showing', {
+              start: (currentPage - 1) * itemsPerPage + 1,
+              end: Math.min(currentPage * itemsPerPage, sortedFollowers.length),
+              total: sortedFollowers.length
+            })}
           </div>
           <div className="flex space-x-2">
             <Button
@@ -330,7 +342,7 @@ const ModernFollowersTable = () => {
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              {t('pagination.previous')}
             </Button>
             <Button
               variant="outline"
@@ -338,7 +350,7 @@ const ModernFollowersTable = () => {
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('pagination.next')}
             </Button>
           </div>
         </CardFooter>

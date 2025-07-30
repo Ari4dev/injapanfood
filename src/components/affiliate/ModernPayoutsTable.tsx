@@ -32,7 +32,7 @@ import {
 
 const ModernPayoutsTable = () => {
   const { payouts, loading } = useAffiliate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof AffiliatePayout>('requestedAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -92,22 +92,30 @@ const ModernPayoutsTable = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pending</Badge>;
+        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">{t('pending')}</Badge>;
       case 'processing':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Processing</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{t('processing')}</Badge>;
       case 'completed':
-        return <Badge className="bg-green-500">Completed</Badge>;
+        return <Badge className="bg-green-500">{t('completed')}</Badge>;
      case 'paid':
-       return <Badge className="bg-green-600">Telah Dibayarkan</Badge>;
+       return <Badge className="bg-green-600">{t('paid')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive">{t('rejected')}</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('unknown')}</Badge>;
     }
   };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
+    const date = new Date(dateString);
+    if (language === 'ja') {
+      return new Intl.DateTimeFormat('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }).format(date);
+    }
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'short',
@@ -154,7 +162,7 @@ const ModernPayoutsTable = () => {
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search payouts..."
+              placeholder={t('search_payouts')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -167,13 +175,13 @@ const ModernPayoutsTable = () => {
         {payouts.length === 0 ? (
           <div className="text-center py-12">
             <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No Payouts Yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t('no_payouts_yet')}</h3>
             <p className="text-gray-500 text-sm mb-4">
-              Your payout history will appear here once you request a payout
+              {t('payout_history_will_appear')}
             </p>
             <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh Data
+              {t('refresh_data')}
             </Button>
           </div>
         ) : (
@@ -185,16 +193,16 @@ const ModernPayoutsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Amount</span>
+                          <span>{t('amount')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => handleSort('amount')}>
-                          Sort by Highest
+                          {t('sort_by_highest')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSort('amount')}>
-                          Sort by Lowest
+                          {t('sort_by_lowest')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -203,16 +211,16 @@ const ModernPayoutsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Method</span>
+                          <span>{t('method')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => handleSort('method')}>
-                          Sort by Method (A-Z)
+                          {t('sort_by_method_az')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSort('method')}>
-                          Sort by Method (Z-A)
+                          {t('sort_by_method_za')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -221,16 +229,16 @@ const ModernPayoutsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Status</span>
+                          <span>{t('status')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => handleSort('status')}>
-                          Sort by Status (A-Z)
+                          {t('sort_by_status_az')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSort('status')}>
-                          Sort by Status (Z-A)
+                          {t('sort_by_status_za')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -239,16 +247,16 @@ const ModernPayoutsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Requested</span>
+                          <span>{t('requested')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => handleSort('requestedAt')}>
-                          Sort by Newest
+                          {t('sort_by_newest')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSort('requestedAt')}>
-                          Sort by Oldest
+                          {t('sort_by_oldest')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -257,21 +265,21 @@ const ModernPayoutsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Completed</span>
+                          <span>{t('completed')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => handleSort('completedAt')}>
-                          Sort by Newest
+                          {t('sort_by_newest')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSort('completedAt')}>
-                          Sort by Oldest
+                          {t('sort_by_oldest')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -308,7 +316,7 @@ const ModernPayoutsTable = () => {
                             onClick={() => setSelectedPayout(payout)}
                           >
                             <Eye className="w-4 h-4" />
-                            <span className="sr-only">View Details</span>
+                            <span className="sr-only">{t('view_details')}</span>
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-md">
@@ -330,18 +338,18 @@ const ModernPayoutsTable = () => {
                                   {selectedPayout.bankInfo?.taxAmount && (
                                     <>
                                       <div className="flex justify-between">
-                                        <span className="text-gray-600">Pajak (10%):</span>
+                                        <span className="text-gray-600">Tax (10%):</span>
                                         <span className="text-red-600">-¥{selectedPayout.bankInfo.taxAmount.toLocaleString()}</span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-gray-600">Jumlah Bersih:</span>
+                                        <span className="text-gray-600">Net Amount:</span>
                                         <span className="font-medium text-green-600">¥{selectedPayout.bankInfo.netAmount?.toLocaleString()}</span>
                                       </div>
                                     </>
                                   )}
                                   {selectedPayout.bankInfo.branchCode && (
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Kode Cabang:</span>
+                                      <span className="text-gray-600">Branch Code:</span>
                                       <span>{selectedPayout.bankInfo.branchCode}</span>
                                     </div>
                                   )}
@@ -355,7 +363,7 @@ const ModernPayoutsTable = () => {
                                   </div>
                                   {selectedPayout.bankInfo.currency === 'IDR' && selectedPayout.bankInfo.estimatedAmount && (
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Estimasi Rupiah:</span>
+                                      <span className="text-gray-600">Estimated Rupiah:</span>
                                       <span>Rp {selectedPayout.bankInfo.estimatedAmount.toLocaleString('id-ID')}</span>
                                     </div>
                                   )}
@@ -373,7 +381,7 @@ const ModernPayoutsTable = () => {
                                   )}
                                  {selectedPayout.paidAt && (
                                    <div className="flex justify-between">
-                                     <span className="text-gray-600">Dibayarkan:</span>
+                                     <span className="text-gray-600">Paid:</span>
                                      <span>{formatDate(selectedPayout.paidAt)}</span>
                                    </div>
                                  )}
@@ -385,7 +393,7 @@ const ModernPayoutsTable = () => {
                                   <h3 className="font-medium text-gray-700 mb-3">Bank Information</h3>
                                   <div className="space-y-2">
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Bank:</span>
+                                      <span className="text-gray-600">Bank Name:</span>
                                       <span>{selectedPayout.bankInfo.bankName}</span>
                                     </div>
                                     <div className="flex justify-between">
@@ -422,7 +430,7 @@ const ModernPayoutsTable = () => {
       {totalPages > 1 && (
         <CardFooter className="flex items-center justify-between px-6 py-4 border-t">
           <div className="text-sm text-gray-500">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredPayouts.length)} of {filteredPayouts.length} entries
+            {t('showing')} {(currentPage - 1) * itemsPerPage + 1} {t('to')} {Math.min(currentPage * itemsPerPage, sortedPayouts.length)} {t('of')} {sortedPayouts.length} {t('entries')}
           </div>
           <div className="flex space-x-2">
             <Button
@@ -431,7 +439,7 @@ const ModernPayoutsTable = () => {
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              {t('previous')}
             </Button>
             <Button
               variant="outline"
@@ -439,7 +447,7 @@ const ModernPayoutsTable = () => {
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('next')}
             </Button>
           </div>
         </CardFooter>

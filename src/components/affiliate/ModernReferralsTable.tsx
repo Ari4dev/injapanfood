@@ -25,7 +25,7 @@ import { AffiliateReferral } from '@/types/affiliate';
 
 const ModernReferralsTable = () => {
   const { referrals, loading } = useAffiliate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof AffiliateReferral>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -102,7 +102,17 @@ const ModernReferralsTable = () => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('id-ID', {
+    const date = new Date(dateString);
+    if (language === 'ja') {
+      return date.toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+    return date.toLocaleString('id-ID', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -148,7 +158,7 @@ const ModernReferralsTable = () => {
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search referrals..."
+              placeholder={t('affiliate.searchReferrals') || '紹介を検索...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -161,13 +171,13 @@ const ModernReferralsTable = () => {
         {referrals.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No Referrals Yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t('affiliate.noReferralsYet')}</h3>
             <p className="text-gray-500 text-sm mb-4">
-              Share your affiliate link to start earning commissions
+              {t('affiliate.shareAffiliateLink')}
             </p>
             <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh Data
+              {t('affiliate.refreshData')}
             </Button>
           </div>
         ) : (
@@ -179,7 +189,7 @@ const ModernReferralsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Email/Visitor</span>
+                          <span>{t('affiliate.emailVisitor')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -197,7 +207,7 @@ const ModernReferralsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Status</span>
+                          <span>{t('affiliate.status')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -215,7 +225,7 @@ const ModernReferralsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Click Date</span>
+                          <span>{t('affiliate.clickDate')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -233,7 +243,7 @@ const ModernReferralsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Order Date</span>
+                          <span>{t('affiliate.orderDate')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -251,7 +261,7 @@ const ModernReferralsTable = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="-mr-3 h-8 data-[state=open]:bg-gray-100">
-                          <span>Commission</span>
+                          <span>{t('affiliate.commission')}</span>
                           <ArrowUpDown className="ml-2 h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -329,7 +339,11 @@ const ModernReferralsTable = () => {
       {totalPages > 1 && (
         <CardFooter className="flex items-center justify-between px-6 py-4 border-t">
           <div className="text-sm text-gray-500">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredReferrals.length)} of {filteredReferrals.length} entries
+            {t('pagination.showing', {
+              start: (currentPage - 1) * itemsPerPage + 1,
+              end: Math.min(currentPage * itemsPerPage, filteredReferrals.length),
+              total: filteredReferrals.length
+            })}
           </div>
           <div className="flex space-x-2">
             <Button
@@ -338,7 +352,7 @@ const ModernReferralsTable = () => {
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              {t('pagination.previous')}
             </Button>
             <Button
               variant="outline"
@@ -346,7 +360,7 @@ const ModernReferralsTable = () => {
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('pagination.next')}
             </Button>
           </div>
         </CardFooter>
