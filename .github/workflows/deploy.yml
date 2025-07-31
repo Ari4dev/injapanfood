@@ -1,0 +1,44 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]  # Deploy ketika push ke branch main
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd /path/to/your/project
+          git pull origin main
+          npm ci
+          npm run build
+          # Restart service jika diperlukan
+          sudo systemctl restart your-app-service
+          # Atau reload nginx
+          sudo nginx -s reload
