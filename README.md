@@ -1,27 +1,79 @@
-aaa
+# InJapanFood 🍱
+
+A modern, responsive Japanese food web application built with cutting-edge technologies. Explore authentic Japanese cuisine with a beautiful, intuitive interface.
+
+## ✨ Features
+
+- 🍜 Browse authentic Japanese dishes
+- 📱 Fully responsive design
+- 🎨 Modern UI with shadcn/ui components
+- ⚡ Fast performance with Vite
+- 🔥 Real-time data with Firebase integration
+- 📊 Analytics and insights
+- 🎯 PWA support
+
+## 🚀 Technologies Used
+
+This project is built with modern technologies:
+
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Animation**: Framer Motion
+- **Backend**: Firebase
+- **State Management**: TanStack Query
+- **Routing**: React Router DOM
+- **Forms**: React Hook Form + Zod
+- **Charts**: Recharts
+
+## 🛠️ Getting Started
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Ari4dev/injapanfood.git
+cd injapanfood
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies:
+```bash
+npm install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-**Use GitHub Codespaces**
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📦 Available Scripts
 
-## What technologies are used for this project?
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build for development
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-This project is built with:
+## 🎯 Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-- wkwkw
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Application pages
+├── hooks/         # Custom React hooks
+├── lib/           # Utility functions
+├── types/         # TypeScript type definitions
+└── styles/        # Global styles
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+**Made with ❤️ for Japanese food lovers**
