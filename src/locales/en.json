@@ -7,7 +7,13 @@
     "affiliate": "Affiliate",
     "cart": "Cart",
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "downloadApp": "Download App",
+    "iosInstallTitle": "Install App",
+    "iosInstallStep1": "Tap the Share button in Safari",
+    "iosInstallStep2": "Select 'Add to Home Screen'",
+    "iosInstallStep3": "Tap 'Add' to add the app to your home screen",
+    "close": "Close"
   },
   "affiliate": {
     "payout_details": "Payout Details",

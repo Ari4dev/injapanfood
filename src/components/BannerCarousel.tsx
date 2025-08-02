@@ -75,13 +75,16 @@ const BannerCarousel = () => {
                     }`}
                     onClick={() => handleBannerClick(banner)}
                   >
-                    {/* Responsive container with aspect ratio */}
-                    <div className="relative w-full aspect-[16/9] sm:aspect-[20/9] md:aspect-[24/9] lg:aspect-[32/9]">
+                    {/* Responsive container with dynamic aspect ratio */}
+                    <div className="relative w-full aspect-[5/2] sm:aspect-[3/1] md:aspect-[7/2] lg:aspect-[4/1]">
                       <img
                         src={banner.image_url}
                         alt={`Banner ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-contain sm:object-cover bg-gray-100"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                         loading={index === 0 ? 'eager' : 'lazy'}
+                        style={{
+                          objectPosition: 'center 40%'
+                        }}
                       />
                     </div>
                     

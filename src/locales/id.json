@@ -6,7 +6,13 @@
     "affiliate": "Affiliate",
     "cart": "Keranjang",
     "login": "Masuk",
-    "register": "Daftar"
+    "register": "Daftar",
+    "downloadApp": "Unduh Aplikasi",
+    "iosInstallTitle": "Install Aplikasi",
+    "iosInstallStep1": "Tap tombol Share (bagikan) di Safari",
+    "iosInstallStep2": "Pilih 'Add to Home Screen' (Tambah ke Layar Utama)",
+    "iosInstallStep3": "Tap 'Add' untuk menambahkan aplikasi ke home screen",
+    "close": "Tutup"
   },
   "homepage": {
     "mainTitle": "Rasa Indonesia 🇮🇩",
