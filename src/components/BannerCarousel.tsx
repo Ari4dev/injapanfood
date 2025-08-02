@@ -70,17 +70,20 @@ const BannerCarousel = () => {
                   className="w-full flex-shrink-0 relative"
                 >
                   <div
-                    className={`relative w-full h-[300px] md:h-[400px] lg:h-[500px] ${
+                    className={`relative w-full ${
                       banner.link_url ? 'cursor-pointer' : ''
                     }`}
                     onClick={() => handleBannerClick(banner)}
                   >
-                    <img
-                      src={banner.image_url}
-                      alt={`Banner ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                    />
+                    {/* Responsive container with aspect ratio */}
+                    <div className="relative w-full aspect-[16/9] sm:aspect-[20/9] md:aspect-[24/9] lg:aspect-[32/9]">
+                      <img
+                        src={banner.image_url}
+                        alt={`Banner ${index + 1}`}
+                        className="absolute inset-0 w-full h-full object-contain sm:object-cover bg-gray-100"
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                    </div>
                     
                     {/* Overlay for better text readability if needed */}
                     <div className="absolute inset-0 bg-black bg-opacity-10"></div>
