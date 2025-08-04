@@ -117,7 +117,7 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
               
               {product.variants && product.variants.length > 0 && (
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                  {product.stock > 0 ? `${t('products.stock')}: ${product.stock}` : t('products.outOfStock')}
+                  {t('products.hasVariants')}
                 </span>
               )}
             </div>

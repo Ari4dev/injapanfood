@@ -54,6 +54,7 @@ const Header = ({ shouldAnimateCart = false }: HeaderProps) => {
   const navItems = [
     { path: '/', label: 'nav.home' },
     { path: '/products', label: 'nav.products' },
+    { path: '/bundles', label: 'nav.bundles' },
     { path: '/how-to-buy', label: 'nav.howToBuy' },
     { path: '/referral', label: 'nav.affiliate' }
   ];

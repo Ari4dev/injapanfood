@@ -5,19 +5,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useLanguage } from '@/hooks/useLanguage';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { validateReferralCode } from '@/services/affiliateService';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 const AuthForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [gender, setGender] = useState('');
   const [referralCode, setReferralCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // Referral code validation states
+  const [referralValidationState, setReferralValidationState] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
+  const [referralValidationMessage, setReferralValidationMessage] = useState('');
+  const [validationTimeoutId, setValidationTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   // Get tab and referral code from URL if available
   useEffect(() => {
@@ -36,6 +51,75 @@ const AuthForm = () => {
       console.log('Referral code found in URL:', refParam);
     }
   }, [location.search]);
+
+  // Validate referral code function
+  const validateReferralCodeHandler = async (code: string) => {
+    if (!code || code.length < 3) {
+      setReferralValidationState('idle');
+      setReferralValidationMessage('');
+      return;
+    }
+
+    setReferralValidationState('validating');
+    setReferralValidationMessage('');
+
+    try {
+      const isValid = await validateReferralCode(code);
+      
+      if (isValid) {
+        setReferralValidationState('valid');
+        setReferralValidationMessage('Kode referral valid! Anda akan mendapat bonus pendaftaran.');
+        toast({
+          title: "Kode Referral Valid",
+          description: "Kode referral berhasil diverifikasi. Anda akan mendapat bonus pendaftaran!",
+        });
+      } else {
+        setReferralValidationState('invalid');
+        setReferralValidationMessage('Kode referral tidak ditemukan. Periksa kembali kode yang Anda masukkan.');
+        toast({
+          title: "Kode Referral Tidak Valid",
+          description: "Kode referral yang Anda masukkan tidak ditemukan.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error validating referral code:', error);
+      setReferralValidationState('invalid');
+      setReferralValidationMessage('Terjadi kesalahan saat memvalidasi kode referral.');
+      toast({
+        title: "Error Validasi",
+        description: "Terjadi kesalahan saat memvalidasi kode referral. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Debounce referral code validation
+  useEffect(() => {
+    // Clear existing timeout
+    if (validationTimeoutId) {
+      clearTimeout(validationTimeoutId);
+    }
+
+    // Set new timeout only if referral code is not empty
+    if (referralCode.trim()) {
+      const timeoutId = setTimeout(() => {
+        validateReferralCodeHandler(referralCode.trim());
+      }, 1000); // 1 second debounce
+      
+      setValidationTimeoutId(timeoutId);
+    } else {
+      setReferralValidationState('idle');
+      setReferralValidationMessage('');
+    }
+
+    // Cleanup
+    return () => {
+      if (validationTimeoutId) {
+        clearTimeout(validationTimeoutId);
+      }
+    };
+  }, [referralCode]);
 
   const getFirebaseErrorMessage = (error: any) => {
     const errorCode = error?.code || '';
@@ -126,10 +210,51 @@ const AuthForm = () => {
         return;
       }
 
+      if (!phoneNumber.trim()) {
+        toast({
+          title: "Pendaftaran Gagal",
+          description: "Nomor telepon wajib diisi",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!gender) {
+        toast({
+          title: "Pendaftaran Gagal",
+          description: "Jenis kelamin wajib dipilih",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       if (password.length < 6) {
         toast({
           title: "Pendaftaran Gagal",
           description: "Password minimal 6 karakter",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        toast({
+          title: "Pendaftaran Gagal",
+          description: "Password dan konfirmasi password tidak sama",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Validate referral code if provided
+      if (referralCode.trim() && referralValidationState === 'invalid') {
+        toast({
+          title: "Pendaftaran Gagal",
+          description: "Kode referral tidak valid. Silakan periksa kembali atau kosongkan field ini.",
           variant: "destructive",
         });
         setLoading(false);
@@ -161,7 +286,10 @@ const AuthForm = () => {
         // Clear form
         setEmail('');
         setPassword('');
+        setConfirmPassword('');
         setFullName('');
+        setPhoneNumber('');
+        setGender('');
         setReferralCode('');
         // Redirect to home
         navigate('/');
@@ -179,7 +307,12 @@ const AuthForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      {/* Language Switcher positioned at top right */}
+      <div className="absolute top-4 right-4 z-10">
+        <LanguageSwitcher />
+      </div>
+      
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4">
@@ -195,40 +328,40 @@ const AuthForm = () => {
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Masuk</TabsTrigger>
-            <TabsTrigger value="signup">Daftar</TabsTrigger>
+            <TabsTrigger value="signin">{t('auth.signInTab')}</TabsTrigger>
+            <TabsTrigger value="signup">{t('auth.signUpTab')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
             <Card>
               <CardHeader>
-                <CardTitle>Masuk ke Akun</CardTitle>
+                <CardTitle>{t('auth.signIn')}</CardTitle>
                 <CardDescription>
-                  Masukkan email dan password untuk masuk
+                  {t('auth.signInDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div>
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      placeholder="admin@gmail.com"
+                      placeholder={t('auth.emailPlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
                     <Input
                       id="signin-password"
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      placeholder="Password"
+                      placeholder={t('auth.passwordPlaceholder')}
                     />
                   </div>
                   <Button 
@@ -236,7 +369,7 @@ const AuthForm = () => {
                     className="w-full" 
                     disabled={loading}
                   >
-                    {loading ? "Memproses..." : "Masuk"}
+                    {loading ? t('auth.processing') : t('auth.signInButton')}
                   </Button>
                 </form>
               </CardContent>
@@ -246,66 +379,186 @@ const AuthForm = () => {
           <TabsContent value="signup">
             <Card>
               <CardHeader>
-                <CardTitle>Buat Akun Baru</CardTitle>
+                <CardTitle>{t('auth.signUp')}</CardTitle>
                 <CardDescription>
-                  Daftar untuk mulai berbelanja
+                  {t('auth.signUpDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div>
-                    <Label htmlFor="signup-name">Nama Lengkap *</Label>
+                    <Label htmlFor="signup-name">{t('auth.fullName')} {t('auth.required')}</Label>
                     <Input
                       id="signup-name"
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      placeholder="Nama lengkap"
+                      placeholder={t('auth.fullNamePlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="signup-email">Email *</Label>
+                    <Label htmlFor="signup-email">{t('auth.email')} {t('auth.required')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      placeholder="admin@gmail.com"
+                      placeholder={t('auth.emailPlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="signup-password">Password *</Label>
+                    <Label htmlFor="signup-phone">{t('auth.phoneNumber')} {t('auth.required')}</Label>
                     <Input
-                      id="signup-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      id="signup-phone"
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
                       required
-                      placeholder="Password (min. 6 karakter)"
-                      minLength={6}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-referral">Kode Referral (Opsional)</Label>
-                    <Input
-                      id="signup-referral"
-                      type="text"
-                      value={referralCode}
-                      onChange={(e) => setReferralCode(e.target.value)}
-                      placeholder="Masukkan kode referral jika ada"
+                      placeholder={t('auth.phoneNumberPlaceholder')}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Dapatkan promo spesial dengan menggunakan kode referral
+                      {t('auth.phoneNumberHelper')}
                     </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-gender">{t('auth.gender')} {t('auth.required')}</Label>
+                    <Select value={gender} onValueChange={setGender} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('auth.selectGender')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">{t('auth.male')}</SelectItem>
+                        <SelectItem value="female">{t('auth.female')}</SelectItem>
+                        <SelectItem value="other">{t('auth.other')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-password">{t('auth.password')} {t('auth.required')}</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder={t('auth.passwordMinCharacters')}
+                        minLength={6}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.585 6.585m3.293 3.293L12 12m0 0l2.122 2.122M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-confirm-password">{t('auth.confirmPassword')} {t('auth.required')}</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder={t('auth.repeatPassword')}
+                        minLength={6}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.585 6.585m3.293 3.293L12 12m0 0l2.122 2.122M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    {confirmPassword && password !== confirmPassword && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {t('auth.passwordNotMatch')}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-referral">{t('auth.referralCode')}</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-referral"
+                        type="text"
+                        value={referralCode}
+                        onChange={(e) => setReferralCode(e.target.value)}
+                        placeholder={t('auth.referralCodePlaceholder')}
+                        className={`pr-10 ${
+                          referralValidationState === 'valid'
+                            ? 'border-green-500 focus:border-green-500'
+                            : referralValidationState === 'invalid'
+                            ? 'border-red-500 focus:border-red-500'
+                            : ''
+                        }`}
+                      />
+                      {/* Validation Icon */}
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        {referralValidationState === 'validating' && (
+                          <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                        )}
+                        {referralValidationState === 'valid' && (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        )}
+                        {referralValidationState === 'invalid' && (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Validation Message */}
+                    {referralValidationMessage && (
+                      <p className={`text-xs mt-1 ${
+                        referralValidationState === 'valid'
+                          ? 'text-green-600'
+                          : referralValidationState === 'invalid'
+                          ? 'text-red-500'
+                          : 'text-gray-500'
+                      }`}>
+                        {referralValidationMessage}
+                      </p>
+                    )}
+                    
+                    {/* Default Helper Text (only show when no validation message) */}
+                    {!referralValidationMessage && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('auth.referralCodeHelper')}
+                      </p>
+                    )}
                   </div>
                   <Button 
                     type="submit" 
                     className="w-full" 
                     disabled={loading}
                   >
-                    {loading ? "Memproses..." : "Daftar"}
+                    {loading ? t('auth.processing') : t('auth.signUpButton')}
                   </Button>
                 </form>
               </CardContent>

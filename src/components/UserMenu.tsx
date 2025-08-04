@@ -1,9 +1,10 @@
-import { LogOut, User, ShoppingBag, Settings, Percent } from 'lucide-react';
+import { LogOut, User, ShoppingBag, Settings, Percent, UserCog } from 'lucide-react';
 import { useAuth } from '@/hooks/useFirebaseAuth';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -80,6 +82,10 @@ const UserMenu = () => {
     navigate('/admin');
   };
 
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -96,27 +102,31 @@ const UserMenu = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleProfileClick}>
+          <UserCog className="mr-2 h-4 w-4" />
+          <span>{t('profile.title')}</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleOrdersClick}>
           <ShoppingBag className="mr-2 h-4 w-4" />
-          <span>Riwayat Pesanan</span>
+          <span>{t('profile.orderHistory')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleReferralClick}>
           <Percent className="mr-2 h-4 w-4" />
-          <span>Program Affiliate</span>
+          <span>{t('profile.affiliateProgram')}</span>
         </DropdownMenuItem>
         {isAdmin && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleAdminClick}>
               <Settings className="mr-2 h-4 w-4" />
-              <span>Admin Panel</span>
+              <span>{t('profile.adminPanel')}</span>
             </DropdownMenuItem>
           </>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Keluar</span>
+          <span>{t('profile.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { LanguageProvider } from '@/hooks/useLanguage'
+import { HelmetProvider } from 'react-helmet-async'
 
 // Add error boundary to catch and display render errors
 window.addEventListener('error', (event) => {
@@ -68,9 +69,11 @@ try {
   }
   
   createRoot(rootElement).render(
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
+    <HelmetProvider>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </HelmetProvider>
   );
 } catch (error) {
   console.error('Failed to render application:', error);

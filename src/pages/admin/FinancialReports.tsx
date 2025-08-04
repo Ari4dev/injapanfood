@@ -14,6 +14,7 @@ import { Order } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import { collection, query, where, getDocs, Timestamp, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { updateProductsWithCostPrice } from '@/utils/updateProductCostPrice';
 
 // Financial transaction type
 interface FinancialTransaction {
@@ -120,12 +121,26 @@ const FinancialReports = () => {
         where('created_at', '>=', startDate.toISOString()),
         where('created_at', '<=', endDate.toISOString())
       );
-      
+
       const ordersSnapshot = await getDocs(ordersQuery);
       const monthOrders = ordersSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Order));
+
+      // Fetch all products to get cost_price data
+      const productsRef = collection(db, 'products');
+      const productsSnapshot = await getDocs(productsRef);
+      const products = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Create a map for quick product lookup
+      const productMap = new Map(products.map(p => [p.id, p]));
+
+      console.log('Selected Month Orders:', monthOrders);
+      console.log('Product Map:', [...productMap.entries()]); // Convert map to array for logging
       
       // Fetch financial transactions
       const financialTransactionsRef = collection(db, 'financial_transactions');
@@ -389,7 +404,11 @@ const FinancialReports = () => {
 
   // Fetch data when component mounts or selected month changes
   useEffect(() => {
-    fetchFinancialData();
+    const loadData = async () => {
+      await fetchFinancialData();
+      await calculateProfitNet();
+    };
+    loadData();
   }, [selectedMonth]);
 
   // Calculate summary statistics
@@ -402,11 +421,142 @@ const FinancialReports = () => {
     .reduce((sum, t) => sum + t.amount, 0);
     
   const netProfit = totalRevenue - totalExpenses;
+  
+  // State for profit net calculation
+  const [profitNet, setProfitNet] = useState<number>(0);
+  
+  // Calculate Profit Net based on product margins
+  const calculateProfitNet = async () => {
+    try {
+      let totalProfitNet = 0;
+      
+      // Parse selected month
+      const [year, month] = selectedMonth.split('-');
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const endDate = new Date(parseInt(year), parseInt(month), 0);
+      
+      // Fetch orders for the selected month
+      const ordersRef = collection(db, 'orders');
+      const ordersQuery = query(
+        ordersRef,
+        where('created_at', '>=', startDate.toISOString()),
+        where('created_at', '<=', endDate.toISOString())
+      );
+      
+      const ordersSnapshot = await getDocs(ordersQuery);
+      const monthOrders = ordersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Order));
+      
+      // Fetch all products to get cost_price data
+      const productsRef = collection(db, 'products');
+      const productsSnapshot = await getDocs(productsRef);
+      const products = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      // Create a map for quick product lookup
+      const productMap = new Map(products.map(p => [p.id, p]));
+      
+      console.log('Selected Month Orders:', monthOrders);
+      console.log('Products with cost_price:', products.filter(p => p.cost_price).length);
+      console.log('Product Map size:', productMap.size);
+      
+      // Calculate profit for each order
+      for (const order of monthOrders) {
+        console.log('Processing order:', order.id, 'Items:', order.items?.length || 0);
+        if (order.items && Array.isArray(order.items)) {
+          for (const item of order.items) {
+            console.log('Processing item:', item.product_id, 'price:', item.price, 'qty:', item.quantity);
+            const product = productMap.get(item.product_id);
+            if (product) {
+              console.log('Found product:', product.name, 'cost_price:', product.cost_price);
+              if (product.cost_price && typeof product.cost_price === 'number') {
+                // Calculate profit: (selling_price - cost_price) * quantity
+                const sellingPrice = Number(item.price);
+                const costPrice = Number(product.cost_price);
+                const quantity = Number(item.quantity);
+                
+                console.log(`\n=== DEBUGGING PROFIT CALCULATION ===`);
+                console.log(`Raw data types:`);
+                console.log(`- item.price type: ${typeof item.price}, value: ${item.price}`);
+                console.log(`- product.cost_price type: ${typeof product.cost_price}, value: ${product.cost_price}`);
+                console.log(`- item.quantity type: ${typeof item.quantity}, value: ${item.quantity}`);
+                
+                console.log(`Converted to numbers:`);
+                console.log(`- sellingPrice: ${sellingPrice} (type: ${typeof sellingPrice})`);
+                console.log(`- costPrice: ${costPrice} (type: ${typeof costPrice})`);
+                console.log(`- quantity: ${quantity} (type: ${typeof quantity})`);
+                
+                // Step by step calculation with explicit logging
+                console.log(`Step-by-step calculation:`);
+                console.log(`1. Profit per unit = sellingPrice - costPrice`);
+                console.log(`   = ${sellingPrice} - ${costPrice}`);
+                
+                const profitPerUnit = sellingPrice - costPrice;
+                console.log(`   = ${profitPerUnit}`);
+                
+                console.log(`2. Total item profit = profitPerUnit × quantity`);
+                console.log(`   = ${profitPerUnit} × ${quantity}`);
+                
+                const itemProfit = profitPerUnit * quantity;
+                console.log(`   = ${itemProfit}`);
+                
+                console.log(`3. Adding to totalProfitNet`);
+                console.log(`   totalProfitNet before: ${totalProfitNet}`);
+                totalProfitNet += itemProfit;
+                console.log(`   totalProfitNet after: ${totalProfitNet}`);
+                console.log(`======================================\n`);
+              } else {
+                console.log('Product has no cost_price or invalid cost_price');
+              }
+            } else {
+              console.log('Product not found in map for ID:', item.product_id);
+            }
+          }
+        }
+      }
+      
+      setProfitNet(totalProfitNet);
+      console.log(`Final Calculated Profit Net: ${totalProfitNet}`);
+      
+    } catch (error) {
+      console.error('Error calculating profit net:', error);
+      setProfitNet(0);
+    }
+  };
 
   // Refresh data
   const handleRefresh = () => {
     fetchFinancialData();
     toast({ title: "Refreshing data", description: "Financial data is being refreshed" });
+  };
+
+  // Update products with cost_price
+  const handleUpdateProductCostPrice = async () => {
+    toast({ title: "Updating products", description: "Adding cost_price to products without it..." });
+    
+    const success = await updateProductsWithCostPrice();
+    
+    if (success) {
+      toast({ 
+        title: "Products updated", 
+        description: "Cost price has been added to products. Refreshing data..."
+      });
+      // Refresh the financial data after updating products
+      setTimeout(() => {
+        fetchFinancialData();
+        calculateProfitNet();
+      }, 1000);
+    } else {
+      toast({ 
+        title: "Update failed", 
+        description: "Failed to update products with cost_price",
+        variant: "destructive"
+      });
+    }
   };
 
   // Add new transaction
@@ -461,6 +611,7 @@ const FinancialReports = () => {
     csvData.push(['TOTAL PENDAPATAN', '', '', totalRevenue, '']);
     csvData.push(['TOTAL PENGELUARAN', '', '', totalExpenses, '']);
     csvData.push(['LABA BERSIH', '', '', netProfit, '']);
+    csvData.push(['PROFIT NET', '', '', profitNet, '']);
     
     // Create CSV content
     const csvContent = [
@@ -509,6 +660,13 @@ const FinancialReports = () => {
           
           <div className="flex space-x-2">
             <Button variant="outline" onClick={handleRefresh} disabled={isLoading}><RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} /> Refresh Data</Button>
+            <Button 
+              variant="outline" 
+              onClick={handleUpdateProductCostPrice}
+              className="flex items-center space-x-2 bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
+            >
+              <span>Update Cost Price</span>
+            </Button>
             <Button 
               variant="outline" 
               onClick={exportToCSV}
@@ -582,7 +740,7 @@ const FinancialReports = () => {
         )}
 
         {/* Financial Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-blue-700 flex items-center">
@@ -649,6 +807,31 @@ const FinancialReports = () => {
               <div className="text-3xl font-bold text-red-700">{isLoading ? '...' : formatCurrency(totalExpenses)}</div>
               <p className="text-sm text-red-600 mt-1">
                 Periode {formatMonth(selectedMonth)}
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-amber-700 flex items-center">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Profit Net
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-700">{isLoading ? '...' : formatCurrency(profitNet)}</div>
+              <p className="text-sm text-amber-600 mt-1">
+                {profitNet > 0 ? (
+                  <span className="flex items-center">
+                    <ArrowUp className="w-3 h-3 mr-1" />
+                    Net Positive
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <ArrowDown className="w-3 h-3 mr-1" />
+                    Net Negative
+                  </span>
+                )}
               </p>
             </CardContent>
           </Card>

@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   description?: string;
   price: number;
+  cost_price?: number; // Harga beli/kulakan untuk perhitungan profit
   category: string;
   image_url?: string; // deprecated, use images instead
   images?: string[];
@@ -125,6 +126,16 @@ export interface CartItem {
   product: Product;
   selectedVariants?: Record<string, any>;
   selectedVariantName?: string | null;
+  product_id?: string;
+  // Bundle-specific properties
+  isBundle?: boolean;
+  bundleItems?: Array<{
+    product_id: string;
+    quantity: number;
+    name: string;
+  }>;
+  originalPrice?: number;
+  savings?: number;
 }
 
 // DashboardStats interface

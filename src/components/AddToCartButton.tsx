@@ -66,8 +66,11 @@ const AddToCartButton = ({
     addToCart(product, quantity);
     
     // Show success state
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    setTimeout(() => {
+      setLoading(false);
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 2000);
+    }, 500);
 
     // Show toast with cart link
     toast({
@@ -107,7 +110,6 @@ const AddToCartButton = ({
         transition: { duration: 0.3 }
       } : {}}
     >
-      {loading ? <ButtonSpinner size="sm" /> : <ShoppingCart className="w-5 h-5" />}
       <motion.div
         className="absolute inset-0 bg-white/20 rounded-lg"
         initial={{ scale: 0, opacity: 0 }}
@@ -125,7 +127,9 @@ const AddToCartButton = ({
           animate={isAdded ? { rotate: 360, scale: [1, 1.3, 1] } : { rotate: 0, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
         >
-          {isAdded ? (
+          {loading ? (
+            <ButtonSpinner size="sm" />
+          ) : isAdded ? (
             <Check className="w-5 h-5" />
           ) : (
             <div className="relative">
@@ -154,12 +158,7 @@ const AddToCartButton = ({
         >
           {isOutOfStock ? t('products.outOfStock') : 
            isAdded ? t('cart.addedSuccess') : 
-           loading ? (
-             <div className="flex items-center">
-               <ButtonSpinner />
-               <span>{t('common.loading')}</span>
-             </div>
-           ) : t('products.addToCart')}
+           loading ? t('common.loading') : t('products.addToCart')}
         </motion.span>
       </motion.div>
 

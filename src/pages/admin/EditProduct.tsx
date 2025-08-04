@@ -43,7 +43,8 @@ const EditProduct = () => {
     description: '',
     price: '',
     category: '',
-    stock: ''
+    stock: '',
+    cost_price: ''
   });
   const [variants, setVariants] = useState([]);
   const { data: categoriesData = [], isLoading: categoriesLoading } = useQuery({
@@ -64,7 +65,8 @@ const EditProduct = () => {
         description: product.description || '',
         price: product.price.toString(),
         category: product.category,
-        stock: product.stock?.toString() || '0'
+        stock: product.stock?.toString() || '0',
+        cost_price: product.cost_price?.toString() || ''
       });
       setExistingImages(Array.isArray(product.images) ? product.images : [product.image_url].filter(Boolean));
       setVariants(product.variants || []);
@@ -86,6 +88,13 @@ const EditProduct = () => {
     const value = e.target.value;
     if (value === '' || /^\d+$/.test(value)) {
       handleInputChange('stock', value);
+    }
+  };
+
+  const handleCostPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      handleInputChange('cost_price', value);
     }
   };
 
@@ -148,6 +157,7 @@ const EditProduct = () => {
 
     const priceNum = parseInt(formData.price);
     const stockNum = parseInt(formData.stock);
+    const costPriceNum = formData.cost_price ? parseInt(formData.cost_price) : null;
     
     if (isNaN(priceNum) || priceNum < 0) {
       toast({
@@ -162,6 +172,15 @@ const EditProduct = () => {
       toast({
         title: "Error",
         description: "Stok harus berupa angka yang valid",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formData.cost_price && (isNaN(costPriceNum!) || costPriceNum! < 0)) {
+      toast({
+        title: "Error",
+        description: "Harga beli harus berupa angka yang valid",
         variant: "destructive"
       });
       return;
@@ -198,6 +217,7 @@ const EditProduct = () => {
         price: priceNum,
         category: formData.category,
         stock: stockNum,
+        cost_price: costPriceNum,
         images: allImages.length > 0 ? allImages : ['/placeholder.svg'],
         variants: variants,
         updated_at: new Date().toISOString()
@@ -351,7 +371,7 @@ const EditProduct = () => {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="price">Harga Dasar (¥) *</Label>
                     <Input
@@ -365,6 +385,20 @@ const EditProduct = () => {
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       Harga dasar produk (jika ada varian, harga ini akan diabaikan)
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="cost_price">Harga Beli (¥)</Label>
+                    <Input
+                      id="cost_price"
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.cost_price}
+                      onChange={handleCostPriceChange}
+                      placeholder="0"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Harga modal/beli produk untuk perhitungan profit
                     </p>
                   </div>
                   <div>

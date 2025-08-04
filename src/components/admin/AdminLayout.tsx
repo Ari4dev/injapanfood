@@ -133,7 +133,16 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
       <div className="flex-1 overflow-auto">
-        <div className="flex justify-end p-4 bg-white shadow-sm">
+        <div className="flex justify-between items-center p-4 bg-white shadow-sm">
+          <button
+            onClick={() => window.location.href = '/'}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Home</span>
+          </button>
           <RealtimeClock showIcon={true} showDate={true} showSeconds={true} />
         </div>
         {children}

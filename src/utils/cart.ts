@@ -94,3 +94,53 @@ export const formatPrice = (price: number): string => {
     minimumFractionDigits: 0
   }).format(price);
 };
+
+// Bundle-specific cart functions
+export const addBundleToCart = (bundle: any, selectedItems: any[]): CartItem[] => {
+  const cart = getCartFromStorage();
+  
+  // Create a unique bundle identifier
+  const bundleId = `bundle-${bundle.id}`;
+  
+  const existingBundleIndex = cart.findIndex(item => item.id === bundleId);
+  
+  if (existingBundleIndex !== -1) {
+    // Update existing bundle quantity
+    cart[existingBundleIndex].quantity += 1;
+  } else {
+    // Add new bundle to cart
+    const bundleCartItem: CartItem = {
+      id: bundleId,
+      name: `${bundle.name} (Bundle)`,
+      price: bundle.bundle_price,
+      quantity: 1,
+      image_url: bundle.image_url || '/placeholder.svg',
+      product: {
+        id: bundle.id,
+        name: bundle.name,
+        price: bundle.bundle_price,
+        image_url: bundle.image_url || '/placeholder.svg',
+        category: 'Bundle',
+        description: bundle.description || '',
+        stock: 99
+      },
+      selectedVariants: {},
+      selectedVariantName: 'Bundle',
+      product_id: bundle.id,
+      // Bundle-specific properties
+      isBundle: true,
+      bundleItems: selectedItems.map(item => ({
+        product_id: item.itemId || item.product_id,
+        quantity: item.quantity,
+        name: item.name || item.product?.name || 'Unknown Product'
+      })),
+      originalPrice: bundle.original_price,
+      savings: (bundle.original_price || 0) - bundle.bundle_price
+    };
+    
+    cart.push(bundleCartItem);
+  }
+  
+  saveCartToStorage(cart);
+  return cart;
+};

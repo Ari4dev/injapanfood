@@ -13,7 +13,8 @@ import {
   CreditCard,
   Percent,
   DollarSign,
-  ShoppingBag
+  ShoppingBag,
+  TrendingUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -64,6 +65,12 @@ const AdminSidebar = () => {
       description: 'Kelola banner beranda'
     },
     {
+      title: 'Manajemen Bundle',
+      href: '/admin/bundle-management',
+      icon: ShoppingBag,
+      description: 'Kelola paket bundle'
+    },
+    {
       title: 'Riwayat Pesanan',
       href: '/admin/orders-history',
       icon: ShoppingCart,
@@ -94,6 +101,18 @@ const AdminSidebar = () => {
       href: '/admin/financial-reports',
       icon: DollarSign,
       description: 'Financial reports'
+    },
+    {
+      title: 'Manajemen Kupon',
+      href: '/admin/coupons',
+      icon: Percent,
+      description: 'Kelola kupon & promo'
+    },
+    {
+      title: 'Traffic Analytics',
+      href: '/admin/traffic-analytics',
+      icon: TrendingUp,
+      description: 'Analisis kunjungan website'
     },
     {
       title: 'Import/Export',

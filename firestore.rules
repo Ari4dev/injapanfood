@@ -70,6 +70,43 @@ service cloud.firestore {
       allow write, create, update, delete: if request.auth != null && isAdmin();
     }
     
+    // BUNDLE COLLECTIONS - Enhanced rules for bundle system
+    // Bundles - Public read, admin write
+    match /bundles/{bundleId} {
+      allow read, list: if true;
+      allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Bundle Items - Public read, admin write
+    match /bundle_items/{itemId} {
+      allow read, list: if true;
+      allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Bundle Categories - Public read, admin write
+    match /bundle_categories/{categoryId} {
+      allow read, list: if true;
+      allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Bundle Analytics - Admin only
+    match /bundle_analytics/{analyticsId} {
+      allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Bundle Recommendations - Public read, admin write
+    match /bundle_recommendations/{recommendationId} {
+      allow read, list: if true;
+      allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Customer Bundle Preferences - Users can manage their own, admin can read all
+    match /customer_bundle_preferences/{preferenceId} {
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.user_id);
+      allow create, update: if request.auth != null && request.auth.uid == request.resource.data.user_id;
+      allow delete: if request.auth != null && isAdmin();
+    }
+    
     // Financial data - Admin only
     match /pos_transactions/{transactionId} {
       allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
@@ -98,6 +135,44 @@ service cloud.firestore {
       allow read: if true;
       allow list: if true;
       allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Addresses - Users can manage their own addresses
+    match /addresses/{addressId} {
+      allow read, list: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // COUPON COLLECTIONS - Coupon management system
+    // Coupons - Public read for active coupons, admin full access
+    match /coupons/{couponId} {
+      allow read, list: if true; // Public can read coupons for validation
+      allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Coupon Usage - Users can read their own usage, admin full access
+    match /couponUsage/{usageId} {
+      allow read, list: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow create: if request.auth != null; // Users can create usage records when applying coupons
+      allow update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // ANALYTICS COLLECTIONS - Traffic and website analytics
+    // Analytics - Admin only access for viewing traffic data
+    match /analytics/{analyticsId} {
+      allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Website Traffic - Admin only access
+    match /website_traffic/{trafficId} {
+      allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Page Views - Admin only access
+    match /page_views/{viewId} {
+      allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
     }
     
     // Helper function to check if user is admin

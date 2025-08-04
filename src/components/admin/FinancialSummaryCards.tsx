@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, Truck, ArrowUp, ArrowDown } from 'lucide-react';
+import { DollarSign, TrendingUp, Truck, ArrowUp, ArrowDown, ShoppingCart } from 'lucide-react';
 
 interface FinancialSummaryCardsProps {
   revenue: number;

@@ -13,10 +13,15 @@ import Orders from '@/pages/Orders';
 import Referral from '@/pages/Referral';
 import HowToBuy from '@/pages/HowToBuy';
 import NotFound from '@/pages/NotFound';
+import BundlesPage from '@/pages/bundles/index';
+import BundleDetailPage from '@/pages/bundles/BundleDetail';
 import CategoryPage from '@/pages/CategoryPage';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsConditions from '@/pages/TermsConditions';
 import Help from '@/pages/Help';
+import Profile from '@/pages/Profile';
+import MyAddresses from '@/pages/MyAddresses';
+import AddressForm from '@/pages/AddressForm';
 
 // Admin pages
 import Admin from '@/pages/Admin';
@@ -38,10 +43,16 @@ import ShippingRates from '@/pages/admin/ShippingRates';
 import AffiliateManagement from '@/pages/admin/AffiliateManagement';
 import FinancialReports from '@/pages/admin/FinancialReports';
 import CODSettings from '@/pages/admin/CODSettings';
+import BundleManagement from '@/pages/admin/BundleManagement';
+import { CouponManagement } from '@/pages/admin/CouponManagement';
+import TrafficAnalytics from '@/pages/admin/TrafficAnalytics';
 
 import './App.css';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { processReferralCode } from '@/utils/referralUtils';
+import { useAnalytics } from '@/utils/analyticsCollector';
+import RouteAnalyticsTracker from '@/components/RouteAnalyticsTracker';
 
 function App() {
   // Create query client instance inside the component to ensure it's created after hydration
@@ -93,6 +104,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
+          <RouteAnalyticsTracker />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
@@ -103,12 +115,22 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/referral" element={<Referral />} />
             <Route path="/how-to-buy" element={<HowToBuy />} />
+            
+            {/* Bundle routes */}
+            <Route path="/bundles" element={<BundlesPage />} />
+            <Route path="/bundles/:id" element={<BundleDetailPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/syarat-ketentuan" element={<TermsConditions />} />
             <Route path="/help" element={<Help />} />
             <Route path="/bantuan" element={<Help />} />
+            
+            {/* Profile and Address routes */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/my-addresses" element={<MyAddresses />} />
+            <Route path="/add-address" element={<AddressForm />} />
+            <Route path="/edit-address/:id" element={<AddressForm />} />
             
             {/* Category routes */}
             <Route path="/kategori/:categorySlug" element={<CategoryPage />} />
@@ -134,6 +156,10 @@ function App() {
             <Route path="/admin/affiliate" element={<AffiliateManagement />} />
             <Route path="/admin/financial-reports" element={<FinancialReports />} />
             <Route path="/admin/cod-settings" element={<CODSettings />} />
+            <Route path="/admin/bundle-management" element={<BundleManagement />} />
+            <Route path="/admin/bundle-management/:id" element={<BundleManagement />} />
+            <Route path="/admin/coupons" element={<CouponManagement />} />
+            <Route path="/admin/traffic-analytics" element={<TrafficAnalytics />} />
             
             {/* 404 route */}
             <Route path="*" element={<NotFound />} />

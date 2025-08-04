@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useFirebaseAuth';
 import { useShippingRateByPrefecture } from '@/hooks/useShippingRates';
 import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
 import { useLanguage } from '@/hooks/useLanguage';
+import { addressService, Address } from '@/services/addressService';
 import PaymentMethodInfo from '@/components/PaymentMethodInfo'; 
 import { useCODSettings } from '@/hooks/useCODSettings';
 import { calculateTotalWithCOD } from '@/services/codSurchargeService';
@@ -23,6 +24,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/config/firebase';
 import { ButtonSpinner } from '@/components/ui/loading';
 import { validateReferralCode } from '@/services/affiliateService';
+import CouponInput from '@/components/CouponInput';
+import { Coupon } from '@/types/coupon';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Nama lengkap harus minimal 2 karakter'),
@@ -69,6 +72,14 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
     isValid: false,
     error: null
   });
+  
+  // Saved addresses state
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('new');
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  
+  // Coupon state
+  const [appliedCoupon, setAppliedCoupon] = useState<{ coupon: Coupon; discountAmount: number } | null>(null);
 
   // Get affiliate_id only if there's an active referral session
   const form = useForm<CheckoutFormData>({
@@ -95,8 +106,9 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
     ? codSettings.surchargeAmount 
     : 0;
   
-  // Calculate total with shipping and COD surcharge
-  const totalWithShipping = total + (shippingFee || 0) + codSurcharge;
+  // Calculate total with shipping, COD surcharge, and coupon discount
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const totalWithShipping = total + (shippingFee || 0) + codSurcharge - discountAmount;
 
   // Move the currency converter hook to the top level
   const { convertedRupiah, lastUpdated } = useCurrencyConverter(totalWithShipping, paymentMethod);
@@ -144,13 +156,13 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
         setReferralCodeValidation({
           isValidating: false,
           isValid,
-          error: isValid ? null : 'Kode referral tidak ditemukan'
+          error: isValid ? null : t('checkout.referralCodeInvalid')
         });
       } catch (error) {
         setReferralCodeValidation({
           isValidating: false,
           isValid: false,
-          error: 'Gagal memvalidasi kode referral'
+          error: 'Gagal memvalidasi kode referral' // Keep this as generic error for now
         });
       }
     }, 500); // 500ms debounce
@@ -183,6 +195,66 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
     }
     setVisitorId(storedVisitorId);
   }, []);
+
+  // Load saved addresses for logged-in users
+  useEffect(() => {
+    if (user) {
+      setIsLoadingAddresses(true);
+      addressService.getUserAddresses(user.uid)
+        .then((addresses) => {
+          setSavedAddresses(addresses);
+          // Auto-select default address if available
+          const defaultAddress = addresses.find(addr => addr.isDefault);
+          if (defaultAddress) {
+            setSelectedAddressId(defaultAddress.id);
+            fillFormWithAddress(defaultAddress);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setIsLoadingAddresses(false));
+    }
+  }, [user]);
+
+  // Function to fill form with selected address
+  const fillFormWithAddress = (address: Address) => {
+    // Find the prefecture by matching the Japanese name from the saved address
+    const prefecture = prefectures.find(p => p.name === address.prefecture);
+    const prefectureValue = prefecture ? prefecture.name_en.toLowerCase() : address.prefecture.toLowerCase();
+    
+    form.setValue('fullName', address.name);
+    form.setValue('whatsapp', address.phone);
+    // Keep the current user's email - don't overwrite it
+    // form.setValue('email', user?.email || ''); // Email stays as is
+    form.setValue('prefecture', prefectureValue);
+    form.setValue('city', address.city);
+    form.setValue('postalCode', address.postalCode);
+    form.setValue('address', address.address);
+    
+    // Update selected prefecture for shipping calculation
+    setSelectedPrefecture(prefectureValue);
+  };
+
+  // Handle address selection
+  const handleAddressSelection = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    
+    if (addressId === 'new') {
+      // Clear form for new address
+      form.setValue('fullName', '');
+      form.setValue('whatsapp', '');
+      form.setValue('prefecture', '');
+      form.setValue('city', '');
+      form.setValue('postalCode', '');
+      form.setValue('address', '');
+      setSelectedPrefecture('');
+    } else {
+      // Fill form with selected address
+      const selectedAddress = savedAddresses.find(addr => addr.id === addressId);
+      if (selectedAddress) {
+        fillFormWithAddress(selectedAddress);
+      }
+    }
+  };
 
   const generateWhatsAppMessage = (data: CheckoutFormData, convertedRupiahValue?: number) => {
     const productList = cart.map(item => {
@@ -265,8 +337,8 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!validTypes.includes(file.type)) {
       toast({
-        title: "Format file tidak valid",
-        description: "Harap unggah file gambar (JPG, PNG, WEBP, GIF)",
+        title: t('payment.invalidFormat'),
+        description: t('payment.validFormatsMessage'),
         variant: "destructive"
       });
       return;
@@ -275,8 +347,8 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "Ukuran file terlalu besar",
-        description: "Ukuran file maksimal 5MB",
+        title: t('payment.fileTooLarge'),
+        description: t('payment.maxFileSize'),
         variant: "destructive"
       });
       return;
@@ -313,11 +385,33 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
     }
   };
 
+  // Coupon handlers
+  const handleCouponApplied = (coupon: Coupon, discountAmount: number) => {
+    setAppliedCoupon({ coupon, discountAmount });
+    toast({
+      title: "Kupon berhasil diterapkan!",
+      description: `Anda hemat ¥${discountAmount.toLocaleString()} dengan kupon "${coupon.code}"`
+    });
+  };
+
+  const handleCouponRemoved = () => {
+    const previousDiscount = appliedCoupon?.discountAmount || 0;
+    setAppliedCoupon(null);
+    toast({
+      title: "Kupon dihapus",
+      description: `Diskon ¥${previousDiscount.toLocaleString()} telah dihapus`
+    });
+  };
+
+  // Get product and category IDs from cart for coupon validation
+  const productIds = cart.map(item => item.product?.id || item.id.split('-')[0]);
+  const categoryIds = cart.map(item => item.product?.category).filter(Boolean);
+
   const onSubmit = async (data: CheckoutFormData) => {
     if (cart.length === 0) {
       toast({
-        title: "Keranjang Kosong",
-        description: "Silakan tambahkan produk ke keranjang terlebih dahulu.",
+        title: t('cart.empty'),
+        description: t('cart.emptyMessage'),
         variant: "destructive",
       });
       return;
@@ -391,7 +485,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
       // Show success message
       toast({
         title: "Pesanan Berhasil Dibuat",
-        description: "Pesanan telah disimpan di riwayat Anda. Silakan lanjutkan ke WhatsApp untuk konfirmasi.",
+        description: t('checkout.orderSaved'),
       });
       
       // Open WhatsApp immediately
@@ -407,7 +501,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
-        title: "Terjadi Kesalahan",
+        title: t('common.error'),
         description: "Gagal membuat pesanan. Silakan coba lagi.",
         variant: "destructive",
       });
@@ -422,6 +516,51 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Saved Addresses Selection (for logged-in users) */}
+          {user && savedAddresses.length > 0 && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <FormLabel className="text-base font-medium text-blue-800 mb-3 block">
+                📍 {t('checkout.chooseAddress')}
+              </FormLabel>
+              <Select value={selectedAddressId} onValueChange={handleAddressSelection}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder={t('checkout.selectAddressPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white border shadow-lg z-50">
+                  <SelectItem value="new">
+                    ➕ {t('checkout.addNewAddress')}
+                  </SelectItem>
+                  {savedAddresses.map((address) => (
+                    <SelectItem key={address.id} value={address.id}>
+                      <div className="flex items-center justify-between w-full">
+                        <div>
+                          <span className="font-medium">{address.name}</span>
+                          {address.isDefault && (
+                            <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                              Default
+                            </span>
+                          )}
+                          <div className="text-sm text-gray-600">
+                            {address.city}, {address.prefecture} {address.postalCode}
+                          </div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-blue-600 mt-2">
+                💡 {t('checkout.manageAddressTip')}
+              </p>
+            </div>
+          )}
+          
+          {/* Loading indicator for addresses */}
+          {user && isLoadingAddresses && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-sm text-gray-600">{t('checkout.loadingAddresses')}</p>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -430,7 +569,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 <FormItem>
                   <FormLabel>{t('checkout.fullName')} *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan nama lengkap" {...field} />
+                    <Input placeholder={t('checkout.fullNamePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -444,7 +583,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 <FormItem>
                   <FormLabel>{t('checkout.whatsapp')} *</FormLabel>
                   <FormControl>
-                    <Input placeholder="081234567890" {...field} />
+                    <Input placeholder={t('checkout.whatsappPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -459,7 +598,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
               <FormItem>
                 <FormLabel>{t('checkout.email')} *</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="contoh@email.com" {...field} />
+                  <Input type="email" placeholder={t('checkout.emailPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -506,7 +645,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 <FormItem>
                   <FormLabel>{t('checkout.city')} *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Contoh: Shibuya-ku, Harajuku" {...field} />
+                    <Input placeholder={t('checkout.cityPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -521,7 +660,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
               <FormItem>
                 <FormLabel>{t('checkout.postalCode')} *</FormLabel>
                 <FormControl>
-                  <Input placeholder="1234567" maxLength={7} {...field} />
+                  <Input placeholder={t('checkout.postalCodePlaceholder')} maxLength={7} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -536,7 +675,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 <FormLabel>{t('checkout.address')} *</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Masukkan alamat lengkap termasuk nomor rumah, nama jalan, dll."
+                    placeholder={t('checkout.addressPlaceholder')}
                     rows={3}
                     {...field}
                   />
@@ -554,7 +693,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 <FormLabel>{t('checkout.notes')}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Tambahkan catatan khusus untuk pesanan Anda..."
+                    placeholder={t('checkout.notesPlaceholder')}
                     rows={2}
                     {...field}
                   />
@@ -570,10 +709,10 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
             name="referralCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kode Referral (Opsional)</FormLabel>
+                <FormLabel>{t('checkout.referralCode')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Masukkan kode referral jika ada"
+                    placeholder={t('checkout.referralCodePlaceholder')}
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value.toUpperCase();
@@ -586,9 +725,9 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 {referralCodeInput && (
                   <div className="text-sm">
                     {referralCodeValidation.isValidating ? (
-                      <span className="text-blue-600">Memvalidasi kode...</span>
+                      <span className="text-blue-600">{t('checkout.referralCodeValidating')}</span>
                     ) : referralCodeValidation.isValid ? (
-                      <span className="text-green-600">✓ Kode referral valid</span>
+                      <span className="text-green-600">✓ {t('checkout.referralCodeValid')}</span>
                     ) : referralCodeValidation.error ? (
                       <span className="text-red-600">✗ {referralCodeValidation.error}</span>
                     ) : null}
@@ -610,7 +749,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
                 >
                   <FormControl>
                     <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Pilih metode pembayaran" />
+                      <SelectValue placeholder={t('checkout.selectPaymentMethodPlaceholder')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="bg-white border shadow-lg z-50">
@@ -683,6 +822,19 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
             </div>
           )}
 
+          {/* Coupon Input Section */}
+          <div className="space-y-2">
+            <FormLabel>Kode Kupon Diskon (Opsional)</FormLabel>
+            <CouponInput
+              onCouponApplied={handleCouponApplied}
+              onCouponRemoved={handleCouponRemoved}
+              cartTotal={total}
+              productIds={productIds}
+              categoryIds={categoryIds}
+              appliedCoupon={appliedCoupon}
+            />
+          </div>
+
           {/* Order Summary with Shipping Fee */}
           <div className="border-t border-b py-4 my-4 space-y-2">
             <div className="flex justify-between items-center">
@@ -708,8 +860,16 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
             {/* COD Surcharge */}
             {paymentMethod === 'COD (Cash on Delivery)' && codSettings?.isEnabled && codSurcharge > 0 && (
               <div className="flex justify-between items-center text-orange-600">
-                <span className="font-medium">Biaya Tambahan COD:</span>
+                <span className="font-medium">{t('checkout.codSurcharge')}</span>
                 <span>{formatCurrencyByMethod(codSurcharge)}</span>
+              </div>
+            )}
+            
+            {/* Coupon Discount */}
+            {appliedCoupon && (
+              <div className="flex justify-between items-center text-green-600">
+                <span className="font-medium">Diskon Kupon ({appliedCoupon.coupon.code})</span>
+                <span>-{formatCurrencyByMethod(appliedCoupon.discountAmount)}</span>
               </div>
             )}
             
@@ -745,7 +905,7 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
             {paymentMethod === 'COD (Cash on Delivery)' && codSettings?.isEnabled && codSurcharge > 0 && (
               <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                 <p className="text-sm text-orange-700">
-                  <strong>Informasi COD:</strong> Biaya tambahan ¥{codSurcharge.toLocaleString()} akan dikenakan untuk pembayaran COD.
+                  <strong>{t('checkout.codInformation')}:</strong> Biaya tambahan ¥{codSurcharge.toLocaleString()} akan dikenakan untuk pembayaran COD.
                 </p>
               </div>
             )}

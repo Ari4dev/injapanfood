@@ -26,6 +26,7 @@ const AddProduct = () => {
     name: '',
     description: '',
     price: '',
+    cost_price: '',
     category: '',
     stock: ''
   });
@@ -56,6 +57,13 @@ const AddProduct = () => {
     const value = e.target.value;
     if (value === '' || /^\d+$/.test(value)) {
       handleInputChange('stock', value);
+    }
+  };
+
+  const handleCostPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      handleInputChange('cost_price', value);
     }
   };
 
@@ -166,10 +174,13 @@ const AddProduct = () => {
         imageUrls = await uploadProductImages(imageFiles);
       }
 
+      const costPriceNum = formData.cost_price ? parseInt(formData.cost_price) : undefined;
+      
       const productData = {
         name: formData.name,
         description: formData.description,
         price: priceNum,
+        cost_price: costPriceNum,
         category: formData.category,
         stock: stockNum,
         images: imageUrls.length > 0 ? imageUrls : ['/placeholder.svg'],
@@ -298,9 +309,9 @@ const AddProduct = () => {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="price">Harga Dasar (¥) *</Label>
+                    <Label htmlFor="price">Harga Jual (¥) *</Label>
                     <Input
                       id="price"
                       type="text"
@@ -311,7 +322,21 @@ const AddProduct = () => {
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Harga dasar produk (jika ada varian, harga ini akan diabaikan)
+                      Harga jual ke pelanggan
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="cost_price">Harga Beli/Kulakan (¥)</Label>
+                    <Input
+                      id="cost_price"
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.cost_price}
+                      onChange={handleCostPriceChange}
+                      placeholder="0"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Harga beli produk untuk menghitung profit
                     </p>
                   </div>
                   <div>
@@ -326,7 +351,7 @@ const AddProduct = () => {
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Stok produk (jika ada varian, stok ini akan diabaikan)
+                      Jumlah stok produk
                     </p>
                   </div>
                 </div>

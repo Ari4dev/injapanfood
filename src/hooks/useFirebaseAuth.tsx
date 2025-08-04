@@ -18,7 +18,7 @@ import { validateInput, sanitizeInput, isAdminEmail } from '@/utils/security';
 interface AuthContextType {
   user: User | null; 
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, phoneNumber?: string, gender?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -114,7 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, phoneNumber?: string, gender?: string) => {
     if (!auth) {
       return { error: new Error('Firebase auth not initialized') };
     }
@@ -130,6 +130,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (!validateInput.text(fullName, 100)) {
       return { error: new Error('Invalid name format') };
+    }
+    
+    if (phoneNumber && !validateInput.text(phoneNumber, 20)) {
+      return { error: new Error('Invalid phone number format') };
     }
     try {
       console.log('Attempting Firebase sign up with email:', email);

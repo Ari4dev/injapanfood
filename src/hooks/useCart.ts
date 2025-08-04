@@ -6,7 +6,8 @@ import {
   removeFromCart as removeFromCartUtil,
   updateCartItemQuantity as updateCartItemQuantityUtil,
   clearCart as clearCartUtil,
-  getCartTotal 
+  getCartTotal,
+  addBundleToCart as addBundleToCartUtil
 } from '@/utils/cart';
 
 export const useCart = () => {
@@ -39,6 +40,11 @@ export const useCart = () => {
     setCart([]);
   }, []);
 
+  const addBundleToCart = useCallback((bundle: any, selectedItems: any[]) => {
+    const updatedCart = addBundleToCartUtil(bundle, selectedItems);
+    setCart(updatedCart);
+  }, []);
+
   // Memoize derived values to prevent unnecessary recalculations
   const total = useMemo(() => getCartTotal(cart), [cart]);
   const itemCount = useMemo(() => cart.reduce((count, item) => count + item.quantity, 0), [cart]);
@@ -50,6 +56,7 @@ export const useCart = () => {
     removeFromCart,
     updateQuantity,
     clearCart,
+    addBundleToCart,
     total,
     itemCount,
     // For backward compatibility

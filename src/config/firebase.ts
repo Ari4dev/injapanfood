@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, enableIndexedDbPersistence, initializeFirestore, CACHE_SIZE_UNLIMITED, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import { firebaseConfig } from '@/config/env';
 
 // Declare variables at module level
@@ -9,6 +10,7 @@ let app: any;
 let auth: any;
 let db: any;
 let storage: any;
+let analytics: any;
 
 // Track initialization status
 let isInitialized = false;
@@ -38,6 +40,20 @@ try {
     
     // Initialize storage
     storage = getStorage(app);
+    
+    // Initialize Analytics (only in browser environment)
+    if (typeof window !== 'undefined') {
+      isSupported().then((supported) => {
+        if (supported) {
+          analytics = getAnalytics(app);
+          console.log('Firebase Analytics initialized');
+        } else {
+          console.log('Firebase Analytics not supported in this environment');
+        }
+      }).catch((error) => {
+        console.warn('Error checking Analytics support:', error);
+      });
+    }
     
     // Connect to Firestore emulator in development (optional)
     if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -90,5 +106,5 @@ try {
   storage = {} as any;
 }
 
-export { auth, db, storage };
+export { auth, db, storage, analytics };
 export default app;

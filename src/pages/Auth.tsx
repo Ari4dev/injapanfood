@@ -23,15 +23,26 @@ const Auth = () => {
           const role = adminEmails.includes(user.email || '') ? 'admin' : 'user';
           
           const userRef = doc(db, 'users', user.uid);
+          
+          // Get additional user data from localStorage if available (from recent signup)
+          const phoneNumber = localStorage.getItem('userPhoneNumber');
+          const gender = localStorage.getItem('userGender');
+          
           await setDoc(userRef, {
             uid: user.uid,
             email: user.email || '',
             displayName: user.displayName || user.email?.split('@')[0] || '',
+            phoneNumber: phoneNumber || '',
+            gender: gender || '',
             role: role,
             createdAt: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
             isOnline: true
           }, { merge: true });
+          
+          // Clear temporary data from localStorage
+          localStorage.removeItem('userPhoneNumber');
+          localStorage.removeItem('userGender');
           
           console.log('User profile ensured in Firestore:', user.email);
         } catch (error) {
