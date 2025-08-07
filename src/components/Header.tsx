@@ -155,16 +155,16 @@ const Header = ({ shouldAnimateCart = false }: HeaderProps) => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 animate-fade-in">
-            <nav className="flex flex-col space-y-4">
+          <div className="md:hidden py-4 border-t border-gray-200 animate-fade-in max-h-96 overflow-y-auto bg-white shadow-lg">
+            <nav className="flex flex-col space-y-4 px-2">
               {navItems.map((item) => (
                 <div
                   key={item.path}
                   onClick={() => handleNavClick(item.path)}
-                  className={`font-medium transition-colors duration-200 text-left cursor-pointer ${
+                  className={`font-medium transition-colors duration-200 text-left cursor-pointer py-2 px-2 rounded-md ${
                     isActive(item.path)
-                      ? 'text-primary'
-                      : 'text-gray-700 hover:text-primary'
+                      ? 'text-primary bg-primary/10'
+                      : 'text-gray-700 hover:text-primary hover:bg-gray-50'
                   }`}
                 >
                   {t(item.label)}
@@ -172,14 +172,14 @@ const Header = ({ shouldAnimateCart = false }: HeaderProps) => {
               ))}
               <div
                 onClick={() => handleNavClick('/cart')}
-                className="text-gray-700 hover:text-primary font-medium text-left cursor-pointer"
+                className="text-gray-700 hover:text-primary hover:bg-gray-50 font-medium text-left cursor-pointer py-2 px-2 rounded-md"
               >
                 {t('nav.cart')}
               </div>
               {!user && (
                 <div
                   onClick={() => handleNavClick('/auth')}
-                  className="text-gray-700 hover:text-primary font-medium text-left cursor-pointer"
+                  className="text-gray-700 hover:text-primary hover:bg-gray-50 font-medium text-left cursor-pointer py-2 px-2 rounded-md"
                 >
                   {t('nav.login')} / {t('nav.register')}
                 </div>
