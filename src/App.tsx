@@ -48,10 +48,7 @@ import { CouponManagement } from '@/pages/admin/CouponManagement';
 
 import './App.css';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { processReferralCode } from '@/utils/referralUtils';
-import { useAnalytics } from '@/utils/analyticsCollector';
-import RouteAnalyticsTracker from '@/components/RouteAnalyticsTracker';
 
 function App() {
   // Create query client instance inside the component to ensure it's created after hydration
@@ -103,7 +100,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <RouteAnalyticsTracker />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
