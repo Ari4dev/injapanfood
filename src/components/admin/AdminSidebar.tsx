@@ -13,8 +13,7 @@ import {
   CreditCard,
   Percent,
   DollarSign,
-  ShoppingBag,
-  TrendingUp
+  ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -107,12 +106,6 @@ const AdminSidebar = () => {
       href: '/admin/coupons',
       icon: Percent,
       description: 'Kelola kupon & promo'
-    },
-    {
-      title: 'Traffic Analytics',
-      href: '/admin/traffic-analytics',
-      icon: TrendingUp,
-      description: 'Analisis kunjungan website'
     },
     {
       title: 'Import/Export',

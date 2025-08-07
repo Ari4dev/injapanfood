@@ -45,7 +45,6 @@ import FinancialReports from '@/pages/admin/FinancialReports';
 import CODSettings from '@/pages/admin/CODSettings';
 import BundleManagement from '@/pages/admin/BundleManagement';
 import { CouponManagement } from '@/pages/admin/CouponManagement';
-import TrafficAnalytics from '@/pages/admin/TrafficAnalytics';
 
 import './App.css';
 import { useEffect, useState } from 'react';
@@ -159,7 +158,6 @@ function App() {
             <Route path="/admin/bundle-management" element={<BundleManagement />} />
             <Route path="/admin/bundle-management/:id" element={<BundleManagement />} />
             <Route path="/admin/coupons" element={<CouponManagement />} />
-            <Route path="/admin/traffic-analytics" element={<TrafficAnalytics />} />
             
             {/* 404 route */}
             <Route path="*" element={<NotFound />} />
