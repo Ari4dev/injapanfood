@@ -11,7 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { validateReferralCode } from '@/services/affiliateService';
-import { CheckCircle, XCircle, Loader2, Eye, EyeOff, Mail, Lock, User, Phone, Users } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Eye, EyeOff, Mail, Lock, User, Phone, Users, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthForm = () => {
@@ -658,7 +658,7 @@ const AuthForm = () => {
                               value={referralCode}
                               onChange={(e) => setReferralCode(e.target.value)}
                               placeholder={t('auth.referralCodePlaceholder')}
-                              className={`h-12 pr-11 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70 ${
+                              className={`h-12 ${referralCode ? 'pr-20' : 'pr-11'} border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70 ${
                                 referralValidationState === 'valid'
                                   ? 'border-green-400 focus:border-green-500'
                                   : referralValidationState === 'invalid'
@@ -666,40 +666,63 @@ const AuthForm = () => {
                                   : ''
                               }`}
                             />
-                            {/* Validation Icon */}
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                              <AnimatePresence mode="wait">
-                                {referralValidationState === 'validating' && (
-                                  <motion.div
-                                    key="loading"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                  >
-                                    <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
-                                  </motion.div>
-                                )}
-                                {referralValidationState === 'valid' && (
-                                  <motion.div
-                                    key="valid"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                  >
-                                    <CheckCircle className="h-4 w-4 text-green-500" />
-                                  </motion.div>
-                                )}
-                                {referralValidationState === 'invalid' && (
-                                  <motion.div
-                                    key="invalid"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                  >
-                                    <XCircle className="h-4 w-4 text-red-500" />
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
+                            
+                            {/* Right side icons container */}
+                            <div className="absolute inset-y-0 right-0 flex items-center">
+                              {/* Clear button - shows when there's text */}
+                              {referralCode && (
+                                <motion.button
+                                  type="button"
+                                  initial={{ opacity: 0, scale: 0.8 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.8 }}
+                                  className="mr-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                  onClick={() => {
+                                    setReferralCode('');
+                                    setReferralValidationState('idle');
+                                    setReferralValidationMessage('');
+                                  }}
+                                  aria-label="Clear referral code"
+                                >
+                                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                                </motion.button>
+                              )}
+                              
+                              {/* Validation Icon */}
+                              <div className="pr-3">
+                                <AnimatePresence mode="wait">
+                                  {referralValidationState === 'validating' && (
+                                    <motion.div
+                                      key="loading"
+                                      initial={{ opacity: 0, scale: 0.8 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      exit={{ opacity: 0, scale: 0.8 }}
+                                    >
+                                      <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                                    </motion.div>
+                                  )}
+                                  {referralValidationState === 'valid' && (
+                                    <motion.div
+                                      key="valid"
+                                      initial={{ opacity: 0, scale: 0.8 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      exit={{ opacity: 0, scale: 0.8 }}
+                                    >
+                                      <CheckCircle className="h-4 w-4 text-green-500" />
+                                    </motion.div>
+                                  )}
+                                  {referralValidationState === 'invalid' && (
+                                    <motion.div
+                                      key="invalid"
+                                      initial={{ opacity: 0, scale: 0.8 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      exit={{ opacity: 0, scale: 0.8 }}
+                                    >
+                                      <XCircle className="h-4 w-4 text-red-500" />
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
                             </div>
                           </div>
                           
@@ -757,7 +780,8 @@ const AuthForm = () => {
                 </motion.div>
               </TabsContent>
         </Tabs>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
