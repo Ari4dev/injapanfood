@@ -11,7 +11,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { validateReferralCode } from '@/services/affiliateService';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Eye, EyeOff, Mail, Lock, User, Phone, Users } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthForm = () => {
   const [email, setEmail] = useState('');
@@ -307,263 +308,454 @@ const AuthForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
-      {/* Language Switcher positioned at top right */}
-      <div className="absolute top-4 right-4 z-10">
-        <LanguageSwitcher />
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-red-200/30 to-orange-200/30 rounded-full blur-xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-orange-200/30 to-yellow-200/30 rounded-full blur-xl"></div>
+        <div className="absolute top-1/3 -left-5 w-24 h-24 bg-gradient-to-br from-red-100/40 to-pink-100/40 rounded-full blur-lg"></div>
+        <div className="absolute bottom-1/4 -right-5 w-28 h-28 bg-gradient-to-br from-yellow-100/40 to-orange-100/40 rounded-full blur-lg"></div>
       </div>
       
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4">
+      {/* Language Switcher positioned at top right */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="absolute top-4 right-4 z-10"
+      >
+        <LanguageSwitcher />
+      </motion.div>
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-md w-full space-y-8 relative z-10"
+      >
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-center"
+        >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, type: "spring", stiffness: 200 }}
+            className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-6 shadow-2xl ring-4 ring-white/50 backdrop-blur-sm"
+          >
             <img 
               src="/logo.png" 
               alt="Injapan Food Logo" 
-              className="w-full h-full object-contain bg-white p-2"
+              className="w-full h-full object-contain bg-gradient-to-br from-white to-red-50 p-2"
             />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Injapan Food</h2>
-          <p className="mt-2 text-sm text-gray-600">Makanan Indonesia di Jepang</p>
-        </div>
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-4xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-red-700 bg-clip-text text-transparent mb-2"
+          >
+            Injapan Food
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-sm text-gray-600 font-medium"
+          >
+            Makanan Indonesia di Jepang
+          </motion.p>
+        </motion.div>
 
-        <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">{t('auth.signInTab')}</TabsTrigger>
-            <TabsTrigger value="signup">{t('auth.signUpTab')}</TabsTrigger>
-          </TabsList>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-white/70 backdrop-blur-sm border border-white/20 shadow-lg">
+              <TabsTrigger value="signin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">{t('auth.signInTab')}</TabsTrigger>
+              <TabsTrigger value="signup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">{t('auth.signUpTab')}</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="signin">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('auth.signIn')}</CardTitle>
-                <CardDescription>
-                  {t('auth.signInDescription')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div>
-                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder={t('auth.emailPlaceholder')}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder={t('auth.passwordPlaceholder')}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={loading}
-                  >
-                    {loading ? t('auth.processing') : t('auth.signInButton')}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="signup">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('auth.signUp')}</CardTitle>
-                <CardDescription>
-                  {t('auth.signUpDescription')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div>
-                    <Label htmlFor="signup-name">{t('auth.fullName')} {t('auth.required')}</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      placeholder={t('auth.fullNamePlaceholder')}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-email">{t('auth.email')} {t('auth.required')}</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder={t('auth.emailPlaceholder')}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-phone">{t('auth.phoneNumber')} {t('auth.required')}</Label>
-                    <Input
-                      id="signup-phone"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      placeholder={t('auth.phoneNumberPlaceholder')}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {t('auth.phoneNumberHelper')}
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-gender">{t('auth.gender')} {t('auth.required')}</Label>
-                    <Select value={gender} onValueChange={setGender} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('auth.selectGender')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">{t('auth.male')}</SelectItem>
-                        <SelectItem value="female">{t('auth.female')}</SelectItem>
-                        <SelectItem value="other">{t('auth.other')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-password">{t('auth.password')} {t('auth.required')}</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        placeholder={t('auth.passwordMinCharacters')}
-                        minLength={6}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowPassword(!showPassword)}
+            <AnimatePresence mode="wait">
+              <TabsContent value="signin">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="bg-white/80 backdrop-blur-md border border-white/20 shadow-2xl">
+                    <CardHeader className="text-center pb-8">
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
                       >
-                        {showPassword ? (
-                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.585 6.585m3.293 3.293L12 12m0 0l2.122 2.122M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        ) : (
-                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-confirm-password">{t('auth.confirmPassword')} {t('auth.required')}</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        placeholder={t('auth.repeatPassword')}
-                        minLength={6}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">{t('auth.signIn')}</CardTitle>
+                        <CardDescription className="text-gray-600 mt-2">
+                          {t('auth.signInDescription')}
+                        </CardDescription>
+                      </motion.div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <form onSubmit={handleSignIn} className="space-y-5">
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                        >
+                          <Label htmlFor="signin-email" className="text-gray-700 font-medium">{t('auth.email')}</Label>
+                          <div className="relative mt-2">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signin-email"
+                              type="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              required
+                              placeholder={t('auth.emailPlaceholder')}
+                              className="pl-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                          </div>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.3 }}
+                        >
+                          <Label htmlFor="signin-password" className="text-gray-700 font-medium">{t('auth.password')}</Label>
+                          <div className="relative mt-2">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signin-password"
+                              type="password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              required
+                              placeholder={t('auth.passwordPlaceholder')}
+                              className="pl-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                          </div>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: 0.4 }}
+                        >
+                          <Button 
+                            type="submit" 
+                            className="w-full h-12 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <div className="flex items-center space-x-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>{t('auth.processing')}</span>
+                              </div>
+                            ) : (
+                              t('auth.signInButton')
+                            )}
+                          </Button>
+                        </motion.div>
+                      </form>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
+            </AnimatePresence>
+
+              <TabsContent value="signup">
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="bg-white/80 backdrop-blur-md border border-white/20 shadow-2xl">
+                    <CardHeader className="text-center pb-6">
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
                       >
-                        {showConfirmPassword ? (
-                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.585 6.585m3.293 3.293L12 12m0 0l2.122 2.122M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        ) : (
-                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                    {confirmPassword && password !== confirmPassword && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {t('auth.passwordNotMatch')}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-referral">{t('auth.referralCode')}</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-referral"
-                        type="text"
-                        value={referralCode}
-                        onChange={(e) => setReferralCode(e.target.value)}
-                        placeholder={t('auth.referralCodePlaceholder')}
-                        className={`pr-10 ${
-                          referralValidationState === 'valid'
-                            ? 'border-green-500 focus:border-green-500'
-                            : referralValidationState === 'invalid'
-                            ? 'border-red-500 focus:border-red-500'
-                            : ''
-                        }`}
-                      />
-                      {/* Validation Icon */}
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        {referralValidationState === 'validating' && (
-                          <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
-                        )}
-                        {referralValidationState === 'valid' && (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                        {referralValidationState === 'invalid' && (
-                          <XCircle className="h-4 w-4 text-red-500" />
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Validation Message */}
-                    {referralValidationMessage && (
-                      <p className={`text-xs mt-1 ${
-                        referralValidationState === 'valid'
-                          ? 'text-green-600'
-                          : referralValidationState === 'invalid'
-                          ? 'text-red-500'
-                          : 'text-gray-500'
-                      }`}>
-                        {referralValidationMessage}
-                      </p>
-                    )}
-                    
-                    {/* Default Helper Text (only show when no validation message) */}
-                    {!referralValidationMessage && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {t('auth.referralCodeHelper')}
-                      </p>
-                    )}
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={loading}
-                  >
-                    {loading ? t('auth.processing') : t('auth.signUpButton')}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">{t('auth.signUp')}</CardTitle>
+                        <CardDescription className="text-gray-600 mt-2">
+                          {t('auth.signUpDescription')}
+                        </CardDescription>
+                      </motion.div>
+                    </CardHeader>
+                    <CardContent className="space-y-5">
+                      <form onSubmit={handleSignUp} className="space-y-4">
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.1 }}
+                        >
+                          <Label htmlFor="signup-name" className="text-gray-700 font-medium">{t('auth.fullName')} <span className="text-red-500">*</span></Label>
+                          <div className="relative mt-2">
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signup-name"
+                              type="text"
+                              value={fullName}
+                              onChange={(e) => setFullName(e.target.value)}
+                              required
+                              placeholder={t('auth.fullNamePlaceholder')}
+                              className="pl-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                          </div>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                        >
+                          <Label htmlFor="signup-email" className="text-gray-700 font-medium">{t('auth.email')} <span className="text-red-500">*</span></Label>
+                          <div className="relative mt-2">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signup-email"
+                              type="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              required
+                              placeholder={t('auth.emailPlaceholder')}
+                              className="pl-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                          </div>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.3 }}
+                        >
+                          <Label htmlFor="signup-phone" className="text-gray-700 font-medium">{t('auth.phoneNumber')} <span className="text-red-500">*</span></Label>
+                          <div className="relative mt-2">
+                            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signup-phone"
+                              type="tel"
+                              value={phoneNumber}
+                              onChange={(e) => setPhoneNumber(e.target.value)}
+                              required
+                              placeholder={t('auth.phoneNumberPlaceholder')}
+                              className="pl-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {t('auth.phoneNumberHelper')}
+                          </p>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.4 }}
+                        >
+                          <Label htmlFor="signup-gender" className="text-gray-700 font-medium">{t('auth.gender')} <span className="text-red-500">*</span></Label>
+                          <div className="relative mt-2">
+                            <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+                            <Select value={gender} onValueChange={setGender} required>
+                              <SelectTrigger className="pl-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70">
+                                <SelectValue placeholder={t('auth.selectGender')} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="male">{t('auth.male')}</SelectItem>
+                                <SelectItem value="female">{t('auth.female')}</SelectItem>
+                                <SelectItem value="other">{t('auth.other')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.5 }}
+                        >
+                          <Label htmlFor="signup-password" className="text-gray-700 font-medium">{t('auth.password')} <span className="text-red-500">*</span></Label>
+                          <div className="relative mt-2">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signup-password"
+                              type={showPassword ? "text" : "password"}
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              required
+                              placeholder={t('auth.passwordMinCharacters')}
+                              minLength={6}
+                              className="pl-11 pr-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-5 w-5 text-gray-400" />
+                              ) : (
+                                <Eye className="h-5 w-5 text-gray-400" />
+                              )}
+                            </button>
+                          </div>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.6 }}
+                        >
+                          <Label htmlFor="signup-confirm-password" className="text-gray-700 font-medium">{t('auth.confirmPassword')} <span className="text-red-500">*</span></Label>
+                          <div className="relative mt-2">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                            <Input
+                              id="signup-confirm-password"
+                              type={showConfirmPassword ? "text" : "password"}
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              required
+                              placeholder={t('auth.repeatPassword')}
+                              minLength={6}
+                              className="pl-11 pr-11 h-12 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70"
+                            />
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-5 w-5 text-gray-400" />
+                              ) : (
+                                <Eye className="h-5 w-5 text-gray-400" />
+                              )}
+                            </button>
+                          </div>
+                          <AnimatePresence>
+                            {confirmPassword && password !== confirmPassword && (
+                              <motion.p 
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="text-xs text-red-500 mt-2 flex items-center space-x-1"
+                              >
+                                <XCircle className="h-3 w-3" />
+                                <span>{t('auth.passwordNotMatch')}</span>
+                              </motion.p>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.7 }}
+                        >
+                          <Label htmlFor="signup-referral" className="text-gray-700 font-medium">{t('auth.referralCode')}</Label>
+                          <div className="relative mt-2">
+                            <Input
+                              id="signup-referral"
+                              type="text"
+                              value={referralCode}
+                              onChange={(e) => setReferralCode(e.target.value)}
+                              placeholder={t('auth.referralCodePlaceholder')}
+                              className={`h-12 pr-11 border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all duration-200 bg-white/70 ${
+                                referralValidationState === 'valid'
+                                  ? 'border-green-400 focus:border-green-500'
+                                  : referralValidationState === 'invalid'
+                                  ? 'border-red-400 focus:border-red-500'
+                                  : ''
+                              }`}
+                            />
+                            {/* Validation Icon */}
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                              <AnimatePresence mode="wait">
+                                {referralValidationState === 'validating' && (
+                                  <motion.div
+                                    key="loading"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                  >
+                                    <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                                  </motion.div>
+                                )}
+                                {referralValidationState === 'valid' && (
+                                  <motion.div
+                                    key="valid"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                  >
+                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                  </motion.div>
+                                )}
+                                {referralValidationState === 'invalid' && (
+                                  <motion.div
+                                    key="invalid"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                  >
+                                    <XCircle className="h-4 w-4 text-red-500" />
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </div>
+                          
+                          <AnimatePresence>
+                            {referralValidationMessage ? (
+                              <motion.p 
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={`text-xs mt-2 ${
+                                  referralValidationState === 'valid'
+                                    ? 'text-green-600'
+                                    : referralValidationState === 'invalid'
+                                    ? 'text-red-500'
+                                    : 'text-gray-500'
+                                }`}
+                              >
+                                {referralValidationMessage}
+                              </motion.p>
+                            ) : (
+                              <motion.p 
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="text-xs text-gray-500 mt-2"
+                              >
+                                {t('auth.referralCodeHelper')}
+                              </motion.p>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: 0.8 }}
+                        >
+                          <Button 
+                            type="submit" 
+                            className="w-full h-12 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <div className="flex items-center space-x-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>{t('auth.processing')}</span>
+                              </div>
+                            ) : (
+                              t('auth.signUpButton')
+                            )}
+                          </Button>
+                        </motion.div>
+                      </form>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
         </Tabs>
       </div>
     </div>
