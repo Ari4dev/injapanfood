@@ -308,13 +308,13 @@ const AuthForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-red-200/30 to-orange-200/30 rounded-full blur-xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-orange-200/30 to-yellow-200/30 rounded-full blur-xl"></div>
-        <div className="absolute top-1/3 -left-5 w-24 h-24 bg-gradient-to-br from-red-100/40 to-pink-100/40 rounded-full blur-lg"></div>
-        <div className="absolute bottom-1/4 -right-5 w-28 h-28 bg-gradient-to-br from-yellow-100/40 to-orange-100/40 rounded-full blur-lg"></div>
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-indigo-200/20 to-purple-200/20 rounded-full blur-xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-xl"></div>
+        <div className="absolute top-1/3 -left-5 w-24 h-24 bg-gradient-to-br from-slate-200/25 to-gray-200/25 rounded-full blur-lg"></div>
+        <div className="absolute bottom-1/4 -right-5 w-28 h-28 bg-gradient-to-br from-purple-100/25 to-indigo-100/25 rounded-full blur-lg"></div>
       </div>
       
       {/* Language Switcher positioned at top right */}
