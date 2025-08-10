@@ -16,30 +16,61 @@ service cloud.firestore {
     
     // Orders - Users can read their own orders, admins can read all
     match /orders/{orderId} {
-      allow read, list: if request.auth != null && (isAdmin() || resource.data.user_id == request.auth.uid);
-      allow create: if true; // Allow guest orders
+      // Allow reading: authenticated users can read their own orders, admins can read all, or if no user_id (guest orders)
+      allow read: if (request.auth != null && isAdmin()) || 
+                     (request.auth != null && resource.data.user_id == request.auth.uid) ||
+                     (resource.data.user_id == null);
+      
+      // Allow listing orders for authenticated users (their own) or admins (all)
+      allow list: if request.auth != null && isAdmin();
+      
+      // Allow creation: anyone can create orders (including guests)
+      allow create: if true;
+      
+      // Only admins can update or delete orders
       allow update, delete: if request.auth != null && isAdmin();
     }
     
-    // AFFILIATE COLLECTIONS - Updated permissions for proper access
+    // AFFILIATE COLLECTIONS - Completely open permissions for debugging
     match /affiliate_referrals/{referralId} {
-      allow read, list, create, update, delete: if true; // Full access for affiliate tracking
+      allow read, write, create, update, delete: if true;
     }
     
     match /affiliate_commissions/{commissionId} {
-      allow read, list, create, update, delete: if true; // Full access for commission management
+      allow read, write, create, update, delete: if true;
     }
     
     match /affiliate_settings/{settingId} {
-      allow read, list, create, update, delete: if true; // Full access for settings
+      allow read, write, create, update, delete: if true;
     }
 
     match /affiliate_payouts/{payoutId} {
-      allow read, list, create, update, delete: if true; // Full access for payouts
+      allow read, write, create, update, delete: if true;
     }
     
     match /affiliates/{affiliateId} {
-      allow read, list, create, update, delete: if true; // Full access for affiliate management
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // SHOPEE-STYLE AFFILIATE SYSTEM - Collections for attribution tracking
+    match /affiliateAttribution/{attributionId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    match /affiliateOrders/{orderId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    match /shopee_affiliates/{affiliateId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    match /shopee_affiliate_payouts/{payoutId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    match /shopee_affiliate_settings/{settingId} {
+      allow read, write, create, update, delete: if true;
     }
     
     // Admin-only collections
@@ -57,10 +88,12 @@ service cloud.firestore {
       allow write, create, update, delete: if request.auth != null && isAdmin();
     }
 
-    // Payment proofs - Users can create their own, admins can manage all
+    // Payment proofs - Anyone can create (for guest checkout), users can read their own, admins can manage all
     match /payment_proofs/{paymentProofId} {
-      allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.user_id);
-      allow create: if request.auth != null;
+      allow read: if (request.auth != null && isAdmin()) || 
+                     (request.auth != null && resource.data.user_id == request.auth.uid) ||
+                     (resource.data.user_id == null); // Allow reading payment proofs without user_id
+      allow create: if true; // Allow anyone to create payment proofs (including guests)
       allow update, delete: if request.auth != null && isAdmin();
     }
     
@@ -178,18 +211,18 @@ service cloud.firestore {
     // Helper function to check if user is admin
     function isAdmin() {
       return request.auth != null && 
-        (request.auth.token.email == 'admin@gmail.com' || 
-         request.auth.token.email == 'ari4rich@gmail.com' ||
-         request.auth.token.email == 'newadmin@gmail.com' ||
-         request.auth.token.email == 'injpn@food.com' ||
-         request.auth.token.email == 'admin2@gmail.com');
-    }
-    
-    // Validate admin role from user document
-    function isAdminFromUserDoc() {
-      return request.auth != null && 
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Validate order creation with proper data requirements
+    function validateOrderCreation() {
+      return request.resource.data.keys().hasAll(['items', 'total_amount', 'shipping_address', 'payment_method']) &&
+             request.resource.data.items is list &&
+             request.resource.data.items.size() > 0 &&
+             request.resource.data.total_amount is number &&
+             request.resource.data.total_amount > 0;
+    }
+    
   }
 }

@@ -1,88 +1,47 @@
 import { useEffect } from 'react';
-import { AffiliateAdminProvider, useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/admin/AdminLayout';
-import AffiliateStatsOverview from '@/components/affiliate/admin/AffiliateStatsOverview';
-import AffiliatesTable from '@/components/affiliate/admin/AffiliatesTable';
-import CommissionsAdminTable from '@/components/affiliate/admin/CommissionsAdminTable';
-import AffiliateMonthlyChart from '@/components/affiliate/admin/AffiliateMonthlyChart';
-import PayoutsAdminTable from '@/components/affiliate/admin/PayoutsAdminTable';
-import AffiliateSettingsForm from '@/components/affiliate/admin/AffiliateSettingsForm';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const AffiliateManagementContent = () => {
-  const { selectedMonth } = useAffiliateAdmin();
-  
-  // Enhanced scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, []);
-
-  // Format month for display
-  const formatMonth = (monthStr: string) => {
-    if (!monthStr) return 'Bulan Ini';
-    const [year, month] = monthStr.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-  };
-
-  return (
-    <div className="p-8">
-      <div className="mb-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manajemen Affiliate</h1>
-            <p className="text-gray-600">Kelola program affiliate, komisi, dan pencairan</p>
-          </div>
-          <div className="bg-primary/5 px-4 py-2 rounded-lg border border-primary/10">
-            <p className="text-sm font-medium text-primary">Periode: {formatMonth(selectedMonth)}</p>
-            <p className="text-xs text-gray-500">Data ditampilkan per bulan</p>
-          </div>
-        </div>
-      </div>
-      
-      <div className="mb-8">
-        <AffiliateStatsOverview />
-      </div>
-
-      <div className="mb-8">
-        <AffiliateMonthlyChart />
-      </div>
-      
-      <Tabs defaultValue="affiliates" className="mb-8">
-        <TabsList className="mb-4">
-          <TabsTrigger value="affiliates">Daftar Affiliate</TabsTrigger>
-          <TabsTrigger value="commissions">Komisi</TabsTrigger>
-          <TabsTrigger value="payouts">Pencairan</TabsTrigger>
-          <TabsTrigger value="settings">Pengaturan</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="affiliates">
-          <AffiliatesTable />
-        </TabsContent>
-        
-        <TabsContent value="commissions">
-          <CommissionsAdminTable />
-        </TabsContent>
-        
-        <TabsContent value="payouts">
-          <PayoutsAdminTable />
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <AffiliateSettingsForm />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const AffiliateManagement = () => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Auto redirect to new affiliate management after 3 seconds
+    const timer = setTimeout(() => {
+      navigate('/admin/shopee-affiliate-management');
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, [navigate]);
+  
   return (
-    <AffiliateAdminProvider>
-      <AdminLayout>
-        <AffiliateManagementContent />
-      </AdminLayout>
-    </AffiliateAdminProvider>
+    <AdminLayout>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">System Update</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              The affiliate system has been upgraded to a new version.
+            </p>
+            <p className="text-sm text-gray-500">
+              You will be redirected to the new management panel in a few seconds...
+            </p>
+            <Button 
+              onClick={() => navigate('/admin/shopee-affiliate-management')}
+              className="w-full"
+            >
+              Go to New Affiliate Management
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </AdminLayout>
   );
 };
 

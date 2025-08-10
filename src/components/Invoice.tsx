@@ -2,6 +2,7 @@ import React from 'react';
 import { Order } from '@/types';
 import { formatPrice } from '@/utils/cart';
 import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface InvoiceProps {
   order: Order;
@@ -9,6 +10,8 @@ interface InvoiceProps {
 }
 
 const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
+  const { t } = useLanguage();
+  
   // Check if payment method requires Rupiah display
   const isRupiahPayment = order.customer_info.payment_method === 'Bank Transfer (Rupiah)' || 
                          order.customer_info.payment_method === 'QRIS / QR Code' ||
@@ -50,6 +53,34 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
       month: 'long',
       day: 'numeric'
     });
+  };
+  
+  // Get status text based on language
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return t('invoice.statusPending');
+      case 'confirmed':
+        return t('invoice.statusConfirmed');
+      case 'completed':
+        return t('invoice.statusCompleted');
+      default:
+        return status;
+    }
+  };
+  
+  // Get payment status text based on language
+  const getPaymentStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return t('invoice.paymentPending');
+      case 'verified':
+        return t('invoice.paymentVerified');
+      case 'rejected':
+        return t('invoice.paymentRejected');
+      default:
+        return status;
+    }
   };
 
   return (
@@ -219,12 +250,12 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
             />
           </div>
           <div className="company-info">
-            <h1 className="text-lg font-bold text-gray-900">Injapan Food</h1>
-            <p className="text-xs text-gray-600">Makanan Indonesia di Jepang</p>
+            <h1 className="text-lg font-bold text-gray-900">{t('invoice.companyName')}</h1>
+            <p className="text-xs text-gray-600">{t('invoice.companyTagline')}</p>
           </div>
         </div>
         <div className="text-right">
-          <h2 className="text-xl font-bold text-red-600 invoice-title">INVOICE</h2>
+          <h2 className="text-xl font-bold text-red-600 invoice-title">{t('invoice.title')}</h2>
         </div>
       </div>
 
@@ -241,51 +272,46 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
       {/* Invoice and Customer Info */}
       <div className="grid grid-cols-2 gap-3 mb-3 page-break-avoid invoice-section">
         <div className="bg-gray-50 p-2 rounded-lg info-card">
-          <h3 className="text-base font-semibold text-gray-900 mb-2">Informasi Invoice</h3>
+          <h3 className="text-base font-semibold text-gray-900 mb-2">{t('invoice.invoiceInfo')}</h3>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
-              <span className="font-medium">No. Invoice:</span>
+              <span className="font-medium">{t('invoice.invoiceNumber')}</span>
               <span className="text-red-600 font-bold">{invoiceNumber}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Tanggal:</span>
+              <span className="font-medium">{t('invoice.date')}</span>
               <span>{formatDate(order.created_at)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Status:</span>
+              <span className="font-medium">{t('invoice.status')}</span>
               <span className={`px-2 py-1 rounded text-xs font-medium ${
                 order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                 order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
                 order.status === 'completed' ? 'bg-green-100 text-green-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
-                {order.status === 'pending' ? 'Menunggu Konfirmasi' :
-                 order.status === 'confirmed' ? 'Dikonfirmasi' :
-                 order.status === 'completed' ? 'Selesai' :
-                 order.status}
+                {getStatusText(order.status)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Metode Pembayaran:</span>
+              <span className="font-medium">{t('invoice.paymentMethod')}</span>
               <span>{order.customer_info.payment_method || 'COD'}</span>
             </div>
             {order.payment_status && (
               <div className="flex justify-between">
-                <span className="font-medium">Status Pembayaran:</span>
+                <span className="font-medium">{t('invoice.paymentStatus')}</span>
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
                   order.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   order.payment_status === 'verified' ? 'bg-green-100 text-green-800' :
                   'bg-red-100 text-red-800'
                 }`}>
-                  {order.payment_status === 'pending' ? 'Menunggu Verifikasi' :
-                   order.payment_status === 'verified' ? 'Terverifikasi' :
-                   'Ditolak'}
+                  {getPaymentStatusText(order.payment_status)}
                 </span>
               </div>
             )}
             {order.affiliate_id && (
               <div className="flex justify-between">
-                <span className="font-medium">Kode Referral:</span>
+                <span className="font-medium">{t('invoice.referralCode')}</span>
                 <span className="font-mono">{order.affiliate_id}</span>
               </div>
             )}
@@ -293,22 +319,22 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
         </div>
 
         <div className="bg-gray-50 p-2 rounded-lg info-card">
-          <h3 className="text-base font-semibold text-gray-900 mb-2">Informasi Penerima</h3>
+          <h3 className="text-base font-semibold text-gray-900 mb-2">{t('invoice.recipientInfo')}</h3>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
-              <span className="font-medium">Nama:</span>
+              <span className="font-medium">{t('invoice.name')}</span>
               <span>{order.customer_info.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Email:</span>
+              <span className="font-medium">{t('invoice.email')}</span>
               <span>{order.customer_info.email}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">No. WhatsApp:</span>
+              <span className="font-medium">{t('invoice.whatsapp')}</span>
               <span>{order.customer_info.phone}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Alamat:</span>
+              <span className="font-medium">{t('invoice.address')}</span>
               <span className="text-right">
                 {order.customer_info.address}
                 {order.customer_info.prefecture && (
@@ -325,15 +351,15 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
 
       {/* Items Table */}
       <div className="mb-3 page-break-avoid invoice-section">
-        <h3 className="text-base font-semibold text-gray-900 mb-2">Detail Pesanan</h3>
+        <h3 className="text-base font-semibold text-gray-900 mb-2">{t('invoice.orderDetails')}</h3>
         <table className="w-full border-collapse invoice-table" style={{ tableLayout: 'fixed' }}>
           <thead>
             <tr className="bg-gray-50">
-              <th className="border border-gray-300 px-2 py-1 text-left font-semibold text-xs">No.</th>
-              <th className="border border-gray-300 px-2 py-1 text-left font-semibold text-xs">Produk</th>
-              <th className="border border-gray-300 px-2 py-1 text-center font-semibold text-xs">Qty</th>
-              <th className="border border-gray-300 px-2 py-1 text-right font-semibold text-xs">Harga Satuan</th>
-              <th className="border border-gray-300 px-2 py-1 text-right font-semibold text-xs">Subtotal</th>
+              <th className="border border-gray-300 px-2 py-1 text-left font-semibold text-xs">{t('invoice.no')}</th>
+              <th className="border border-gray-300 px-2 py-1 text-left font-semibold text-xs">{t('invoice.product')}</th>
+              <th className="border border-gray-300 px-2 py-1 text-center font-semibold text-xs">{t('invoice.quantity')}</th>
+              <th className="border border-gray-300 px-2 py-1 text-right font-semibold text-xs">{t('invoice.unitPrice')}</th>
+              <th className="border border-gray-300 px-2 py-1 text-right font-semibold text-xs">{t('invoice.subtotal')}</th>
             </tr>
           </thead>
           <tbody>
@@ -367,22 +393,22 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
           <div className="bg-gray-50 p-3 rounded-lg border">
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
-                <span className="font-medium">Subtotal:</span>
+                <span className="font-medium">{t('invoice.productSubtotal')}</span>
                 <span>{formatCurrency(productSubtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Ongkos Kirim:</span>
-                <span>{shippingFee ? formatCurrency(shippingFee) : 'Akan dikonfirmasi'}</span>
+                <span>{t('invoice.shippingFee')}</span>
+                <span>{shippingFee ? formatCurrency(shippingFee) : t('invoice.shippingTbd')}</span>
               </div>
               {codSurcharge > 0 && (
                 <div className="flex justify-between">
-                  <span>Biaya Tambahan COD:</span>
+                  <span>{t('invoice.codSurcharge')}</span>
                   <span>{formatCurrency(codSurcharge)}</span>
                 </div>
               )}
               <div className="border-t pt-1 mt-1">
                 <div className="flex justify-between text-sm font-bold text-red-600">
-                  <span>Total Belanja:</span>
+                  <span>{t('invoice.total')}</span>
                   <span>{formatTotalCurrency(totalAmount)}</span>
                 </div>
               </div>
@@ -395,31 +421,31 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
       {order.customer_info.payment_method && (
         <div className="mb-3 page-break-avoid invoice-section">
           <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-800 mb-1 text-sm">Informasi Pembayaran:</h4>
+            <h4 className="font-medium text-blue-800 mb-1 text-sm">{t('invoice.paymentInfo')}</h4>
             <p className="text-blue-700 font-medium text-xs">{order.customer_info.payment_method}</p>
             
             {order.customer_info.payment_method === 'Bank Transfer (Rupiah)' && (
               <div className="mt-1 text-blue-700 text-xs">
-                <p><span className="font-medium">Nama Penerima:</span> PT. Injapan Shop</p>
-                <p><span className="font-medium">Nomor Rekening:</span> 1234567890 (BCA)</p>
+                <p><span className="font-medium">{t('invoice.recipient')}</span> PT. Injapan Shop</p>
+                <p><span className="font-medium">{t('invoice.accountNumber')}</span> 1234567890 (BCA)</p>
               </div>
             )}
             
             {order.customer_info.payment_method === 'Bank Transfer (Yucho / ゆうちょ銀行)' && (
               <div className="mt-1 text-blue-700 text-xs">
-                <p><span className="font-medium">Nama Penerima:</span> Heri Kurnianta</p>
-                <p><span className="font-medium">Account Number:</span> 22210551</p>
-                <p><span className="font-medium">Nama Bank:</span> BANK POST</p>
-                <p><span className="font-medium">Bank code:</span> 11170</p>
-                <p><span className="font-medium">Branch code:</span> 118</p>
-                <p><span className="font-medium">Referensi:</span> 24</p>
+                <p><span className="font-medium">{t('invoice.recipient')}</span> Heri Kurnianta</p>
+                <p><span className="font-medium">{t('invoice.accountNumber')}</span> 22210551</p>
+                <p><span className="font-medium">{t('invoice.bankName')}</span> BANK POST</p>
+                <p><span className="font-medium">{t('invoice.bankCode')}</span> 11170</p>
+                <p><span className="font-medium">{t('invoice.branchCode')}</span> 118</p>
+                <p><span className="font-medium">{t('invoice.reference')}</span> 24</p>
               </div>
             )}
             
             {order.customer_info.payment_method === 'QRIS / QR Code' && (
               <div className="mt-1 text-blue-700 text-xs">
-                <p><span className="font-medium">Metode:</span> QRIS / QR Code</p>
-                <p><span className="font-medium">Status:</span> {order.payment_status === 'verified' ? 'Terverifikasi' : order.payment_status === 'rejected' ? 'Ditolak' : 'Menunggu Verifikasi'}</p>
+                <p><span className="font-medium">{t('invoice.method')}</span> QRIS / QR Code</p>
+                <p><span className="font-medium">{t('invoice.status')}</span> {getPaymentStatusText(order.payment_status)}</p>
               </div>
             )}
           </div>
@@ -430,9 +456,9 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
       {order.affiliate_id && (
         <div className="mb-3 page-break-avoid invoice-section">
           <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-            <h4 className="font-medium text-green-800 mb-1 text-sm">Informasi Referral:</h4>
+            <h4 className="font-medium text-green-800 mb-1 text-sm">{t('invoice.referralInfo')}</h4>
             <p className="text-green-700 text-xs">
-              Pesanan ini menggunakan kode referral: <span className="font-mono font-bold">{order.affiliate_id}</span>
+              {t('invoice.referralMessage')} <span className="font-mono font-bold">{order.affiliate_id}</span>
             </p>
           </div>
         </div>
@@ -442,7 +468,7 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
       {order.customer_info.notes && (
         <div className="mb-3 page-break-avoid invoice-section">
           <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-            <h4 className="font-medium text-yellow-800 mb-1 text-sm">Catatan Pesanan:</h4>
+            <h4 className="font-medium text-yellow-800 mb-1 text-sm">{t('invoice.orderNotes')}</h4>
             <p className="text-yellow-700 text-xs">{order.customer_info.notes}</p>
           </div>
         </div>
@@ -451,15 +477,15 @@ const Invoice = ({ order, invoiceNumber }: InvoiceProps) => {
       {/* Footer */}
       <div className="border-t border-gray-200 pt-3 text-center page-break-avoid invoice-footer">
         <p className="text-gray-600 mb-1 text-xs" style={{ fontSize: '8px' }}>
-          Terima kasih telah berbelanja di Injapan Food!
+          {t('invoice.thankYou')}
         </p>
         <p className="text-gray-600 mb-2 text-xs" style={{ fontSize: '8px' }}>
-          Untuk pertanyaan lebih lanjut, hubungi kami melalui WhatsApp: +817084894699
+          {t('invoice.contact')}
         </p>
         <div className="text-xs text-gray-500" style={{ fontSize: '7px' }}>
-          <p>Invoice ini dibuat secara otomatis oleh sistem Injapan Food</p>
+          <p>{t('invoice.autoGenerated')}</p>
           <p>
-            Dicetak pada: {new Date().toLocaleDateString('id-ID', {
+            {t('invoice.printedOn')} {new Date().toLocaleDateString('id-ID', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',

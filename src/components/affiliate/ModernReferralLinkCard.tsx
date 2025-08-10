@@ -29,20 +29,35 @@ const ModernReferralLinkCard = () => {
   const [isCodeCopied, setIsCodeCopied] = useState(false);
   const linkInputRef = useRef<HTMLInputElement>(null);
   
-  const handleCopyLink = () => {
-    copyReferralLink();
-    setIsCopied(true);
-    toast({
-      title: t('affiliate.linkCopied'),
-      description: 'Link affiliate berhasil disalin ke clipboard',
-    });
-    
-    setTimeout(() => setIsCopied(false), 2000);
+  const handleCopyLink = async () => {
+    try {
+      await copyReferralLink();
+      setIsCopied(true);
+      // Toast notification is already handled in the hook
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Error copying link in component:', error);
+      // Show manual copy fallback
+      toast({
+        title: "Manual Copy Required",
+        description: "Please copy the link manually from the input field above.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleCopyCode = () => {
-    if (affiliate?.referralCode) {
-      navigator.clipboard.writeText(affiliate.referralCode);
+  const handleCopyCode = async () => {
+    if (!affiliate?.referralCode) {
+      toast({
+        title: 'Error',
+        description: 'Kode referral tidak tersedia',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(affiliate.referralCode);
       setIsCodeCopied(true);
       toast({
         title: 'Kode referral disalin!',
@@ -50,6 +65,39 @@ const ModernReferralLinkCard = () => {
       });
       
       setTimeout(() => setIsCodeCopied(false), 2000);
+    } catch (error) {
+      console.error('Error copying referral code:', error);
+      // Fallback method
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = affiliate.referralCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+          setIsCodeCopied(true);
+          toast({
+            title: 'Kode referral disalin!',
+            description: 'Kode referral berhasil disalin ke clipboard',
+          });
+          setTimeout(() => setIsCodeCopied(false), 2000);
+        } else {
+          throw new Error('Fallback copy failed');
+        }
+      } catch (fallbackError) {
+        toast({
+          title: 'Copy Failed',
+          description: 'Tidak bisa menyalin kode. Silakan salin manual.',
+          variant: 'destructive'
+        });
+      }
     }
   };
 
@@ -103,8 +151,23 @@ const ModernReferralLinkCard = () => {
     });
   };
 
-  if (!affiliate) {
-    return null;
+  if (!affiliate?.referralCode || !referralLink) {
+    return (
+      <Card className="overflow-hidden border-primary/10">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 pb-4">
+          <CardTitle className="flex items-center text-xl">
+            <LinkIcon className="w-5 h-5 mr-2 text-primary" />
+            Loading...
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

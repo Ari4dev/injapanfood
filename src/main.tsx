@@ -6,6 +6,25 @@ import { HelmetProvider } from 'react-helmet-async'
 
 // Add error boundary to catch and display render errors
 window.addEventListener('error', (event) => {
+  // Handle SES lockdown errors specifically
+  if (event.error && event.error.message && event.error.message.includes('SES')) {
+    console.warn('SES lockdown error detected, attempting recovery...');
+    // Disable strict mode or other SES-related features
+    try {
+      // Clear potential SES-corrupted state
+      if (typeof window.localStorage !== 'undefined') {
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('ses') || key.includes('lockdown') || key.includes('secure')) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('Could not clear SES-related localStorage:', e);
+    }
+    return; // Don't show error UI for SES issues
+  }
+  
   console.error('Global error caught:', event.error);
   // If the page is blank, show a minimal error UI
   if (document.body.innerHTML.trim() === '') {

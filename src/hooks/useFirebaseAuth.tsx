@@ -103,6 +103,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Attempting Firebase sign in with email:', email);
       const result = await signInWithEmailAndPassword(auth, email, password);
       console.log('Sign in successful:', result.user.email);
+      
+      // 🛍️ SHOPEE AFFILIATE SYSTEM: Bind user to attribution for login
+      try {
+        console.log('🛍️ [Shopee] Binding user to attribution for login...');
+        const { bindAttributionToUser } = await import('@/services/shopeeAffiliateSystem');
+        await bindAttributionToUser(result.user.uid, result.user.email || '');
+      } catch (affiliateError) {
+        console.error('❌ Error binding user to attribution on login:', affiliateError);
+      }
+      
       return { error: null };
     } catch (error: any) {
       console.error('Firebase sign in error:', {
@@ -148,12 +158,64 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           displayName: sanitizeInput(fullName)
         });
         
-        // Send email verification for non-admin users
+        // Process referral registration BEFORE clearing referral data
+        try {
+          console.log('🔗 Starting referral registration process...');
+          const { getStoredReferralCode, isReferralCodeValid } = await import('@/utils/referralUtils');
+          const { registerWithReferral } = await import('@/services/affiliateService');
+          const { bindAttributionToUser } = await import('@/services/shopeeAffiliateSystem');
           
-          // Clear the referral code after successful registration
+          const referralCode = getStoredReferralCode();
+          const isValid = isReferralCodeValid();
+          
+          console.log('🔍 Referral check results:', {
+            referralCode,
+            isValid,
+            userId: user.uid,
+            userEmail: user.email,
+            userName: sanitizeInput(fullName)
+          });
+          
+          if (referralCode && isValid) {
+            console.log('✅ Processing referral registration for code:', referralCode);
+            
+            // Register user with referral BEFORE clearing the code
+            await registerWithReferral(
+              referralCode,
+              user.uid,
+              user.email || '',
+              sanitizeInput(fullName)
+            );
+            console.log('✅ User successfully registered with referral:', referralCode);
+          } else {
+            console.log('❌ No valid referral code found:', { referralCode, isValid });
+          }
+          
+          // 🛍️ SHOPEE AFFILIATE SYSTEM: Bind user to attribution
+          console.log('🛍️ [Shopee] Binding user to attribution for signup...');
+          await bindAttributionToUser(user.uid, user.email || '');
+          
+        } catch (referralError) {
+          console.error('❌ Error processing referral registration:', referralError);
+          // Log detailed error for debugging
+          console.error('Referral error details:', {
+            message: referralError.message,
+            stack: referralError.stack,
+            userId: user.uid,
+            userEmail: user.email
+          });
+        }
+        
+        // NOW clear the referral code after processing is complete
+        try {
           const { clearCurrentSessionReferral } = await import('@/utils/referralUtils');
           clearCurrentSessionReferral();
           console.log('Cleared referral session after successful registration');
+        } catch (clearError) {
+          console.warn('Error clearing referral session:', clearError);
+        }
+        
+        // Send email verification for non-admin users
         if (userRole !== 'admin') {
           try {
             await sendEmailVerification(user);

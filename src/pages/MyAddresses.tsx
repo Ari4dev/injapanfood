@@ -9,9 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { MapPin, Plus, Edit3, Trash2, Star, ArrowLeft, Phone, User } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const MyAddresses = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const navigate = useNavigate();
 
@@ -47,8 +49,8 @@ const MyAddresses = () => {
             .then(setAddresses)
             .catch(console.error);
           toast({
-            title: "Berhasil",
-            description: "Alamat default berhasil diubah",
+            title: t('common.success'),
+            description: t('address.defaultAddressUpdated'),
           });
         })
         .catch(console.error);
@@ -56,13 +58,13 @@ const MyAddresses = () => {
   };
 
   const confirmDelete = (id: string, name: string) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus alamat ${name}?`)) {
+    if (window.confirm(t('address.confirmDelete', { name }))) {
       addressService.deleteAddress(id)
         .then(() => {
           setAddresses(prev => prev.filter(address => address.id !== id));
           toast({
-            title: "Berhasil",
-            description: "Alamat berhasil dihapus",
+            title: t('common.success'),
+            description: t('address.addressDeleted'),
           });
         })
         .catch(console.error);
@@ -86,7 +88,7 @@ const MyAddresses = () => {
             className="mb-4 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Kembali ke Profil
+            {t('address.backToProfile')}
           </Button>
 
           {/* Page Header */}
@@ -94,13 +96,13 @@ const MyAddresses = () => {
             <div>
               <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <MapPin className="w-6 h-6" />
-                Alamat Saya
+                {t('profile.myAddresses')}
               </h1>
-              <p className="text-gray-600 mt-1">Kelola alamat pengiriman Anda</p>
+              <p className="text-gray-600 mt-1">{t('profile.manageAddresses')}</p>
             </div>
             <Button onClick={handleAddNew} className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Tambah Alamat
+              {t('address.addAddress')}
             </Button>
           </div>
 
@@ -110,11 +112,11 @@ const MyAddresses = () => {
               <Card>
                 <CardContent className="p-8 text-center">
                   <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada alamat</h3>
-                  <p className="text-gray-600 mb-4">Tambahkan alamat pengiriman pertama Anda</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{t('address.noAddresses')}</h3>
+                  <p className="text-gray-600 mb-4">{t('address.addFirstAddress')}</p>
                   <Button onClick={handleAddNew}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Tambah Alamat
+                    {t('address.addAddress')}
                   </Button>
                 </CardContent>
               </Card>
@@ -129,7 +131,7 @@ const MyAddresses = () => {
                           {address.isDefault && (
                             <Badge variant="default" className="flex items-center gap-1">
                               <Star className="w-3 h-3" />
-                              Default
+                              {t('address.default')}
                             </Badge>
                           )}
                         </div>

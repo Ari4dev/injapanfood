@@ -41,14 +41,20 @@ import ImportExport from '@/pages/admin/ImportExport';
 import RecycleBin from '@/pages/admin/RecycleBin';
 import ShippingRates from '@/pages/admin/ShippingRates';
 import AffiliateManagement from '@/pages/admin/AffiliateManagement';
+import EnhancedAffiliateManagement from '@/pages/admin/EnhancedAffiliateManagement';
+import BitKodeAffiliateManagement from '@/pages/admin/ShopeeAffiliateManagement';
 import FinancialReports from '@/pages/admin/FinancialReports';
 import CODSettings from '@/pages/admin/CODSettings';
 import BundleManagement from '@/pages/admin/BundleManagement';
 import { CouponManagement } from '@/pages/admin/CouponManagement';
 
+// User affiliate pages
+import AffiliateDashboard from '@/pages/affiliate/AffiliateDashboard';
+
 import './App.css';
 import { useEffect, useState } from 'react';
 import { processReferralCode } from '@/utils/referralUtils';
+import { ShopeeAffiliateProvider } from '@/components/affiliate/ShopeeIntegrationExamples';
 
 function App() {
   // Create query client instance inside the component to ensure it's created after hydration
@@ -99,8 +105,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <Routes>
+        <ShopeeAffiliateProvider>
+          <Router>
+            <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/products" element={<Products />} />
@@ -127,6 +134,9 @@ function App() {
             <Route path="/add-address" element={<AddressForm />} />
             <Route path="/edit-address/:id" element={<AddressForm />} />
             
+            {/* Affiliate route for users */}
+            <Route path="/affiliate" element={<AffiliateDashboard />} />
+            
             {/* Category routes */}
             <Route path="/kategori/:categorySlug" element={<CategoryPage />} />
             
@@ -149,6 +159,8 @@ function App() {
             <Route path="/admin/recycle-bin" element={<RecycleBin />} />
             <Route path="/admin/shipping-rates" element={<ShippingRates />} />
             <Route path="/admin/affiliate" element={<AffiliateManagement />} />
+            <Route path="/admin/affiliate-enhanced" element={<EnhancedAffiliateManagement />} />
+            <Route path="/admin/bitkode-affiliate-management" element={<BitKodeAffiliateManagement />} />
             <Route path="/admin/financial-reports" element={<FinancialReports />} />
             <Route path="/admin/cod-settings" element={<CODSettings />} />
             <Route path="/admin/bundle-management" element={<BundleManagement />} />
@@ -161,7 +173,8 @@ function App() {
           <Toaster />
           <OfflineNotice />
           <PWAInstallPrompt />
-        </Router>
+          </Router>
+        </ShopeeAffiliateProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

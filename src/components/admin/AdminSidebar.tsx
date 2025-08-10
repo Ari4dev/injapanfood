@@ -21,7 +21,7 @@ import { getCategoryTranslation } from '@/utils/categoryVariants';
 
 const AdminSidebar = () => {
   const location = useLocation();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   const menuItems = [
     {
@@ -30,82 +30,83 @@ const AdminSidebar = () => {
       icon: LayoutDashboard,
     },
     {
-      title: 'Konfirmasi Pesanan',
+      title: t('admin.orderConfirmation', 'Konfirmasi Pesanan'),
       href: '/admin/order-confirmation',
       icon: CheckCircle,
-      description: 'Pending orders'
+      description: t('admin.pendingOrders', 'Pending orders')
     },
     {
-      title: 'Verifikasi Pembayaran',
+      title: t('admin.paymentVerification', 'Verifikasi Pembayaran'),
       href: '/admin/payment-verification',
       icon: CreditCard,
-      description: 'Payment verification'
+      description: t('admin.paymentVerificationDesc', 'Payment verification')
     },
     {
-      title: 'Produk',
+      title: t('admin.products', 'Produk'),
       href: '/admin/products',
       icon: Package,
     },
     {
-      title: 'Tambah Produk',
+      title: t('admin.addProduct', 'Tambah Produk'),
       href: '/admin/add-product',
       icon: Package,
     },
     {
-      title: 'Manajemen Kategori',
+      title: t('admin.categoryManagement', 'Manajemen Kategori'),
       href: '/admin/categories',
       icon: Tags,
-      description: 'Kelola kategori produk'
+      description: t('admin.manageCategoryDesc', 'Kelola kategori produk')
     },
     {
-      title: 'Manajemen Banner',
+      title: t('admin.bannerManagement', 'Manajemen Banner'),
       href: '/admin/banners',
       icon: Image,
-      description: 'Kelola banner beranda'
+      description: t('admin.manageBannerDesc', 'Kelola banner beranda')
     },
     {
-      title: 'Manajemen Bundle',
+      title: t('admin.bundleManagement', 'Manajemen Bundle'),
       href: '/admin/bundle-management',
       icon: ShoppingBag,
-      description: 'Kelola paket bundle'
+      description: t('admin.manageBundleDesc', 'Kelola paket bundle')
     },
     {
-      title: 'Riwayat Pesanan',
+      title: t('profile.orderHistory', 'Riwayat Pesanan'),
       href: '/admin/orders-history',
       icon: ShoppingCart,
     },
     {
-      title: 'Manajemen User',
+      title: t('admin.userManagement', 'Manajemen User'),
       href: '/admin/users',
       icon: Users,
     },
     {
-      title: 'Pengaturan Ongkir',
+      title: t('admin.shippingSettings', 'Pengaturan Ongkir'),
       href: '/admin/shipping-rates',
       icon: Truck,
     },
     {
-      title: 'Pengaturan COD',
+      title: t('admin.codSettings', 'Pengaturan COD'),
       href: '/admin/cod-settings',
       icon: CreditCard,
-      description: 'Biaya tambahan COD'
+      description: t('admin.codFeeDesc', 'Biaya tambahan COD')
     },
     {
-      title: 'Program Affiliate',
-      href: '/admin/affiliate',
+      title: 'BitKode Affiliate',
+      href: '/admin/affiliate-enhanced',
       icon: Percent,
+      description: 'BitKode Affiliate System'
     },
     {
-      title: 'Laporan Keuangan',
+      title: t('admin.financialReports', 'Laporan Keuangan'),
       href: '/admin/financial-reports',
       icon: DollarSign,
-      description: 'Financial reports'
+      description: t('admin.financialReportsDesc', 'Financial reports')
     },
     {
-      title: 'Manajemen Kupon',
+      title: t('admin.couponManagement', 'Manajemen Kupon'),
       href: '/admin/coupons',
       icon: Percent,
-      description: 'Kelola kupon & promo'
+      description: t('admin.manageCouponDesc', 'Kelola kupon & promo')
     },
     {
       title: 'Import/Export',
@@ -131,7 +132,7 @@ const AdminSidebar = () => {
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+            <h1 className="text-xl font-bold text-gray-900">{t('profile.adminPanel', 'Admin Panel')}</h1>
             <p className="text-sm text-gray-600">Injapan Food</p>
           </div>
         </div>

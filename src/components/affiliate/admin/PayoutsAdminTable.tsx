@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useEnhancedAffiliateAdmin } from '@/hooks/useEnhancedAffiliateAdmin';
 import {
   Table,
   TableBody,
@@ -35,7 +35,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 const PayoutsAdminTable = () => {
-  const { payouts, loading, processPayout, selectedMonth, setSelectedMonth, availableMonths } = useAffiliateAdmin();
+  const { payouts, loading, processPayout, selectedMonth, setSelectedMonth, availableMonths } = useEnhancedAffiliateAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPayoutId, setSelectedPayoutId] = useState<string | null>(null);

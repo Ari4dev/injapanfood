@@ -3,13 +3,38 @@ import { securityConfig } from '@/config/env';
 // Input validation utilities
 export const validateInput = {
   email: (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) && email.length <= 254;
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(email) && email.length <= 254 && email.length >= 5;
   },
   
   phone: (phone: string): boolean => {
-    const phoneRegex = /^[+]?[\d\s\-()]{10,15}$/;
-    return phoneRegex.test(phone);
+    // Indonesian phone number validation
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    const phoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,9}$/;
+    return phoneRegex.test(cleanPhone);
+  },
+  
+  password: (password: string): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+    
+    if (password.length < 8) errors.push('Password must be at least 8 characters long');
+    if (!/[a-z]/.test(password)) errors.push('Password must contain lowercase letters');
+    if (!/[A-Z]/.test(password)) errors.push('Password must contain uppercase letters');
+    if (!/[0-9]/.test(password)) errors.push('Password must contain numbers');
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) errors.push('Password must contain special characters');
+    
+    return { isValid: errors.length === 0, errors };
+  },
+  
+  postalCode: (postalCode: string): boolean => {
+    // Japanese postal code format: 123-4567
+    const postalRegex = /^\d{3}-\d{4}$/;
+    return postalRegex.test(postalCode);
+  },
+  
+  name: (name: string): boolean => {
+    const nameRegex = /^[a-zA-Z\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u0100-\u017F\u1EA0-\u1EF9]+$/;
+    return nameRegex.test(name) && name.length >= 2 && name.length <= 50;
   },
   
   price: (price: number): boolean => {
@@ -102,7 +127,32 @@ export const rateLimiter = new RateLimiter();
 
 // Admin validation
 export const isAdminEmail = (email: string): boolean => {
-  return securityConfig.adminEmails.includes(email);
+  return securityConfig.adminEmails.includes(email.toLowerCase());
+};
+
+export const hasAdminPermission = (userEmail?: string, userRole?: string): boolean => {
+  if (!userEmail) return false;
+  return isAdminEmail(userEmail) || userRole === 'admin';
+};
+
+// Security logging
+export const logSecurityEvent = (event: string, details: any, userId?: string) => {
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    event,
+    details,
+    userId,
+    userAgent: navigator.userAgent,
+    url: window.location.href
+  };
+  
+  // In production, send to logging service
+  console.warn('Security Event:', logEntry);
+  
+  // Store locally for debugging (remove in production)
+  const logs = JSON.parse(localStorage.getItem('securityLogs') || '[]');
+  logs.push(logEntry);
+  localStorage.setItem('securityLogs', JSON.stringify(logs.slice(-100)));
 };
 
 // Secure random string generation

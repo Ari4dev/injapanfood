@@ -13,12 +13,14 @@ import { ArrowLeft, MapPin, User, Phone, Building } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { prefectures } from '@/data/prefectures';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const AddressForm = () => {
   const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<CreateAddressData>({
     name: '',
     phone: '',
@@ -66,22 +68,22 @@ const AddressForm = () => {
         if (isEdit) {
           await addressService.updateAddress({ id, ...formData } as UpdateAddressData);
           toast({
-            title: "Berhasil",
-            description: "Alamat berhasil diperbarui",
+            title: t('common.success'),
+            description: t('address.addressUpdated'),
           });
         } else {
           await addressService.addAddress(user.uid, formData);
           toast({
-            title: "Berhasil",
-            description: "Alamat berhasil ditambahkan",
+            title: t('common.success'),
+            description: t('address.addressAdded'),
           });
         }
         navigate('/my-addresses');
       } catch (error) {
         console.error('Error:', error);
         toast({
-          title: "Error",
-          description: "Terjadi kesalahan saat menyimpan alamat",
+          title: t('common.error'),
+          description: t('address.saveError'),
           variant: "destructive",
         });
       }
@@ -105,7 +107,7 @@ const AddressForm = () => {
             className="mb-4 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Kembali ke Alamat Saya
+            {t('address.backToProfile')}
           </Button>
 
           {/* Form Card */}
@@ -113,7 +115,7 @@ const AddressForm = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                {isEdit ? 'Edit Alamat' : 'Tambah Alamat Baru'}
+                {isEdit ? t('address.editAddress') : t('address.addNewAddress')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -121,7 +123,7 @@ const AddressForm = () => {
                 <div className="space-y-2">
                   <Label htmlFor="name" className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    Nama Penerima *
+                    {t('address.recipientName')} *
                   </Label>
                   <Input
                     id="name"
@@ -129,14 +131,14 @@ const AddressForm = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    placeholder="Masukkan nama penerima"
+                    placeholder={t('address.recipientNamePlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="flex items-center gap-2">
                     <Phone className="w-4 h-4" />
-                    Nomor Telepon *
+                    {t('address.phoneNumber')} *
                   </Label>
                   <Input
                     id="phone"
@@ -145,14 +147,14 @@ const AddressForm = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    placeholder="Contoh: 080-1234-5678"
+                    placeholder={t('address.phoneNumberPlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="address" className="flex items-center gap-2">
                     <Building className="w-4 h-4" />
-                    Alamat Lengkap *
+                    {t('address.fullAddress')} *
                   </Label>
                   <Input
                     id="address"
@@ -160,28 +162,28 @@ const AddressForm = () => {
                     value={formData.address}
                     onChange={handleChange}
                     required
-                    placeholder="Jalan, nomor rumah, nama gedung, dll"
+                    placeholder={t('address.fullAddressPlaceholder')}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="city">Kota *</Label>
+                    <Label htmlFor="city">{t('address.city')} *</Label>
                     <Input
                       id="city"
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
                       required
-                      placeholder="Contoh: Tokyo"
+                      placeholder={t('address.cityPlaceholder')}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="prefecture">Prefektur *</Label>
+                    <Label htmlFor="prefecture">{t('address.prefecture')} *</Label>
                     <Select value={formData.prefecture} onValueChange={handlePrefectureChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Pilih prefektur" />
+                        <SelectValue placeholder={t('address.selectPrefecture')} />
                       </SelectTrigger>
                       <SelectContent>
                         {prefectures.map((prefecture) => (
@@ -195,17 +197,17 @@ const AddressForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="postalCode">Kode Pos *</Label>
+                  <Label htmlFor="postalCode">{t('address.postalCode')} *</Label>
                   <Input
                     id="postalCode"
                     name="postalCode"
                     value={formData.postalCode}
                     onChange={handleChange}
                     required
-                    placeholder="Contoh: 123-4567"
+                    placeholder={t('address.postalCodePlaceholder')}
                     pattern="[0-9]{3}-[0-9]{4}"
                   />
-                  <p className="text-sm text-gray-600">Format: 123-4567</p>
+                  <p className="text-sm text-gray-600">{t('address.postalCodeFormat')}</p>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -217,7 +219,7 @@ const AddressForm = () => {
                     }
                   />
                   <Label htmlFor="isDefault" className="text-sm font-normal">
-                    Jadikan sebagai alamat utama
+                    {t('address.setAsDefault')}
                   </Label>
                 </div>
 
@@ -228,10 +230,10 @@ const AddressForm = () => {
                     onClick={() => navigate('/my-addresses')}
                     className="flex-1"
                   >
-                    Batal
+                    {t('common.cancel')}
                   </Button>
                   <Button type="submit" className="flex-1">
-                    {isEdit ? 'Simpan Perubahan' : 'Tambah Alamat'}
+                    {isEdit ? t('address.saveChanges') : t('address.addAddress')}
                   </Button>
                 </div>
               </form>

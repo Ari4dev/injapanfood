@@ -11,6 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { validateReferralCode } from '@/services/affiliateService';
+import { auth } from '@/config/firebase';
 import { CheckCircle, XCircle, Loader2, Eye, EyeOff, Mail, Lock, User, Phone, Users, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -53,7 +54,7 @@ const AuthForm = () => {
     }
   }, [location.search]);
 
-  // Validate referral code function
+  // Validate referral code function with self-referral prevention
   const validateReferralCodeHandler = async (code: string) => {
     if (!code || code.length < 3) {
       setReferralValidationState('idle');
@@ -65,7 +66,9 @@ const AuthForm = () => {
     setReferralValidationMessage('');
 
     try {
-      const isValid = await validateReferralCode(code);
+      // Pass current user ID to prevent self-referral
+      const currentUser = auth.currentUser;
+      const isValid = await validateReferralCode(code, currentUser?.uid);
       
       if (isValid) {
         setReferralValidationState('valid');
@@ -76,10 +79,11 @@ const AuthForm = () => {
         });
       } else {
         setReferralValidationState('invalid');
-        setReferralValidationMessage('Kode referral tidak ditemukan. Periksa kembali kode yang Anda masukkan.');
+        // Enhanced error message to cover self-referral case
+        setReferralValidationMessage('Kode referral tidak valid. Pastikan kode benar dan bukan milik Anda sendiri.');
         toast({
           title: "Kode Referral Tidak Valid",
-          description: "Kode referral yang Anda masukkan tidak ditemukan.",
+          description: "Kode referral tidak valid atau Anda tidak dapat menggunakan kode referral milik sendiri.",
           variant: "destructive",
         });
       }
@@ -262,10 +266,11 @@ const AuthForm = () => {
         return;
       }
 
-      // Store referral code in localStorage if provided
+      // Store referral code in sessionStorage (consistent with referralUtils)
       if (referralCode) {
-        localStorage.setItem('referralCode', referralCode);
-        localStorage.setItem('referralTimestamp', Date.now().toString());
+        // Use same storage mechanism as referralUtils.ts
+        sessionStorage.setItem('currentSessionReferral', referralCode);
+        sessionStorage.setItem('currentSessionReferralTimestamp', Date.now().toString());
         console.log('Stored referral code before signup:', referralCode);
       }
 
@@ -322,7 +327,7 @@ const AuthForm = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="absolute top-4 right-4 z-10"
+        className="absolute top-4 right-4 z-[9999]"
       >
         <LanguageSwitcher />
       </motion.div>
@@ -375,9 +380,27 @@ const AuthForm = () => {
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-white/70 backdrop-blur-sm border border-white/20 shadow-lg">
-              <TabsTrigger value="signin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">{t('auth.signInTab')}</TabsTrigger>
-              <TabsTrigger value="signup" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">{t('auth.signUpTab')}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg rounded-lg p-1.5 h-12 gap-1">
+              <TabsTrigger 
+                value="signin" 
+                className="tab-trigger-enhanced h-9 px-4 rounded-md font-semibold text-sm transition-all duration-200 flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:border-0 data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=inactive]:hover:bg-gray-50/70 data-[state=inactive]:border-0"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
+              >
+                {t('auth.signInTab')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="signup" 
+                className="tab-trigger-enhanced h-9 px-4 rounded-md font-semibold text-sm transition-all duration-200 flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:border-0 data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-800 data-[state=inactive]:hover:bg-gray-50/70 data-[state=inactive]:border-0"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
+              >
+                {t('auth.signUpTab')}
+              </TabsTrigger>
             </TabsList>
 
             <AnimatePresence mode="wait">

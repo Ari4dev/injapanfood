@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useEnhancedAffiliateAdmin } from '@/hooks/useEnhancedAffiliateAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AffiliateMonthlyChart = () => {
-  const { commissions, referrals, selectedMonth, availableMonths } = useAffiliateAdmin();
+  const { commissions, referrals, selectedMonth, availableMonths } = useEnhancedAffiliateAdmin();
   const [chartData, setChartData] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'commissions' | 'referrals'>('commissions');
 

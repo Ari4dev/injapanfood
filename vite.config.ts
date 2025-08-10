@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      disable: mode === 'development', // Disable PWA in development
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         name: 'Injapan Food',
@@ -114,7 +115,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       devOptions: {
-        enabled: true,
+        enabled: false, // Disable in development to prevent SES issues
         type: 'module'
       }
     })
@@ -128,7 +129,7 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    target: 'esnext',
+    target: 'es2020', // More compatible target
     minify: 'esbuild',
     rollupOptions: {
       output: {

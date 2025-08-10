@@ -237,6 +237,12 @@ export const registerWithReferral = async (
       return;
     }
     
+    // CRITICAL: Prevent self-referral - user cannot register with their own referral code
+    if (affiliate.userId === userId) {
+      console.warn('Self-referral attempt blocked during registration:', { referralCode, userId, affiliateUserId: affiliate.userId });
+      return;
+    }
+    
     // Check if user is already registered with this referral
     const referralsRef = collection(db, AFFILIATE_REFERRALS_COLLECTION);
     const existingQuery = query(
@@ -301,15 +307,25 @@ export const registerWithReferral = async (
   }
 };
 
-// Validate referral code
-export const validateReferralCode = async (referralCode: string): Promise<boolean> => {
+// Validate referral code (with self-referral prevention)
+export const validateReferralCode = async (referralCode: string, currentUserId?: string): Promise<boolean> => {
   try {
     if (!referralCode || referralCode.length < 3) {
       return false;
     }
     
     const affiliate = await getAffiliateByReferralCode(referralCode);
-    return affiliate !== null;
+    if (!affiliate) {
+      return false;
+    }
+    
+    // CRITICAL: Prevent self-referral - user cannot use their own referral code
+    if (currentUserId && affiliate.userId === currentUserId) {
+      console.warn('Self-referral attempt blocked:', { referralCode, userId: currentUserId });
+      return false;
+    }
+    
+    return true;
   } catch (error) {
     console.error('Error validating referral code:', error);
     return false;
@@ -343,6 +359,12 @@ export const createOrderWithReferral = async (
     const affiliate = await getAffiliateByReferralCode(referralCode);
     if (!affiliate) {
       console.error('Affiliate not found for referral code:', referralCode);
+      return;
+    }
+    
+    // CRITICAL: Prevent self-referral - user cannot make orders with their own referral code
+    if (affiliate.userId === userId) {
+      console.warn('Self-referral attempt blocked during order creation:', { referralCode, userId, affiliateUserId: affiliate.userId });
       return;
     }
     

@@ -26,6 +26,7 @@ import { ButtonSpinner } from '@/components/ui/loading';
 import { validateReferralCode } from '@/services/affiliateService';
 import CouponInput from '@/components/CouponInput';
 import { Coupon } from '@/types/coupon';
+import { useCheckoutReferral } from '@/hooks/useShopeeAffiliate';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Nama lengkap harus minimal 2 karakter'),
@@ -59,8 +60,6 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
   const [showCurrencyInfo, setShowCurrencyInfo] = useState(false);
-  const [affiliateId, setAffiliateId] = useState<string | null>(null);
-  const [visitorId, setVisitorId] = useState<string | null>(null);
   const { data: codSettings } = useCODSettings();
   const [referralCodeInput, setReferralCodeInput] = useState<string>('');
   const [referralCodeValidation, setReferralCodeValidation] = useState<{
@@ -80,6 +79,9 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
   
   // Coupon state
   const [appliedCoupon, setAppliedCoupon] = useState<{ coupon: Coupon; discountAmount: number } | null>(null);
+
+  // 🛍️ Shopee Affiliate System: Get referral code for auto-fill
+  const { referralCode: shopeeReferralCode, isLoading: isLoadingShopeeReferral } = useCheckoutReferral();
 
   // Get affiliate_id only if there's an active referral session
   const form = useForm<CheckoutFormData>({
@@ -152,49 +154,24 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
       setReferralCodeValidation(prev => ({ ...prev, isValidating: true }));
       
       try {
-        const isValid = await validateReferralCode(referralCodeInput);
+        // Pass current user ID to prevent self-referral
+        const isValid = await validateReferralCode(referralCodeInput, user?.uid);
         setReferralCodeValidation({
           isValidating: false,
           isValid,
-          error: isValid ? null : t('checkout.referralCodeInvalid')
+          error: isValid ? null : 'Kode referral tidak valid atau Anda tidak dapat menggunakan kode referral milik sendiri.'
         });
       } catch (error) {
         setReferralCodeValidation({
           isValidating: false,
           isValid: false,
-          error: 'Gagal memvalidasi kode referral' // Keep this as generic error for now
+          error: 'Gagal memvalidasi kode referral'
         });
       }
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timeoutId);
   }, [referralCodeInput]);
-  // Get affiliate ID from localStorage if not provided
-  useEffect(() => {
-    // Import referral utilities and check for active session
-    import('@/utils/referralUtils').then(({ hasActiveReferralSession, getStoredReferralCode }) => {
-      // Only use referral if there's an active session (user came via referral link)
-      if (hasActiveReferralSession()) {
-        const storedAffiliateId = getStoredReferralCode();
-        console.log('Found affiliate ID in localStorage:', storedAffiliateId);
-        setAffiliateId(storedAffiliateId);
-      } else {
-        const storedAffiliateId = getStoredReferralCode();
-        if (storedAffiliateId && !hasActiveReferralSession()) {
-          console.log('No active referral session - user accessed directly');
-          setAffiliateId(null);
-        }
-      }
-    });
-    
-    // Get or create visitor ID
-    let storedVisitorId = localStorage.getItem('visitorId');
-    if (!storedVisitorId) {
-      storedVisitorId = `visitor_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      localStorage.setItem('visitorId', storedVisitorId);
-    }
-    setVisitorId(storedVisitorId);
-  }, []);
 
   // Load saved addresses for logged-in users
   useEffect(() => {
@@ -278,9 +255,9 @@ export default function CheckoutForm({ cart, total, onOrderComplete }: CheckoutF
       ? `\n*ONGKOS KIRIM:* ${formatCurrencyForWhatsAppMessage(shippingFee, data.paymentMethod, convertedRupiahValue)}` 
       : '';
 
-    // Add affiliate info if available
-    const affiliateInfo = affiliateId 
-      ? `\n*KODE REFERRAL: ${affiliateId}*`
+    // Add affiliate info if available from BitKode Affiliate system
+    const affiliateInfo = shopeeReferralCode 
+      ? `\n*KODE REFERRAL: ${shopeeReferralCode}*`
       : '';
 
     // Format total based on payment method
@@ -403,6 +380,15 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
     });
   };
 
+  // Auto-fill referral code from BitKode Affiliate system
+  useEffect(() => {
+    if (shopeeReferralCode && !form.getValues('referralCode')) {
+      form.setValue('referralCode', shopeeReferralCode);
+      setReferralCodeInput(shopeeReferralCode);
+      console.log('💻 [BitKode] Auto-filled referral code:', shopeeReferralCode);
+    }
+  }, [shopeeReferralCode, form]);
+
   // Get product and category IDs from cart for coupon validation
   const productIds = cart.map(item => item.product?.id || item.id.split('-')[0]);
   const categoryIds = cart.map(item => item.product?.category).filter(Boolean);
@@ -444,12 +430,10 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
         },
         userId: user?.uid,
         shipping_fee: shippingFee || 0,
-        affiliate_id: affiliateId, // Include affiliate ID in order data
-        visitor_id: visitorId // Include visitor ID for tracking guest referrals
+        manual_referral_code: data.referralCode || null  // Pass manual referral code
       };
 
-      console.log('Creating order with affiliate ID:', affiliateId);
-      console.log('Creating order with visitor ID:', visitorId);
+      console.log('💻 [BitKode] Creating order - referral code:', data.referralCode);
       
       const orderId = await createOrder.mutateAsync({
         items: orderData.items,
@@ -457,17 +441,8 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
         customerInfo: orderData.customerInfo,
         userId: orderData.userId,
         shipping_fee: orderData.shipping_fee,
-        affiliate_id: orderData.affiliate_id,
-        visitor_id: orderData.visitor_id,
-        manual_referral_code: data.referralCode || null
+        manual_referral_code: orderData.manual_referral_code
       });
-
-      // Clear referral session after successful order creation
-      if (affiliateId) {
-        const { clearCurrentSessionReferral } = await import('@/utils/referralUtils');
-        clearCurrentSessionReferral();
-        console.log('Referral session cleared after order creation');
-      }
 
       // Upload payment proof if provided
       let paymentProofUrl = null;
@@ -812,13 +787,25 @@ Mohon konfirmasi pesanan saya. Terima kasih banyak!`;
             </div>
           )}
 
-          {/* Affiliate Info (if available) */}
-          {affiliateId && (
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-              <h4 className="font-medium text-blue-800 mb-2">Informasi Referral:</h4>
-              <p className="text-sm text-blue-700">
-                Anda menggunakan kode referral: <span className="font-mono font-bold">{affiliateId}</span>
-              </p>
+          {/* Professional Referral Information */}
+          {shopeeReferralCode && (
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border border-indigo-200 shadow-sm">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-5 h-5 text-indigo-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-1">Kode Referral Aktif</h4>
+                  <p className="text-sm text-gray-700">
+                    Kode referral <span className="font-mono font-semibold bg-white px-2 py-0.5 rounded border border-gray-200">{shopeeReferralCode}</span> telah diterapkan pada pesanan Anda.
+                  </p>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Terima kasih telah menggunakan layanan referral kami. Komisi akan diproses secara otomatis.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 

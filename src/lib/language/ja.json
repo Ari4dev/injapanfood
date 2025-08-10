@@ -97,7 +97,31 @@
   "unknown": "不明",
   "processing": "処理中",
   "affiliate": {
-    "payouts": "支払い"
+    "title": "アフィリエイトプログラム",
+    "dashboard": "アフィリエイトダッシュボード",
+    "joinProgram": "アフィリエイトプログラムに参加",
+    "referrals": "紹介",
+    "commissions": "手数料",
+    "followers": "フォロワー",
+    "payouts": "支払い",
+    "totalEarnings": "総収入",
+    "allTimeEarnings": "全期間の収入",
+    "availableBalance": "利用可能残高",
+    "readyForPayout": "支払い準備完了",
+    "pendingCommission": "保留中の手数料",
+    "awaitingApproval": "承認待ち",
+    "successfulReferrals": "成功した紹介",
+    "totalReferrals": "総紹介数",
+    "manageProgramDesc": "アフィリエイトプログラムを管理し、パフォーマンスを監視する",
+    "shareThisLinkToEarn": "このリンクを共有して{rate}%の手数料を獲得",
+    "minimumPayoutNotice": "最小支払い額は¥1,000です。稼ぎ続けましょう！",
+    "startEarningMessage": "お店に顧客を紹介して手数料を稼ぎ始めましょう！",
+    "earnCommissionOnSale": "販売ごとに{rate}%の手数料を獲得",
+    "realTimeTracking": "リアルタイム追跡と分析",
+    "fastReliablePayouts": "迅速で信頼性の高い支払い",
+    "joinNow": "今すぐ参加",
+    "transferNotice": "振込は申請承認後1〜3営業日以内に処理されます",
+    "payoutsProcessedMessage": "支払いは承認後1〜3営業日以内に処理されます"
   }
 }
 

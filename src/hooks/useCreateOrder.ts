@@ -1,3 +1,6 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createOrder } from '@/services/orderService';
+
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
 
@@ -8,9 +11,10 @@ export const useCreateOrder = () => {
       customerInfo,
       userId,
       shipping_fee,
-      affiliate_id
-    }) => {
+      affiliate_id,
+      visitor_id,
       manual_referral_code
+    }: CreateOrderParams) => {
       try {
         return await createOrder({
           user_id: userId,
@@ -19,16 +23,15 @@ export const useCreateOrder = () => {
           total_price: totalPrice,
           status: 'pending',
           shipping_fee: shipping_fee,
-          affiliate_id: affiliate_id
+          affiliate_id: affiliate_id,
           visitor_id: visitor_id,
           manual_referral_code: manual_referral_code
-              } catch (error) {
+        });
+      } catch (error) {
         console.error('Error creating order:', error);
         throw error;
       }
-        )
-          },
-    }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['pending-orders'] });
@@ -38,11 +41,12 @@ export const useCreateOrder = () => {
 
 // Define the types for the parameters
 interface CreateOrderParams {
-      items: CartItem[];
-      totalPrice: number;
-      customerInfo: CustomerInfo;
-      userId?: string;
-      shipping_fee?: number;
-      affiliate_id?: string;
-      visitor_id?: string;
+  items: any[];
+  totalPrice: number;
+  customerInfo: any;
+  userId?: string;
+  shipping_fee?: number;
+  affiliate_id?: string;
+  visitor_id?: string;
+  manual_referral_code?: string;
 }

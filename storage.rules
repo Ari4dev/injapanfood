@@ -1,16 +1,16 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Banner images - Allow authenticated users to upload (temporary fix for admin access)
+    // Banner images - Admin only for uploads and management
     match /banner-images/{allPaths=**} {
       allow read: if true; // Public read for banners
-      allow write, create, update, delete: if request.auth != null; // Any authenticated user can manage banners
+      allow write, create, update, delete: if request.auth != null && isAdmin(); // Only admins can manage banners
     }
     
-    // Product images - Public read, authenticated write
+    // Product images - Public read, admin write
     match /product-images/{allPaths=**} {
       allow read: if true;
-      allow write, create, update, delete: if request.auth != null;
+      allow write, create, update, delete: if request.auth != null && isAdmin();
     }
     
     // Payment proofs - Users can upload their own, admins can manage all
@@ -20,16 +20,16 @@ service firebase.storage {
       allow update, delete: if request.auth != null && isAdmin();
     }
     
-    // General uploads - Authenticated users only
+    // General uploads - Restricted access
     match /{allPaths=**} {
       allow read: if request.auth != null;
-      allow write, create, update, delete: if request.auth != null;
+      allow write, create, update, delete: if false; // Deny by default, use specific rules above
     }
     
-    // Helper functions
+    // Helper functions - Use role-based admin check instead of hardcoded emails
     function isAdmin() {
       return request.auth != null && 
-        request.auth.token.email in ['admin@gmail.com', 'ari4rich@gmail.com', 'newadmin@gmail.com', 'injpn@food.com', 'admin2@gmail.com'];
+        request.auth.token.admin == true; // This should be set via Firebase Auth custom claims
     }
     
     function isOwner() {

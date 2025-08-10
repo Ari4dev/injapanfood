@@ -1,12 +1,12 @@
 
 // Firebase configuration from environment variables
 export const firebaseConfig = {
-  apiKey: "AIzaSyCwaM057q4UhhSg_Aok4nSh9HWYptJfm5Q",
-  authDomain: "injapan-food.firebaseapp.com",
-  projectId: "injapan-food",
-  storageBucket: "injapan-food.firebasestorage.app",
-  messagingSenderId: "323443767194",
-  appId: "1:323443767194:web:a5638c2cf89c9c8106ac23"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Security configuration
@@ -19,14 +19,8 @@ export const securityConfig = {
   maxFileSize: 5 * 1024 * 1024, // 5MB
   allowedImageTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   
-  // Admin emails (should be moved to environment variables in production)
-  adminEmails: [
-    'admin@gmail.com',
-    'ari4rich@gmail.com', 
-    'newadmin@gmail.com',
-    'injpn@food.com',
-    'admin2@gmail.com'
-  ]
+  // Admin emails from environment variables
+  adminEmails: import.meta.env.VITE_ADMIN_EMAILS?.split(',').map((email: string) => email.trim()) || []
 };
 
 // Enhanced configuration logging for debugging

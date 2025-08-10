@@ -10,6 +10,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import InvoiceModal from '@/components/InvoiceModal';
 import { Order } from '@/types';
 import { updateOrderStatus } from '@/services/orderService';
+import { verifyPaymentWithCommission, rejectPaymentWithCommission } from '@/services/paymentVerificationService';
 import { useQueryClient } from '@tanstack/react-query';
 import ErrorState from '@/components/ErrorState';
 import EmptyState from '@/components/EmptyState';
@@ -72,12 +73,13 @@ const PaymentVerification = () => {
 
   const handleVerifyPayment = async (orderId: string) => {
     try {
-      await updateOrderStatus(orderId, 'confirmed', 'verified');
+      // Use enhanced verification that auto-approves commission
+      await verifyPaymentWithCommission(orderId, 'confirmed', 'verified');
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       
       toast({
         title: "Pembayaran Terverifikasi",
-        description: "Status pembayaran berhasil diubah menjadi terverifikasi",
+        description: "Pembayaran telah diverifikasi dan komisi affiliate telah disetujui",
       });
     } catch (error) {
       console.error('Error verifying payment:', error);
@@ -91,12 +93,13 @@ const PaymentVerification = () => {
 
   const handleRejectPayment = async (orderId: string) => {
     try {
-      await updateOrderStatus(orderId, 'cancelled', 'rejected');
+      // Use enhanced rejection that also rejects commission
+      await rejectPaymentWithCommission(orderId, 'cancelled', 'rejected');
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       
       toast({
         title: "Pembayaran Ditolak",
-        description: "Status pembayaran berhasil diubah menjadi ditolak",
+        description: "Pembayaran dan komisi affiliate telah ditolak",
       });
     } catch (error) {
       console.error('Error rejecting payment:', error);

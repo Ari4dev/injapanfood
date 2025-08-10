@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useEnhancedAffiliateAdmin } from '@/hooks/useEnhancedAffiliateAdmin';
 import {
   Table,
   TableBody,
@@ -29,7 +29,7 @@ import {
 import { AffiliateUser } from '@/types/affiliate';
 
 const AffiliatesTable = () => {
-  const { affiliates, loading, selectedMonth, setSelectedMonth, availableMonths } = useAffiliateAdmin();
+  const { affiliates, loading, selectedMonth, setSelectedMonth, availableMonths } = useEnhancedAffiliateAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAffiliate, setSelectedAffiliate] = useState<AffiliateUser | null>(null);
 

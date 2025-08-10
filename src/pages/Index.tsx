@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCategoryIcon, getCategoryUrlPath, getCategoryTranslation } from '@/utils/categoryVariants';
 import { getAllCategories } from '@/services/categoryService';
 import { Skeleton, ProductCardSkeleton, CategoryCardSkeleton, ErrorState } from '@/components/ui/loading';
+import { checkReferralIssues } from '@/utils/debugUtils';
 const Index = () => {
   const { data: products = [], isLoading: productsLoading, isError: productsError } = useProducts();
   const { t, language } = useLanguage();
@@ -34,22 +35,38 @@ const Index = () => {
     const refCode = urlParams.get('ref');
     
     if (refCode) {
-      console.log('Referral code detected in URL:', refCode);
+      console.log('Referral code detected in URL, redirecting to auth:', refCode);
       
-      // Always process new referral code from URL (overrides any existing session)
-      import('@/utils/referralUtils').then(({ clearReferralCode }) => {
-        // Clear any existing referral data first
-        clearReferralCode();
-        console.log('Cleared existing referral data for new referral code');
-
-        navigate(`/auth?tab=signup&ref=${refCode}`);
-      });
+      // Clear any potential service worker cache issues
+      try {
+        // Clear React Query cache for fresh start
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith('rq-') || key.startsWith('tanstack-')) {
+            sessionStorage.removeItem(key);
+          }
+        });
+      } catch (error) {
+        console.warn('Cache cleanup error:', error);
+      }
+      
+      // Add small delay to ensure DOM is ready and prevent race conditions
+      const redirectTimer = setTimeout(() => {
+        // Use replace to avoid going back to index with ref code
+        navigate(`/auth?tab=signup&ref=${refCode}`, { replace: true });
+      }, 100);
+      
+      return () => clearTimeout(redirectTimer);
     }
   }, [location.search, navigate]);
 
   // Enhanced scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // Run debug check for referral issues (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      checkReferralIssues();
+    }
   }, []);
 
   const featuredProducts = products.slice(0, 8);

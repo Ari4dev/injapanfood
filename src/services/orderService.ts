@@ -146,6 +146,7 @@ export const createOrder = async (orderData: {
     phone: string;
     notes?: string;
     payment_method?: string;
+    city?: string;
   };
   items: any[];
   total_price: number;
@@ -154,6 +155,7 @@ export const createOrder = async (orderData: {
   payment_proof_url?: string;
   affiliate_id?: string;
   visitor_id?: string;
+  manual_referral_code?: string;
 }) => {
   try {
     console.log('Creating order with data:', orderData);
@@ -233,6 +235,8 @@ export const createOrder = async (orderData: {
       throw new Error(`Failed to create order: ${addDocError.message}`);
     }
     
+    /*
+    // OLD AFFILIATE SYSTEM - DISABLED
     // Process affiliate commission if applicable
     if (affiliate_id && sanitizedOrderData.user_id) {
       try {
@@ -263,6 +267,42 @@ export const createOrder = async (orderData: {
         console.error('Error processing affiliate commission:', affiliateError);
         // Log the error but don't fail the order creation
         console.error('Affiliate processing failed, but order was created successfully');
+      }
+    }
+    */
+    
+    // 🛍️ SHOPEE AFFILIATE SYSTEM: Process order commission
+    if (sanitizedOrderData.user_id) {
+      try {
+        console.log('🛍️ [Shopee] Processing affiliate order commission...');
+        const { processAffiliateOrder } = await import('./shopeeAffiliateSystem');
+        
+        // Calculate product subtotal (excluding shipping and COD fees)
+        const productSubtotal = sanitizedOrderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const shippingFee = sanitizedOrderData.shipping_fee || 0;
+        const codSurcharge = sanitizedOrderData.cod_surcharge || 0;
+        
+        console.log('💰 [Commission Base Calculation]:', {
+          totalPrice: sanitizedOrderData.total_price,
+          productSubtotal,
+          shippingFee,
+          codSurcharge,
+          note: 'Commission will be calculated from productSubtotal only'
+        });
+        
+        await processAffiliateOrder(
+          sanitizedOrderData.user_id,
+          docRef.id,
+          sanitizedOrderData.total_price,
+          productSubtotal,  // ✅ Pass product subtotal for commission calculation
+          shippingFee,      // ✅ Pass shipping fee (to exclude from commission)
+          codSurcharge      // ✅ Pass COD surcharge (to exclude from commission)
+        );
+        
+        console.log('🛍️ [Shopee] Affiliate order processed successfully');
+      } catch (shopeeError) {
+        console.error('❌ [Shopee] Error processing affiliate order:', shopeeError);
+        // Log the error but don't fail the order creation
       }
     }
     

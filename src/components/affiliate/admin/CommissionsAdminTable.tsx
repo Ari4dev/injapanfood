@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useEnhancedAffiliateAdmin } from '@/hooks/useEnhancedAffiliateAdmin';
 import {
   Table,
   TableBody,
@@ -35,7 +35,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 const CommissionsAdminTable = () => {
-  const { commissions, loading, approveCommission, rejectCommission, selectedMonth, setSelectedMonth, availableMonths } = useAffiliateAdmin();
+  const { commissions, loading, approveCommission, rejectCommission, selectedMonth, setSelectedMonth, availableMonths } = useEnhancedAffiliateAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedCommissionId, setSelectedCommissionId] = useState<string | null>(null);

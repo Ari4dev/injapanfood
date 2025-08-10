@@ -32,21 +32,21 @@ const OrderPaymentStatus = ({
         return (
           <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            <span>Menunggu Verifikasi</span>
+            <span>{t('payment.waitingVerification')}</span>
           </Badge>
         );
       case 'verified':
         return (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
-            <span>Pembayaran Terverifikasi</span>
+            <span>{t('payment.paymentVerified')}</span>
           </Badge>
         );
       case 'rejected':
         return (
           <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 flex items-center gap-1">
             <XCircle className="w-3 h-3" />
-            <span>Pembayaran Ditolak</span>
+            <span>{t('payment.paymentRejected')}</span>
           </Badge>
         );
       default:
@@ -82,11 +82,11 @@ const OrderPaymentStatus = ({
                   onClick={() => setShowProof(false)}
                   className="absolute -top-12 right-0 text-white bg-black bg-opacity-50 hover:bg-opacity-70"
                 >
-                  ✕ Close
+                  ✕ {t('buttons.close')}
                 </Button>
                 <img 
                   src={paymentProofUrl} 
-                  alt="Bukti Pembayaran" 
+                  alt={t('payment.viewPaymentProof')}
                   className="max-w-full max-h-[80vh] object-contain"
                 />
               </div>

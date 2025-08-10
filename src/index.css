@@ -45,6 +45,15 @@
     width: 100%;
     overflow-x: hidden;
     min-height: 100vh;
+    /* Mobile touch fixes */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Enable better touch interactions */
+    touch-action: manipulation;
   }
 
   #root {
@@ -154,6 +163,96 @@
   @media (min-width: 1280px) {
     .container {
       max-width: 1200px;
+    }
+  }
+  
+  /* Mobile touch improvements */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* Mobile dropdown fixes */
+  @media (max-width: 767px) {
+    .mobile-dropdown-centered {
+      animation: dropdownFadeIn 0.2s ease-out;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .mobile-dropdown-backdrop {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(2px);
+    }
+  }
+  
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  
+  /* Button active states for mobile */
+  button:active {
+    transform: scale(0.98);
+  }
+  
+  /* Improve mobile tap targets */
+  [role="button"], button {
+    min-height: 44px;
+    min-width: 44px;
+    cursor: pointer;
+  }
+  
+  /* Enhanced tab styling */
+  .tab-trigger-enhanced {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .tab-trigger-enhanced[data-state="active"] {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Fix tab list spacing */
+  [role="tablist"] {
+    display: grid;
+    align-items: center;
+  }
+  
+  [role="tab"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  /* Mobile tab improvements */
+  @media (max-width: 767px) {
+    [role="tablist"] {
+      padding: 2px;
+    }
+    
+    [role="tab"] {
+      min-height: 44px;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 500;
     }
   }
 }

@@ -1,11 +1,11 @@
-import { useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useEnhancedAffiliateAdmin } from '@/hooks/useEnhancedAffiliateAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Users, ShoppingCart, DollarSign, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const AffiliateStatsOverview = () => {
-  const { affiliates, commissions, referrals, loading, selectedMonth, setSelectedMonth, availableMonths } = useAffiliateAdmin();
+  const { affiliates, commissions, referrals, loading, selectedMonth, setSelectedMonth, availableMonths } = useEnhancedAffiliateAdmin();
 
   if (loading) {
     return (

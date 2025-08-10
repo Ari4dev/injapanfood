@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useAffiliateAdmin } from '@/hooks/useAffiliateAdmin';
+import { useEnhancedAffiliateAdmin } from '@/hooks/useEnhancedAffiliateAdmin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,7 +35,7 @@ const settingsSchema = z.object({
 type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 const AffiliateSettingsForm = () => {
-  const { settings, updateSettings, loading } = useAffiliateAdmin();
+  const { settings, updateSettings, loading } = useEnhancedAffiliateAdmin();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SettingsFormValues>({
