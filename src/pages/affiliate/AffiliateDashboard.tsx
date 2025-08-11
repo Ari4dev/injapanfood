@@ -54,9 +54,6 @@ import {
 } from 'lucide-react';
 
 // Import affiliate components
-import AnalyticsDashboard from '@/components/affiliate/AnalyticsDashboard';
-import TierSystem from '@/components/affiliate/TierSystem';
-import LinkGenerator from '@/components/affiliate/LinkGenerator';
 import PaymentMethods from '@/components/affiliate/PaymentMethods';
 import PayoutRequestModal from '@/components/affiliate/PayoutRequestModal';
 
@@ -573,11 +570,8 @@ const AffiliateDashboard = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-6 w-full">
+          <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="tier">Tier System</TabsTrigger>
-            <TabsTrigger value="links">Links</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
           </TabsList>
@@ -649,20 +643,6 @@ const AffiliateDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <AnalyticsDashboard affiliateId={affiliateData.id} />
-          </TabsContent>
-
-          {/* Tier System Tab */}
-          <TabsContent value="tier">
-            <TierSystem affiliateId={affiliateData.id} />
-          </TabsContent>
-
-          {/* Links Tab */}
-          <TabsContent value="links">
-            <LinkGenerator affiliateId={affiliateData.id} />
-          </TabsContent>
 
           {/* Payments Tab */}
           <TabsContent value="payments">

@@ -616,7 +616,8 @@
    "earnCommissionOnSale": "Earn {rate}% commission on every sale",
    "realTimeTracking": "Real-time tracking and analytics",
    "fastReliablePayouts": "Fast and reliable payouts",
-   "joinNow": "Join Now"
+   "joinNow": "Join Now",
+   "bankManagementTab": "Bank Management"
   },
   "orders": {
     "title": "Order History",
@@ -877,6 +878,8 @@
     "financialReports": "Financial Reports",
     "financialReportsDesc": "Financial reports",
     "couponManagement": "Coupon Management",
-    "manageCouponDesc": "Manage coupons & promotions"
+    "manageCouponDesc": "Manage coupons & promotions",
+    "bankInformation": "Financial Accounts",
+    "bankInfoDesc": "Manage payment accounts & bank details"
   }
 }

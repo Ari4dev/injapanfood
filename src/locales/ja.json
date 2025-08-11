@@ -625,7 +625,8 @@
     "earnCommissionOnSale": "販売ごとに{rate}%の手数料を獲得",
     "realTimeTracking": "リアルタイム追跡と分析",
     "fastReliablePayouts": "迅速で信頼性の高い支払い",
-    "joinNow": "今すぐ参加"
+    "joinNow": "今すぐ参加",
+    "bankManagementTab": "銀行管理"
   },
   "help": {
     "title": "ヘルプ",

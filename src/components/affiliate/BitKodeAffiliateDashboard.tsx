@@ -12,9 +12,6 @@ import {
 } from 'lucide-react';
 
 // Import all the components we created
-import AnalyticsDashboard from './AnalyticsDashboard';
-import TierSystem from './TierSystem';
-import LinkGenerator from './LinkGenerator';
 import PaymentMethods from './PaymentMethods';
 import BitKodeAffiliateManagement from '../admin/BitKodeAffiliateManagement';
 
@@ -36,15 +33,15 @@ const BitKodeAffiliateDashboard = () => {
   const [isAdmin, setIsAdmin] = useState(false); // Toggle for admin view
   
   const [affiliateInfo] = useState<AffiliateInfo>({
-    id: 'AFF123456',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    tier: 'Silver',
-    joinDate: new Date('2023-06-15'),
-    totalEarnings: 15670000,
-    currentBalance: 567890,
-    activeLinks: 42,
-    conversions: 1295
+    id: '',
+    name: '',
+    email: '',
+    tier: 'Bronze',
+    joinDate: new Date(),
+    totalEarnings: 0,
+    currentBalance: 0,
+    activeLinks: 0,
+    conversions: 0
   });
 
   const QuickStats = () => (
@@ -137,30 +134,6 @@ const BitKodeAffiliateDashboard = () => {
           >
             <LayoutDashboard className="w-4 h-4 mr-3" />
             Overview
-          </Button>
-          <Button
-            variant={activeTab === 'analytics' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setActiveTab('analytics')}
-          >
-            <BarChart3 className="w-4 h-4 mr-3" />
-            Analytics
-          </Button>
-          <Button
-            variant={activeTab === 'tiers' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setActiveTab('tiers')}
-          >
-            <Trophy className="w-4 h-4 mr-3" />
-            Tiers & Rewards
-          </Button>
-          <Button
-            variant={activeTab === 'links' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setActiveTab('links')}
-          >
-            <Link2 className="w-4 h-4 mr-3" />
-            Link Generator
           </Button>
           <Button
             variant={activeTab === 'payments' ? 'default' : 'ghost'}
@@ -391,9 +364,6 @@ const BitKodeAffiliateDashboard = () => {
             </>
           )}
 
-          {activeTab === 'analytics' && <AnalyticsDashboard affiliateId={affiliateInfo.id} />}
-          {activeTab === 'tiers' && <TierSystem affiliateId={affiliateInfo.id} />}
-          {activeTab === 'links' && <LinkGenerator affiliateId={affiliateInfo.id} />}
           {activeTab === 'payments' && <PaymentMethods affiliateId={affiliateInfo.id} />}
           {activeTab === 'admin' && isAdmin && <BitKodeAffiliateManagement />}
         </main>

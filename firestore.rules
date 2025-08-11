@@ -1,12 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Products - Public read, authenticated write
-    match /products/{productId} {
-      allow read: if true;
-      allow write, create, update, delete: if request.auth != null && isAdmin();
-    }
-    
     // Users - Authenticated users can read all, but only write to their own data or admins can write any
     match /users/{userId} {
       allow read: if request.auth != null;
@@ -206,6 +200,39 @@ service cloud.firestore {
     // Page Views - Admin only access
     match /page_views/{viewId} {
       allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // BANK INFORMATION MANAGEMENT
+    // Admin Bank Information - Admin only access for system-wide bank accounts (old collection)
+    match /bank_accounts/{accountId} {
+      allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // New Admin Bank Information - Admin only access for system-wide bank accounts (new collection)
+    match /admin_bank_accounts/{accountId} {
+      allow read, list, write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // User Bank Information - Users can manage their own bank accounts for affiliate payouts
+    match /user_bank_accounts/{accountId} {
+      // Users can read/write their own bank accounts, admins can access all
+      allow read, list: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow delete: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+    }
+    
+    // COMMON COLLECTIONS - Rules for basic app functionality
+    // Products - Public read, admin write
+    match /products/{productId} {
+      allow read, list: if true; // Public can view products
+      allow write, create, update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // App Settings - Public read for basic settings, admin write
+    match /app_settings/{settingId} {
+      allow read: if true;
+      allow write, create, update, delete: if request.auth != null && isAdmin();
     }
     
     // Helper function to check if user is admin

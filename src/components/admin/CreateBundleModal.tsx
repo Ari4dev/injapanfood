@@ -356,9 +356,9 @@ const CreateBundleModal: React.FC<Props> = ({ onClose, onBundleCreated }) => {
                 <button
                   type="button"
                   onClick={removeImage}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  className="absolute -top-1 -right-1 bg-white/90 backdrop-blur-sm text-gray-500 rounded-full p-1 shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             )}

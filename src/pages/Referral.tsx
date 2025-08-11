@@ -4,6 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import UserBankInformationManager from '@/components/affiliate/UserBankInformationManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -267,6 +268,7 @@ const AffiliateContent = () => {
             <TabsTrigger value="referrals">{t('affiliate.referralsTab')}</TabsTrigger>
             <TabsTrigger value="commissions">{t('affiliate.commissionsTab')}</TabsTrigger>
             <TabsTrigger value="payouts">{t('affiliate.payoutsTab')}</TabsTrigger>
+            <TabsTrigger value="pencairan">{t('affiliate.bankManagementTab', 'Bank Management')}</TabsTrigger>
           </TabsList>
           
           {/* Dashboard Tab */}
@@ -895,6 +897,11 @@ const AffiliateContent = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          {/* Pencairan Tab - Bank Information Management */}
+          <TabsContent value="pencairan">
+            <UserBankInformationManager />
           </TabsContent>
         </Tabs>
       </div>

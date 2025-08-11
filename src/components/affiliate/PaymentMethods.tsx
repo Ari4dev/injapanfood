@@ -49,78 +49,9 @@ interface PaymentSettings {
 }
 
 const PaymentMethods = ({ affiliateId }: { affiliateId?: string }) => {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    {
-      id: '1',
-      type: 'bank',
-      name: 'Primary Bank Account',
-      details: {
-        bankName: 'Mitsubishi UFJ',
-        accountNumber: '****1234',
-        accountHolder: 'John Doe',
-        swiftCode: 'MUFGJPJT'
-      },
-      isDefault: true,
-      isVerified: true,
-      addedDate: new Date('2023-06-15'),
-      lastUsed: new Date('2024-01-25')
-    },
-    {
-      id: '2',
-      type: 'paypal',
-      name: 'PayPal Account',
-      details: {
-        email: 'john***@gmail.com'
-      },
-      isDefault: false,
-      isVerified: true,
-      addedDate: new Date('2023-08-20')
-    },
-    {
-      id: '3',
-      type: 'crypto',
-      name: 'Bitcoin Wallet',
-      details: {
-        walletAddress: 'bc1q***...***xyz',
-        network: 'Bitcoin'
-      },
-      isDefault: false,
-      isVerified: false,
-      addedDate: new Date('2024-01-10')
-    }
-  ]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
-  const [paymentHistory] = useState<PaymentHistory[]>([
-    {
-      id: '1',
-      date: new Date('2024-01-25'),
-      amount: 385000,
-      method: 'Bank Transfer',
-      status: 'completed',
-      reference: 'PAY-2024-0125-001',
-      commission: 350000,
-      bonus: 35000
-    },
-    {
-      id: '2',
-      date: new Date('2024-01-15'),
-      amount: 275000,
-      method: 'PayPal',
-      status: 'completed',
-      reference: 'PAY-2024-0115-002',
-      commission: 275000
-    },
-    {
-      id: '3',
-      date: new Date('2024-01-05'),
-      amount: 450000,
-      method: 'Bank Transfer',
-      status: 'pending',
-      reference: 'PAY-2024-0105-003',
-      commission: 425000,
-      bonus: 25000
-    }
-  ]);
+  const [paymentHistory] = useState<PaymentHistory[]>([]);
 
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
     minimumPayout: 100000,
@@ -636,17 +567,17 @@ const PaymentMethods = ({ affiliateId }: { affiliateId?: string }) => {
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <PiggyBank className="w-8 h-8 mx-auto mb-2 text-blue-600" />
                   <p className="text-sm text-gray-600">Available Balance</p>
-                  <p className="text-2xl font-bold">¥567,890</p>
+                  <p className="text-2xl font-bold">¥0</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-yellow-600" />
                   <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold">¥123,456</p>
+                  <p className="text-2xl font-bold">¥0</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <TrendingUp className="w-8 h-8 mx-auto mb-2 text-green-600" />
                   <p className="text-sm text-gray-600">This Month</p>
-                  <p className="text-2xl font-bold">¥891,234</p>
+                  <p className="text-2xl font-bold">¥0</p>
                 </div>
               </div>
               <div className="mt-4 flex gap-3">

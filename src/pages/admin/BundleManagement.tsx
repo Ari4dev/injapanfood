@@ -318,15 +318,15 @@ const BundleManagement: React.FC = () => {
             <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Detail Bundle: {selectedBundle.name}</h2>
-                <button
-                  onClick={() => {
-                    setShowViewModal(false);
-                    setSelectedBundle(null);
-                  }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ✕
-                </button>
+                  <button
+                    onClick={() => {
+                      setShowViewModal(false);
+                      setSelectedBundle(null);
+                    }}
+                    className="text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded p-1 transition-all duration-200"
+                  >
+                    <span className="text-lg leading-none">×</span>
+                  </button>
               </div>
               
               <div className="space-y-4">

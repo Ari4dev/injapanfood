@@ -425,12 +425,27 @@ const FinancialReports = () => {
   // State for profit net calculation
   const [profitNet, setProfitNet] = useState<number>(0);
   
-  // Calculate Profit Net based on product margins
+  // Calculate Profit Net using detailed business logic
   const calculateProfitNet = async () => {
     try {
-      let totalProfitNet = 0;
+      // Profit Net Formula:
+      // Profit Net = Harga Jual - HPP - Biaya Pengiriman - Biaya COD (jika ada) - Pajak 8%
       
-      // Parse selected month
+      console.log('=== CALCULATING PROFIT NET ===');
+      console.log('Detailed Business Formula: Harga Jual - HPP - Biaya Pengiriman - Biaya COD - Pajak 8%');
+      
+      // Get COD surcharge settings from database
+      const { getCODSettings } = await import('@/services/codSurchargeService');
+      const codSettings = await getCODSettings();
+      const codSurchargeAmount = codSettings.surchargeAmount || 290; // Default ¥290 (updated)
+      
+      console.log(`🔍 [COD Settings Debug]:`);
+      console.log(`- Full COD Settings:`, codSettings);
+      console.log(`- Surcharge Amount: ¥${codSurchargeAmount}`);
+      console.log(`- Is COD Enabled: ${codSettings.isEnabled}`);
+      console.log(`- Settings Description: ${codSettings.description}`);
+      
+      // Parse selected month for calculations
       const [year, month] = selectedMonth.split('-');
       const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
       const endDate = new Date(parseInt(year), parseInt(month), 0);
@@ -449,7 +464,7 @@ const FinancialReports = () => {
         ...doc.data()
       } as Order));
       
-      // Fetch all products to get cost_price data
+      // Fetch all products to get cost_price (HPP) data
       const productsRef = collection(db, 'products');
       const productsSnapshot = await getDocs(productsRef);
       const products = productsSnapshot.docs.map(doc => ({
@@ -460,71 +475,100 @@ const FinancialReports = () => {
       // Create a map for quick product lookup
       const productMap = new Map(products.map(p => [p.id, p]));
       
-      console.log('Selected Month Orders:', monthOrders);
-      console.log('Products with cost_price:', products.filter(p => p.cost_price).length);
-      console.log('Product Map size:', productMap.size);
+      let totalProfitNet = 0;
+      let totalRevenue = 0;
+      let totalHPP = 0;
+      let totalShippingCosts = 0;
+      let totalCODFees = 0;
+      let totalTax = 0;
+      
+      console.log(`Processing ${monthOrders.length} orders`);
       
       // Calculate profit for each order
       for (const order of monthOrders) {
-        console.log('Processing order:', order.id, 'Items:', order.items?.length || 0);
+        console.log(`\n--- Processing Order #${order.id.slice(-8)} ---`);
+        
+        const orderRevenue = order.total_price || 0;
+        const shippingCost = order.shipping_fee || 0;
+        const paymentMethod = order.customer_info?.payment_method || '';
+        
+        // COD Fee calculation - use actual cod_surcharge from order or system setting
+        let codFee = 0;
+        if (paymentMethod.toLowerCase().includes('cod')) {
+          // Priority:
+          // 1. Use actual cod_surcharge from order (if exists)
+          // 2. Use system setting (¥290 from admin)
+          codFee = order.cod_surcharge || codSurchargeAmount;
+          
+          console.log(`💰 [COD Fee Debug]:`);
+          console.log(`- Order cod_surcharge: ${order.cod_surcharge}`);
+          console.log(`- System cod_surcharge: ¥${codSurchargeAmount}`);
+          console.log(`- Final codFee used: ¥${codFee}`);
+        }
+        
+        console.log(`Order Revenue: ¥${orderRevenue}`);
+        console.log(`Shipping Cost: ¥${shippingCost}`);
+        console.log(`Payment Method: ${paymentMethod}`);
+        console.log(`COD Fee: ¥${codFee}`);
+        
+        let orderHPP = 0;
+        
+        // Calculate HPP for all items in this order
         if (order.items && Array.isArray(order.items)) {
+          console.log(`Processing ${order.items.length} items:`);
+          
           for (const item of order.items) {
-            console.log('Processing item:', item.product_id, 'price:', item.price, 'qty:', item.quantity);
             const product = productMap.get(item.product_id);
-            if (product) {
-              console.log('Found product:', product.name, 'cost_price:', product.cost_price);
-              if (product.cost_price && typeof product.cost_price === 'number') {
-                // Calculate profit: (selling_price - cost_price) * quantity
-                const sellingPrice = Number(item.price);
-                const costPrice = Number(product.cost_price);
-                const quantity = Number(item.quantity);
-                
-                console.log(`\n=== DEBUGGING PROFIT CALCULATION ===`);
-                console.log(`Raw data types:`);
-                console.log(`- item.price type: ${typeof item.price}, value: ${item.price}`);
-                console.log(`- product.cost_price type: ${typeof product.cost_price}, value: ${product.cost_price}`);
-                console.log(`- item.quantity type: ${typeof item.quantity}, value: ${item.quantity}`);
-                
-                console.log(`Converted to numbers:`);
-                console.log(`- sellingPrice: ${sellingPrice} (type: ${typeof sellingPrice})`);
-                console.log(`- costPrice: ${costPrice} (type: ${typeof costPrice})`);
-                console.log(`- quantity: ${quantity} (type: ${typeof quantity})`);
-                
-                // Step by step calculation with explicit logging
-                console.log(`Step-by-step calculation:`);
-                console.log(`1. Profit per unit = sellingPrice - costPrice`);
-                console.log(`   = ${sellingPrice} - ${costPrice}`);
-                
-                const profitPerUnit = sellingPrice - costPrice;
-                console.log(`   = ${profitPerUnit}`);
-                
-                console.log(`2. Total item profit = profitPerUnit × quantity`);
-                console.log(`   = ${profitPerUnit} × ${quantity}`);
-                
-                const itemProfit = profitPerUnit * quantity;
-                console.log(`   = ${itemProfit}`);
-                
-                console.log(`3. Adding to totalProfitNet`);
-                console.log(`   totalProfitNet before: ${totalProfitNet}`);
-                totalProfitNet += itemProfit;
-                console.log(`   totalProfitNet after: ${totalProfitNet}`);
-                console.log(`======================================\n`);
-              } else {
-                console.log('Product has no cost_price or invalid cost_price');
-              }
+            
+            if (product && product.cost_price && typeof product.cost_price === 'number') {
+              const itemHPP = Number(product.cost_price) * Number(item.quantity);
+              orderHPP += itemHPP;
+              
+              console.log(`  - ${product.name}: ¥${product.cost_price} × ${item.quantity} = ¥${itemHPP}`);
             } else {
-              console.log('Product not found in map for ID:', item.product_id);
+              console.log(`  - ${item.product_id}: No cost_price data (HPP = 0)`);
             }
           }
         }
+        
+        // Calculate 8% tax on the order revenue
+        const orderTax = orderRevenue * 0.08;
+        
+        console.log(`Order HPP Total: ¥${orderHPP}`);
+        console.log(`Tax (8%): ¥${orderTax.toFixed(2)}`);
+        
+        // Calculate profit for this order: Revenue - HPP - Shipping - COD - Tax
+        const orderProfit = orderRevenue - orderHPP - shippingCost - codFee - orderTax;
+        
+        console.log(`Order Calculation:`);
+        console.log(`¥${orderRevenue} - ¥${orderHPP} - ¥${shippingCost} - ¥${codFee} - ¥${orderTax.toFixed(2)} = ¥${orderProfit.toFixed(2)}`);
+        
+        // Add to totals
+        totalProfitNet += orderProfit;
+        totalRevenue += orderRevenue;
+        totalHPP += orderHPP;
+        totalShippingCosts += shippingCost;
+        totalCODFees += codFee;
+        totalTax += orderTax;
       }
       
+      console.log(`\n=== FINAL TOTALS ===`);
+      console.log(`Total Revenue: ¥${totalRevenue}`);
+      console.log(`Total HPP: ¥${totalHPP}`);
+      console.log(`Total Shipping: ¥${totalShippingCosts}`);
+      console.log(`Total COD Fees: ¥${totalCODFees}`);
+      console.log(`Total Tax (8%): ¥${totalTax.toFixed(2)}`);
+      console.log(`\nFinal Calculation:`);
+      console.log(`¥${totalRevenue} - ¥${totalHPP} - ¥${totalShippingCosts} - ¥${totalCODFees} - ¥${totalTax.toFixed(2)} = ¥${totalProfitNet.toFixed(2)}`);
+      
       setProfitNet(totalProfitNet);
-      console.log(`Final Calculated Profit Net: ${totalProfitNet}`);
+      console.log(`\nFinal Profit Net: ¥${totalProfitNet.toFixed(2)}`);
+      console.log('==========================================\n');
       
     } catch (error) {
       console.error('Error calculating profit net:', error);
-      setProfitNet(0);
+      // Fallback: use netProfit if calculation fails
+      setProfitNet(netProfit);
     }
   };
 
@@ -824,12 +868,12 @@ const FinancialReports = () => {
                 {profitNet > 0 ? (
                   <span className="flex items-center">
                     <ArrowUp className="w-3 h-3 mr-1" />
-                    Net Positive
+                    Setelah Operasional
                   </span>
                 ) : (
                   <span className="flex items-center">
                     <ArrowDown className="w-3 h-3 mr-1" />
-                    Net Negative
+                    Perlu Optimasi
                   </span>
                 )}
               </p>

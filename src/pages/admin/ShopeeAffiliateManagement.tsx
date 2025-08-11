@@ -62,11 +62,6 @@ import {
   getPayoutStats
 } from '@/services/shopeeAffiliatePayoutService';
 
-// Import new components
-import AnalyticsDashboard from '@/components/affiliate/AnalyticsDashboard';
-import TierSystem from '@/components/affiliate/TierSystem';
-import LinkGenerator from '@/components/affiliate/LinkGenerator';
-import PaymentMethods from '@/components/affiliate/PaymentMethods';
 
 interface ShopeeAffiliate {
   id: string;
@@ -682,28 +677,12 @@ const BitKodeAffiliateManagement = () => {
 
         {/* Main Tabs with Icons */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4 bg-white border grid grid-cols-9">
+          <TabsList className="mb-4 bg-white border grid grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               Overview
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="tiers" className="flex items-center gap-2">
-              <Trophy className="w-4 h-4" />
-              Tiers
-            </TabsTrigger>
-            <TabsTrigger value="links" className="flex items-center gap-2">
-              <Link2 className="w-4 h-4" />
-              Links
-            </TabsTrigger>
-            <TabsTrigger value="payment-methods" className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
-              Payments
             </TabsTrigger>
             <TabsTrigger value="affiliates" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -1028,25 +1007,6 @@ const BitKodeAffiliateManagement = () => {
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab - NEW */}
-          <TabsContent value="analytics">
-            <AnalyticsDashboard affiliateId="admin" />
-          </TabsContent>
-
-          {/* Tiers Tab - NEW */}
-          <TabsContent value="tiers">
-            <TierSystem affiliateId="admin" />
-          </TabsContent>
-
-          {/* Links Tab - NEW */}
-          <TabsContent value="links">
-            <LinkGenerator affiliateId="admin" />
-          </TabsContent>
-
-          {/* Payment Methods Tab - NEW */}
-          <TabsContent value="payment-methods">
-            <PaymentMethods affiliateId="admin" />
-          </TabsContent>
 
           {/* Settings Tab */}
           <TabsContent value="settings">

@@ -3,9 +3,9 @@ import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useCODSettings } from '@/hooks/useCODSettings';
 import { Card, CardContent } from '@/components/ui/card';
-import { CreditCard, RefreshCw, Info, AlertCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { CreditCard, RefreshCw, QrCode, Info, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getBankAccountsForPayment, BankAccount } from '@/services/bankAccountService';
 
 interface PaymentMethodInfoProps {
   paymentMethod: string;
@@ -17,34 +17,11 @@ const PaymentMethodInfo = ({ paymentMethod, totalAmount }: PaymentMethodInfoProp
   const { t } = useLanguage();
   const { data: codSettings } = useCODSettings();
   const [showRefreshAnimation, setShowRefreshAnimation] = useState(false);
-  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
-  const [loadingBanks, setLoadingBanks] = useState(true);
 
   const handleRefreshRate = () => {
     setShowRefreshAnimation(true);
     refreshRate();
     setTimeout(() => setShowRefreshAnimation(false), 1000);
-  };
-
-  useEffect(() => {
-    if (paymentMethod && (paymentMethod.includes('Bank Transfer') || paymentMethod.includes('QRIS'))) {
-      loadBankAccounts();
-    }
-  }, [paymentMethod]);
-
-  const loadBankAccounts = async () => {
-    if (!paymentMethod) return;
-    
-    setLoadingBanks(true);
-    try {
-      const accounts = await getBankAccountsForPayment(paymentMethod);
-      setBankAccounts(accounts);
-      console.log('🏦 [PaymentMethodInfo] Loaded bank accounts:', accounts);
-    } catch (error) {
-      console.error('❌ [PaymentMethodInfo] Error loading bank accounts:', error);
-    } finally {
-      setLoadingBanks(false);
-    }
   };
 
   if (!paymentMethod) return null;
@@ -64,69 +41,6 @@ const PaymentMethodInfo = ({ paymentMethod, totalAmount }: PaymentMethodInfoProp
       <p className="text-2xl font-bold text-primary">¥{totalAmount.toLocaleString()}</p>
     </div>
   );
-
-  // Render dynamic bank accounts
-  const renderBankAccounts = () => {
-    if (loadingBanks) {
-      return (
-        <div className="flex items-center justify-center py-4">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-          <span className="text-blue-600">Loading bank accounts...</span>
-        </div>
-      );
-    }
-
-    if (bankAccounts.length === 0) {
-      return (
-        <div className="text-center py-4">
-          <span className="text-gray-500">No bank accounts available</span>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-4">
-        {bankAccounts.map((account) => (
-          <div key={account.id} className={`p-3 rounded-lg border ${
-            account.isDefault ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
-          }`}>
-            {account.isDefault && (
-              <div className="text-xs text-blue-600 font-medium mb-2">⭐ Recommended</div>
-            )}
-            <div className="space-y-2">
-              <div>
-                <span className="text-gray-600 block">{t('checkout.bank')}</span>
-                <span className="font-medium">{account.bankName}</span>
-                {account.branch && (
-                  <span className="text-sm text-gray-500 ml-2">({account.branch})</span>
-                )}
-              </div>
-              <div>
-                <span className="text-gray-600 block">{t('checkout.accountNumber')}</span>
-                <span className="font-medium">{account.accountNumber}</span>
-              </div>
-              <div>
-                <span className="text-gray-600 block">{t('checkout.accountName')}</span>
-                <span className="font-medium">{account.accountHolderName}</span>
-              </div>
-              {account.bankCode && (
-                <div>
-                  <span className="text-gray-600 block">Bank code:</span>
-                  <span className="font-medium">{account.bankCode}</span>
-                </div>
-              )}
-              {account.branchCode && (
-                <div>
-                  <span className="text-gray-600 block">Branch code:</span>
-                  <span className="font-medium">{account.branchCode}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   // Render Bank Transfer (Rupiah) method
   const renderBankTransferRupiah = () => (
@@ -184,22 +98,29 @@ const PaymentMethodInfo = ({ paymentMethod, totalAmount }: PaymentMethodInfoProp
       
       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
         <h4 className="font-medium text-gray-800 mb-3">{t('checkout.accountInfo')}</h4>
-        {renderBankAccounts()}
+        <div className="space-y-2">
+          <div>
+            <span className="text-gray-600 block">{t('checkout.bank')}</span>
+            <span className="font-medium">Bank BRI</span>
+          </div>
+          <div>
+            <span className="text-gray-600 block">{t('checkout.accountNumber')}</span>
+            <span className="font-medium">0409 0100 2213 564</span>
+          </div>
+          <div>
+            <span className="text-gray-600 block">{t('checkout.accountName')}</span>
+            <span className="font-medium">INJAPAN LINK INDONESIA</span>
+          </div>
+        </div>
       </div>
       
       <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
         <h4 className="font-medium text-blue-800 mb-2">{t('checkout.paymentInstructions')}</h4>
         <ol className="list-decimal ml-5 space-y-1 text-blue-700 text-sm">
-          {bankAccounts.length > 0 ? (
-            <>
-              <li>Transfer to one of the bank accounts above (recommended account is marked with ⭐)</li>
-              <li>Transfer dengan nominal yang tepat: ¥{totalAmount.toLocaleString()} / Rp{convertedRupiah?.toLocaleString('id-ID') || '-'}</li>
-              <li>Simpan bukti pembayaran (screenshot atau foto resi transfer)</li>
-              <li>{t('checkout.uploadProofStep')}</li>
-            </>
-          ) : (
-            <li>Bank account information is being loaded...</li>
-          )}
+          <li>Lakukan transfer ke rekening berikut: Bank BRI 0409 0100 2213 564 a.n. INJAPAN LINK INDONESIA</li>
+          <li>Transfer dengan nominal yang tepat: ¥{totalAmount} / Rp{convertedRupiah?.toLocaleString('id-ID') || '-'}</li>
+          <li>Simpan bukti pembayaran (screenshot atau foto resi transfer)</li>
+          <li>{t('checkout.uploadProofStep')}</li>
         </ol>
       </div>
     </>
@@ -213,22 +134,37 @@ const PaymentMethodInfo = ({ paymentMethod, totalAmount }: PaymentMethodInfoProp
       
       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
         <h4 className="font-medium text-gray-800 mb-3">{t('checkout.accountInfo')}</h4>
-        {renderBankAccounts()}
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('checkout.bank')}</span>
+            <span className="font-medium">Yucho Bank (ゆうちょ銀行)</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('checkout.accountNumber')}</span>
+            <span className="font-medium">22210551</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('checkout.accountName')}</span>
+            <span className="font-medium">Heri Kurnianta</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Bank code:</span>
+            <span className="font-medium">11170</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Branch code:</span>
+            <span className="font-medium">118</span>
+          </div>
+        </div>
       </div>
       
       <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
         <h4 className="font-medium text-blue-800 mb-2">{t('checkout.paymentInstructions')}</h4>
         <ol className="list-decimal ml-5 space-y-1 text-blue-700 text-sm">
-          {bankAccounts.length > 0 ? (
-            <>
-              <li>Transfer to one of the Yucho Bank accounts above</li>
-              <li>Use exact amount: ¥{totalAmount.toLocaleString()}</li>
-              <li>Save your payment proof (screenshot/photo)</li>
-              <li>{t('checkout.uploadProofStep')}</li>
-            </>
-          ) : (
-            <li>Bank account information is being loaded...</li>
-          )}
+          <li>{t('checkout.transferYuchoStep1')}</li>
+          <li>{t('checkout.transferYuchoStep2')}</li>
+          <li>{t('checkout.transferYuchoStep3')}</li>
+          <li>{t('checkout.uploadProofStep')}</li>
         </ol>
       </div>
     </>

@@ -47,6 +47,7 @@ import FinancialReports from '@/pages/admin/FinancialReports';
 import CODSettings from '@/pages/admin/CODSettings';
 import BundleManagement from '@/pages/admin/BundleManagement';
 import { CouponManagement } from '@/pages/admin/CouponManagement';
+import BankInformationManagement from '@/pages/admin/BankInformationManagement';
 
 // User affiliate pages
 import AffiliateDashboard from '@/pages/affiliate/AffiliateDashboard';
@@ -166,6 +167,7 @@ function App() {
             <Route path="/admin/bundle-management" element={<BundleManagement />} />
             <Route path="/admin/bundle-management/:id" element={<BundleManagement />} />
             <Route path="/admin/coupons" element={<CouponManagement />} />
+            <Route path="/admin/bank-information" element={<BankInformationManagement />} />
             
             {/* 404 route */}
             <Route path="*" element={<NotFound />} />

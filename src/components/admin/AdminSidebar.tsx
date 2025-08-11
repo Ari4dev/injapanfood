@@ -13,7 +13,8 @@ import {
   CreditCard,
   Percent,
   DollarSign,
-  ShoppingBag
+  ShoppingBag,
+  Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -107,6 +108,12 @@ const AdminSidebar = () => {
       href: '/admin/coupons',
       icon: Percent,
       description: t('admin.manageCouponDesc', 'Kelola kupon & promo')
+    },
+    {
+      title: t('admin.bankInformation', 'Bank Information'),
+      href: '/admin/bank-information',
+      icon: Wallet,
+      description: t('admin.bankInfoDesc', 'Manage bank accounts')
     },
     {
       title: 'Import/Export',
