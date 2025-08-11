@@ -3,19 +3,17 @@ name: Deploy to VPS
 on:
   push:
     branches: [ main ]  # Deploy ketika push ke branch main
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -26,19 +24,94 @@ jobs:
     - name: Build project
       run: npm run build
       
-    - name: Deploy to VPS
-      uses: appleboy/ssh-action@v0.1.7
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v4
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
-        port: ${{ secrets.PORT }}
+        name: dist-files
+        path: dist/
+        retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Test SSH Connection
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_PRIVATE_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        timeout: 30s
         script: |
-          cd /path/to/your/project
-          git pull origin main
-          npm ci
+          echo "SSH connection successful!"
+          whoami
+          pwd
+          
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_PRIVATE_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        timeout: 300s
+        command_timeout: 30m
+        script: |
+          set -e  # Exit on error
+          echo "🚀 Starting deployment process..."
+          
+          # Define project directory
+          PROJECT_DIR="/var/www/injapanfood"
+          if [ ! -d "$PROJECT_DIR" ]; then
+            PROJECT_DIR="/home/${{ secrets.VPS_USERNAME }}/injapanfood"
+          fi
+          
+          echo "📁 Project directory: $PROJECT_DIR"
+          
+          # Navigate to project directory
+          if [ -d "$PROJECT_DIR" ]; then
+            cd "$PROJECT_DIR"
+            echo "✅ Changed to project directory"
+          else
+            echo "❌ Project directory not found!"
+            exit 1
+          fi
+          
+          # Check git status
+          echo "📦 Checking git status..."
+          git status
+          
+          # Pull latest changes
+          echo "⬇️ Pulling latest changes..."
+          git fetch origin main
+          git reset --hard origin/main
+          
+          # Install dependencies
+          echo "📋 Installing dependencies..."
+          npm ci --production
+          
+          # Build project
+          echo "🔨 Building project..."
           npm run build
-          # Restart service jika diperlukan
-          sudo systemctl restart your-app-service
-          # Atau reload nginx
-          sudo nginx -s reload
+          
+          # Optional: Restart services
+          if command -v pm2 &> /dev/null; then
+            echo "🔄 Restarting PM2 processes..."
+            pm2 restart all || echo "⚠️ PM2 restart failed or no processes found"
+          fi
+          
+          if command -v nginx &> /dev/null; then
+            echo "🔄 Reloading Nginx..."
+            sudo nginx -t && sudo nginx -s reload || echo "⚠️ Nginx reload failed"
+          fi
+          
+          echo "✅ Deployment completed successfully!"
+          echo "📊 Final project status:"
+          ls -la
+          echo "🎉 Injapan Food updated to latest version!"
